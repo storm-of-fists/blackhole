@@ -1,0 +1,53 @@
+workspace(name = "my_workspace")
+
+# LOAD RUST -----------------------------
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_rust",
+    sha256 = "dd79bd4e2e2adabae738c5e93c36d351cf18071ff2acf6590190acf4138984f6",
+    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.14.0/rules_rust-v0.14.0.tar.gz"],
+)
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+
+rules_rust_dependencies()
+
+RUST_VERSION = "1.65.0"
+
+rust_register_toolchains(version=RUST_VERSION, edition="2021")
+
+# PULL IN OTHER CRATES -------------------------------
+
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+crate_universe_dependencies()
+
+load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository", "render_config")
+load("//third_party/rust:crates.bzl", "third_party_crates")
+
+crates_repository(
+    name = "third_party",
+    rust_version = RUST_VERSION,
+    cargo_lockfile = "//third_party/rust:Cargo.Bazel.lock",
+    lockfile = "//third_party/rust:cargo-bazel-lock.json",
+    packages = {
+        name: crate.spec(
+            version = info["version"],
+            features = info.get("features", []),
+            default_features = info.get("default_features", True),
+        )
+        for name, info in third_party_crates.items()
+    },
+    # Setting the default package name to `""` forces the use of the macros defined in this repository
+    # to always use the root package when looking for dependencies or aliases. This should be considered
+    # optional as the repository also exposes alises for easy access to all dependencies.
+    render_config = render_config(
+        default_package_name = ""
+    ),
+)
+
+load("@third_party//:defs.bzl", "crate_repositories")
+
+crate_repositories()
+
+# END -----------------------------------
