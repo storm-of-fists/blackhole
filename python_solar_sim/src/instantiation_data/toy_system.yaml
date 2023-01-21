@@ -1,0 +1,14 @@
+name: toy_system
+bodies:
+    obj1:
+        mass: 100
+        pos: [10, 10, 10]
+    obj2:
+        mass: 200
+        pos: [-10, -10, -10]
+    obj3:
+        mass: 300
+        pos: [0, 0, 5]
+        parent: obj1
+
+  

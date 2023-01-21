@@ -1,0 +1,60 @@
+name: sol_system
+bodies:
+    sol:
+        mass: 1.9891e+30
+        vel: [0.0, 0.0, 10000.0]
+        enum: 0
+    mercury:
+        mass: 3.3011e+23
+        pos: [6.98169e+10, 0.0, 0.0]
+        vel: [0.0, 3.886e+4,0.0]
+        enum: 1
+        parent: sol
+    venus:
+        mass: 4.87e+24
+        pos: [0.0, 0.0, 0.0]
+        vel: [0.0, 0.0, 0.0]
+        enum: 2
+        parent: sol
+    earth:
+        mass: 5.972e+24
+        pos: [1.5210e+11, 0.0, 0.0]
+        vel: [0.0, 2.929e+4, 0.0]
+        enum: 3
+        parent: sol
+    # moon:
+    #     mass: 7.34767309e+22
+    #     pos: [4.045e+8, 0.0, 0.0]
+    #     vel: [0.0, 9.7e+2, 0.0]
+    #     enum: 301
+    #     parent: earth
+    mars:
+        mass: 6.39e+23
+        pos: [2.492e+11, 0.0, 0.0]
+        vel: [0.0, 2.2e+4, 0.0]
+        enum: 4
+        parent: sol
+    # jupiter:
+    #     mass: 1.898e+27
+    #     pos: [0, 0, 0]
+    #     vel: [0, 0, 0]
+    #     enum: 5
+    #     parent: sol
+    # saturn:
+    #     mass: 5.68e+26
+    #     pos: [0, 0, 0]
+    #     vel: [0, 0, 0]
+    #     enum: 6
+    #     parent: sol
+    # uranus:
+    #     mass: 8.68e+25
+    #     pos: [0, 0, 0]
+    #     vel: [0, 0, 0]
+    #     enum: 7
+    #     parent: sol
+    # neptune:
+    #     mass: 1.02e+26
+    #     pos: [0, 0, 0]
+    #     vel: [0, 0, 0]
+    #     enum: 8
+    #     parent: sol
