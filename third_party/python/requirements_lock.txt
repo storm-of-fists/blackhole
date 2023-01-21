@@ -1,6 +1,11 @@
-astropy==4.1
+astropy==5.2
 numpy==1.19.5
 PyYAML==5.4.1
+jplephem==2.16
+packaging==21.0
+pyerfa==2.0
+pyparsing==3.0.9
+progress==1.6
 
 # argon2-cffi==20.1.0
 # async-generator==1.10
@@ -20,7 +25,6 @@ PyYAML==5.4.1
 # ipywidgets==7.6.3
 # jedi==0.18.0
 # Jinja2==3.0.1
-# jplephem==2.16
 # jsonschema==3.2.0
 # jupyter==1.0.0
 # jupyter-client==6.2.0
@@ -70,3 +74,4 @@ PyYAML==5.4.1
 # webencodings==0.5.1
 # widgetsnbextension==3.5.1
 # zipp==3.5.0
+# 
