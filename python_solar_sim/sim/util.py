@@ -1,11 +1,10 @@
 import csv
 import yaml
-# from constants import PATH
-import constants
+import const
 
 class DataHandler:
 
-    output_path = constants.DIR_PATH / "output"
+    output_path = const.DIR_PATH / "output"
     output_type = '.csv'
     output_data = {}
 

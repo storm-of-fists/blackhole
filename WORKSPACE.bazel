@@ -1,6 +1,6 @@
 workspace(name = "my_workspace")
 
-# LOAD RUST -----------------------------
+### RUST RULES ###
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
@@ -17,7 +17,7 @@ RUST_VERSION = "1.65.0"
 
 rust_register_toolchains(version=RUST_VERSION, edition="2021")
 
-# PULL IN OTHER CRATES -------------------------------
+### RUST THIRD PARTY ###
 
 load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
 crate_universe_dependencies()
@@ -26,7 +26,7 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository", "rend
 load("//third_party/rust:crates.bzl", "third_party_crates")
 
 crates_repository(
-    name = "third_party",
+    name = "third_party_rust",
     rust_version = RUST_VERSION,
     cargo_lockfile = "//third_party/rust:Cargo.Bazel.lock",
     lockfile = "//third_party/rust:cargo-bazel-lock.json",
@@ -46,8 +46,43 @@ crates_repository(
     ),
 )
 
-load("@third_party//:defs.bzl", "crate_repositories")
+load("@third_party_rust//:defs.bzl", "crate_repositories")
 
 crate_repositories()
+
+### PYTHON RULES ###
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_python",
+    sha256 = "48a838a6e1983e4884b26812b2c748a35ad284fd339eb8e2a6f3adf95307fbcd",
+    strip_prefix = "rules_python-0.16.2",
+    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.16.2.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
+
+python_register_toolchains(
+    name = "python3_9",
+    # Available versions are listed in @rules_python//python:versions.bzl.
+    # We recommend using the same version your team is already standardized on.
+    python_version = "3.9",
+)
+
+load("@python3_9//:defs.bzl", "interpreter")
+
+### PIP THIRD PARTY ###
+load("@rules_python//python:pip.bzl", "pip_parse")
+
+pip_parse(
+    name = "third_party_python",
+    requirements_lock  = "//third_party/python:requirements_lock.txt",
+    python_interpreter_target = interpreter
+)
+
+# Load the starlark macro which will define your dependencies.
+load("@third_party_python//:requirements.bzl", "install_deps")
+# Call it to define repos for your requirements.
+install_deps()
 
 # END -----------------------------------

@@ -1,8 +1,8 @@
 import numpy as np
-from constants import (
+from const import (
     G,
 )
-from utilities import parse_yaml
+from util import parse_yaml
 from jplephem.spk import SPK
 from astropy.time import Time
 

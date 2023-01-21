@@ -1,0 +1,31 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_binary")
+load("@third_party_python//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    deps = [":solver", ":const", ":system", ":util"]
+)
+
+py_library(
+    name = "solver",
+    srcs = ["solver.py"],
+    deps = [requirement("numpy")]
+)
+
+py_library(
+    name = "const",
+    srcs = ["const.py"],
+)
+
+py_library(
+    name = "system",
+    srcs = ["system.py"],
+    deps = [requirement("numpy"), ":const", ":util"]
+)
+
+py_library(
+    name = "util",
+    srcs = ["util.py"],
+    deps = [":const", requirement("PyYAML")]
+)

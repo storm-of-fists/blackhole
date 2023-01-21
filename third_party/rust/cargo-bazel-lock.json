@@ -1,5 +1,5 @@
 {
-  "checksum": "29dea6f1c2d9803e870613a036232b9c7a5aa2f1abf36443d4f5079550454f12",
+  "checksum": "3009fc5ce656a35c072db08f91268f57d06dd0d2862d94cbcd852607c202c2f7",
   "crates": {
     "adler 1.0.2": {
       "name": "adler",
@@ -1257,7 +1257,7 @@
           "selects": {
             "cfg(not(any(windows, target_os = \"hermit\", target_os = \"unknown\")))": [
               {
-                "id": "rustix 0.36.6",
+                "id": "rustix 0.36.7",
                 "target": "rustix"
               }
             ],
@@ -2644,13 +2644,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "rustix 0.36.6": {
+    "rustix 0.36.7": {
       "name": "rustix",
-      "version": "0.36.6",
+      "version": "0.36.7",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/rustix/0.36.6/download",
-          "sha256": "4feacf7db682c6c329c4ede12649cd36ecab0f3be5b7d74e6a20304725db4549"
+          "url": "https://crates.io/api/v1/crates/rustix/0.36.7/download",
+          "sha256": "d4fdebc4b395b7fbb9ab11e462e20ed9051e7b16e42d24042c776eca0ac81b03"
         }
       },
       "targets": [
@@ -2703,7 +2703,7 @@
               "target": "io_lifetimes"
             },
             {
-              "id": "rustix 0.36.6",
+              "id": "rustix 0.36.7",
               "target": "build_script_build"
             }
           ],
@@ -2744,7 +2744,7 @@
           }
         },
         "edition": "2018",
-        "version": "0.36.6"
+        "version": "0.36.7"
       },
       "build_script_attrs": {
         "data_glob": [

@@ -6,8 +6,8 @@ rust_library(
     name = "base",
     srcs = ["base.rs"],
     deps = [
-       "@third_party//:env_logger",
-       "@third_party//:log",
-       "@third_party//:eyre",
+       "@third_party_rust//:env_logger",
+       "@third_party_rust//:log",
+       "@third_party_rust//:eyre",
     ],
 )
