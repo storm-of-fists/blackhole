@@ -1,5 +1,5 @@
-#ifndef utility_h
-#define utility_h
+#ifndef base_h
+#define base_h
 
 #include <stdio.h>
 #include <math.h>

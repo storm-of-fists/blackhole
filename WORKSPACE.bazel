@@ -62,14 +62,16 @@ http_archive(
 
 load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 
+PYTHON_VERSION = "3.9"
+
 python_register_toolchains(
-    name = "python3_9",
+    name = "python3",
     # Available versions are listed in @rules_python//python:versions.bzl.
     # We recommend using the same version your team is already standardized on.
-    python_version = "3.9",
+    python_version = PYTHON_VERSION,
 )
 
-load("@python3_9//:defs.bzl", "interpreter")
+load("@python3//:defs.bzl", "interpreter")
 
 ### PIP THIRD PARTY ###
 load("@rules_python//python:pip.bzl", "pip_parse")
@@ -79,6 +81,17 @@ pip_parse(
     requirements_lock  = "//third_party/python:requirements_lock.txt",
     python_interpreter_target = interpreter
 )
+
+# Create a central repo that knows about the dependencies needed from Pipfile.lock
+# Each dependency will only be loaded if needed by a target.
+# load("//tools/python/pipenv:defs.bzl", "pipenv_parse")
+# pipenv_parse(
+#     name="third_party_python",
+#     pipfile="//third_party/python:Pipfile",
+#     pipfile_lock="//third_party/python:Pipfile.lock",
+#     python_interpreter_target=interpreter,
+# )
+# steal this https://github.com/jacksmith15/bazel-python-demo
 
 # Load the starlark macro which will define your dependencies.
 load("@third_party_python//:requirements.bzl", "install_deps")

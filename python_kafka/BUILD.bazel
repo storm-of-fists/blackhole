@@ -1,0 +1,11 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_binary")
+load("@third_party_python//:requirements.bzl", "requirement")
+
+py_binary(
+    name="main",
+    srcs=["main.py"],
+    deps=[
+        "//base/python:base",
+        requirement("kafka-python")
+    ],
+)

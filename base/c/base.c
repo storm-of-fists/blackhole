@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "utility.h"
+#include "base.h"
 
 int FileManager(int (*f)(int)) {
     return f(3);
@@ -76,6 +76,6 @@ directionT OppositeDirection(directionT dir) {
         case east: return (west);
         case west: return (east);
         case south: return (north);
-        default: perror("illegal direction value");
+        default: perror("illegal direction value"); return north;
     }
 }
