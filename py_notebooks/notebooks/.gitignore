@@ -1,3 +1,3 @@
-!user/README.mk
-user/*
+user/
+!user/README.md
 .ipynb_checkpoints
