@@ -1,2 +1,2 @@
-user/**
-.ipynb_checkpoints/**
+user/
+.ipynb_checkpoints
