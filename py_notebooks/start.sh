@@ -1,0 +1,3 @@
+#! /bin/bash
+bazel build //py_notebooks/...
+../bazel-bin/py_notebooks/jupyter
