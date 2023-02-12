@@ -1,4 +1,4 @@
-import base.python.base as base
+import base.python as base
 import asyncio
 from kafka import (
     KafkaConsumer,

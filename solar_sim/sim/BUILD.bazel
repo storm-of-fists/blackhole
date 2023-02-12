@@ -46,3 +46,12 @@ py_library(
         requirement("PyYAML")
     ]
 )
+
+py_library(
+    name = "plotter",
+    srcs = ["plotter.py"],
+    deps = [
+        ":const", 
+        requirement("matplotlib")
+    ]
+)

@@ -7,5 +7,6 @@ py_binary(
     deps = [
         "//base/python:base",
         requirement("notebook"),
+        requirement("matplotlib"),
     ],
 )

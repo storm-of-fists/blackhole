@@ -9,6 +9,6 @@ py_library(
 
 py_library(
     name = "base",
-    srcs = ["base.py"],
+    srcs = ["__init__.py"],
     deps = [":log"],
 )

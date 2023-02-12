@@ -8,3 +8,4 @@ pyparsing==3.0.9
 progress==1.6
 kafka-python==2.0.2
 notebook==6.5.2
+matplotlib==3.6.0

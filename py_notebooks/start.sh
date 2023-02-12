@@ -1,3 +1,4 @@
 #! /bin/bash
 bazel build //py_notebooks/...
-../bazel-bin/py_notebooks/jupyter
+path=$(dirname -- "$0")
+$path/../bazel-bin/py_notebooks/jupyter
