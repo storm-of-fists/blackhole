@@ -1,12 +1,19 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@third_party_python//:requirements.bzl", "requirement")
 
+# Inspired by https://github.com/michael-quinlan/jupyter-bazel
+
 py_binary(
     name = "jupyter",
     srcs = ["jupyter.py"],
     deps = [
         "//base/python:base",
+        "//solar_sim/sim:const",
         requirement("notebook"),
+        requirement("numpy"),
         requirement("matplotlib"),
+        requirement("jplephem"),
+        requirement("astropy"),
+        requirement("PyYAML"),
     ],
 )
