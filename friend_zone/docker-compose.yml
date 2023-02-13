@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+  minecraft_server:
+    image: marctv/minecraft-papermc-server:1.19
+    restart: unless-stopped
+    volumes:
+      - ./minecraft/server:/data:rw
+    ports:
+      - "25565:25565/udp"
+      - "25565:25565/tcp"
+    environment:
+      - MEMORYSIZE=2G
+      - PUID=1000
+      - PGID=1000
+      - TZ=US
+  # insurgency-sandstorm:
+  #   image: andrewmhub/insurgency-sandstorm:latest
+  #   container_name: insurgency-sandstorm
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ${INSURGENCY_DIR}/config/ini:/home/steam/steamcmd/sandstorm/Insurgency/Saved/Config/LinuxServer:ro
+  #     - ${INSURGENCY_DIR}/config/txt:/home/steam/steamcmd/sandstorm/Insurgency/Config/Server:ro
+  #     - ${INSURGENCY_DIR}/mods:/home/steam/steamcmd/sandstorm/Insurgency/Mods:rw
+  #   ports:
+  #     - "${PORT}:${PORT}"
+  #     - "${QUERYPORT}:${QUERYPORT}"
+      # friend_zone:
+      #   image: python:3.9.9-alpine3.15
+      #   build: 
+      #     context: ./friend_zone
+      #     dockerfile: dockerfile_friendzone
+      #   # restart: unless-stopped
+      #   command: uvicorn main:app
