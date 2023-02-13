@@ -1,0 +1,16 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_binary")
+load("@third_party_python//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_binary(
+    name= "backup_worker",
+    srcs = ["backup_worker.py"],
+    deps = [
+        "//base/python:base",
+        requirement("dropbox"),
+    ],
+    data = [
+        ":access.token"
+    ]
+)
