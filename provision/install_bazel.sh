@@ -1,3 +1,5 @@
+#! /bin/bash
+
 bazel_target=bazelisk-linux-amd64
 bazel_version=1.15.0
 
