@@ -13,3 +13,5 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+*.token
