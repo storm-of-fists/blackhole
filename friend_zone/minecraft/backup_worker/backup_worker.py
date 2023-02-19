@@ -7,11 +7,12 @@ from pathlib import Path
 
 LOG = base.log.init("minecraft_backup_worker")
 
-TOKEN_PATH = Path("friend_zone/minecraft/backup_worker/access.token")
-TOKEN = TOKEN_PATH.read_text()
+# TOKEN = Path("friend_zone/minecraft/backup_worker/access.token").read_text()
 
-dbx = dropbox.Dropbox(TOKEN)
+# dbx = dropbox.Dropbox(TOKEN)
 
-user_act = dbx.users_get_current_account()
+# user_act = dbx.users_get_current_account()
 
-LOG.info(user_act)
+# LOG.info(user_act)
+
+LOG.info("nice")
