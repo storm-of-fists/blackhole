@@ -1,0 +1,2 @@
+# ensures container_pulls dont executre concurrently
+# startup --loading_phase_threads=1

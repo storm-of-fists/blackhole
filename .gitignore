@@ -15,3 +15,6 @@ target/
 .ipynb_checkpoints
 
 *.token
+
+# Docker
+user_docker_config.json
