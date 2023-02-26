@@ -154,7 +154,7 @@ docker_toolchain_configure(
   # in the client configuration JSON file.
   # See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files
   # for more details.
-  client_config="@//:user_docker_config.json",
+  client_config = "@//:user_docker_config.json",
 )
 
 load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
@@ -170,11 +170,19 @@ container_deps(
 load("@io_bazel_rules_docker//container:pull.bzl", "container_pull")
 
 container_pull(
-    name = "python_image",
+    name = "base_python_image",
     registry = "index.docker.io",
     repository = "python",
     tag = PYTHON_VERSION,
     digest = "sha256:6621526cfc89b4cbbc9af75b361d3f4c5c53b59a240e62a97d5699771cf7cc5a"
 )
+
+### PYTHON DOCKER IMAGE RULE ###
+load(
+    "@io_bazel_rules_docker//python3:image.bzl",
+    py_image_repos = "repositories",
+)
+
+py_image_repos()
 
 # END -----------------------------------
