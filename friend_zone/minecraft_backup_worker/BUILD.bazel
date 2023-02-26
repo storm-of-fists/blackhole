@@ -1,35 +1,14 @@
 load("@rules_python//python:defs.bzl", "py_library", "py_binary")
 load("@third_party_python//:requirements.bzl", "requirement")
-load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
-load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_push")
 
 package(default_visibility = ["//visibility:public"])
 
-py3_image(
+py_binary(
     name= "backup_worker",
-    # base = "@base_python_image//image",
     srcs = ["backup_worker.py"],
     deps = [
         "//base/python:base",
         requirement("dropbox"),
+        requirement("progress")
     ],
-    data = [
-        ":access.token"
-    ]
 )
-
-# container_image(
-#     name = "image",
-#     base = "@python_image//image",
-#     entrypoint = ["python", "backup_worker"],
-#     files = [":backup_worker"]
-# )
-
-# container_push(
-#    name = "push",
-#    image = ":image",
-#    format = "Docker",
-#    registry = "index.docker.io",
-#    repository = "contron44/blackhole",
-#    tag = "dev",
-# )

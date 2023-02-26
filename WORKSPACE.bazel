@@ -36,13 +36,6 @@ http_archive(
     urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.3.0.tar.gz"],
 )
 
-# Docker images
-http_archive(
-    name = "io_bazel_rules_docker",
-    sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
-)
-
 ### RUST RULES ###
 
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
@@ -140,49 +133,5 @@ rules_proto_grpc_python_repos()
 ### RUST PROTOBUF ###
 load("@rules_proto_grpc//rust:repositories.bzl", rules_proto_grpc_rust_repos = "rust_repos")
 rules_proto_grpc_rust_repos()
-
-### DOCKER DEPS ###
-# Load the macro that allows you to customize the docker toolchain configuration.
-load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
-    docker_toolchain_configure="toolchain_configure"
-)
-
-docker_toolchain_configure(
-  name = "docker_config",
-  # Replace this with a Bazel label to the config.json file. Note absolute or relative
-  # paths are not supported. Docker allows you to specify custom authentication credentials
-  # in the client configuration JSON file.
-  # See https://docs.docker.com/engine/reference/commandline/cli/#configuration-files
-  # for more details.
-  client_config = "@//:user_docker_config.json",
-)
-
-load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
-container_repositories()
-
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-container_deps(
-    # https://github.com/bazelbuild/rules_docker/issues/1902
-    go_repository_default_config = "@//:WORKSPACE.bazel"
-)
-
-### PYTHON DOCKER IMAGE ###
-load("@io_bazel_rules_docker//container:pull.bzl", "container_pull")
-
-container_pull(
-    name = "base_python_image",
-    registry = "index.docker.io",
-    repository = "python",
-    tag = PYTHON_VERSION,
-    digest = "sha256:6621526cfc89b4cbbc9af75b361d3f4c5c53b59a240e62a97d5699771cf7cc5a"
-)
-
-### PYTHON DOCKER IMAGE RULE ###
-load(
-    "@io_bazel_rules_docker//python3:image.bzl",
-    py_image_repos = "repositories",
-)
-
-py_image_repos()
 
 # END -----------------------------------

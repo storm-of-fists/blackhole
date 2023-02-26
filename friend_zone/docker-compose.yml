@@ -9,6 +9,8 @@ services:
     ports:
       - "25565:25565/udp"
       - "25565:25565/tcp"
+      - "8123:8123/udp"
+      - "8123:8123/tcp"
     environment:
       - MEMORYSIZE=2G
       - PUID=1000
