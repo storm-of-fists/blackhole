@@ -1,6 +1,8 @@
 SHELL := /bin/bash
 
 build:
+	# kinda weird, but --norun keeps bazel from running the container.
+	# this will create a tagged image, but not push it or anything.
 	bazel run :minecraft_backup_worker -- --norun
 
 up: build

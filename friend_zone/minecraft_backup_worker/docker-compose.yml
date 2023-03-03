@@ -6,7 +6,10 @@ services:
     restart: unless-stopped
     volumes:
       - /var/lib/minecraft_backup_worker:/credentials:r
-      - /home/connor/code/blackhole/friend_zone/minecraft_server:/server_data
+      - /home/connor/code/blackhole/friend_zone/minecraft_server/data:/server_data
+      - /tmp:/tmp
+      - type: tmpfs  # this is a cheat to mount a temp directory so we ignore plugins directory since its massive
+        target: /server_data/plugins/
     ports:
       - "443:443/tcp"
     environment:

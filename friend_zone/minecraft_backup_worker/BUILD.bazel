@@ -9,7 +9,6 @@ py3_image(
     deps = [
         "//base/python:base",
         requirement("dropbox"),
-        requirement("progress"),
         requirement("schedule")
     ],
 )
