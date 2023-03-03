@@ -1,14 +1,15 @@
-load("@rules_python//python:defs.bzl", "py_library", "py_binary")
+load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
 load("@third_party_python//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
 
-py_binary(
-    name= "backup_worker",
-    srcs = ["backup_worker.py"],
+py3_image(
+    name= "minecraft_backup_worker",
+    srcs = ["minecraft_backup_worker.py"],
     deps = [
         "//base/python:base",
         requirement("dropbox"),
-        requirement("progress")
+        requirement("progress"),
+        requirement("schedule")
     ],
 )

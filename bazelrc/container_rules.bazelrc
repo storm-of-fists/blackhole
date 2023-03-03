@@ -1,0 +1,3 @@
+# use the registered python toolchain for building py images
+build --incompatible_use_python_toolchains
+test --incompatible_use_python_toolchains

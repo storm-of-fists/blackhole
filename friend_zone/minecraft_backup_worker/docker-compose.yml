@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  minecraft_backup_worker:
+    image: bazel/friend_zone/minecraft_backup_worker:minecraft_backup_worker
+    restart: unless-stopped
+    volumes:
+      - /var/lib/minecraft_backup_worker:/credentials:r
+      - /home/connor/code/blackhole/friend_zone/minecraft_server:/server_data
+    ports:
+      - "443:443/tcp"
+    environment:
+      - MEMORYSIZE=0.5G
+      - PUID=1000
+      - PGID=1000
+      - TZ=US

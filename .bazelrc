@@ -1,2 +1,12 @@
-# ensures container_pulls dont executre concurrently
-# startup --loading_phase_threads=1
+# pulled a lot of stuff from https://docs.aspect.build/guides/bazelrc/
+import %workspace%/bazelrc/correctness.bazelrc
+import %workspace%/bazelrc/convenience.bazelrc
+import %workspace%/bazelrc/debug.bazelrc
+import %workspace%/bazelrc/performance.bazelrc
+import %workspace%/bazelrc/container_rules.bazelrc
+
+# Load any settings & overrides specific to the current user from `.aspect/bazelrc/user.bazelrc`.
+# This file should appear in `.gitignore` so that settings are not shared with team members. This
+# should be last statement in this config so the user configuration is able to overwrite flags from
+# this file. See https://bazel.build/configure/best-practices#bazelrc-file.
+try-import %workspace%/.aspect/bazelrc/user.bazelrc

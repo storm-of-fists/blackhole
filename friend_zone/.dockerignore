@@ -1,9 +1,0 @@
-venv/**
-.gitignore
-ideas.txt
-makefile
-pyvenv.cfg
-docker-compose.yml
-dockerfile
-handy_scripts/
-notes.md

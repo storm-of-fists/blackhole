@@ -36,6 +36,13 @@ http_archive(
     urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.3.0.tar.gz"],
 )
 
+# Docker archive
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
+)
+
 ### RUST RULES ###
 
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
@@ -133,5 +140,23 @@ rules_proto_grpc_python_repos()
 ### RUST PROTOBUF ###
 load("@rules_proto_grpc//rust:repositories.bzl", rules_proto_grpc_rust_repos = "rust_repos")
 rules_proto_grpc_rust_repos()
+
+### DOCKER DEPS ###
+load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
+container_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+container_deps(
+    # https://github.com/bazelbuild/rules_docker/issues/1902
+    go_repository_default_config = "@//:WORKSPACE.bazel"
+)
+
+### PYTHON CONTAINER RULES ###
+load("@io_bazel_rules_docker//python3:image.bzl", py_image_repos = "repositories")
+py_image_repos()
+# load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
+
+
+
 
 # END -----------------------------------
