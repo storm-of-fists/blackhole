@@ -49,8 +49,8 @@ DROPBOX_BACKUP_PATH = f"/{datetime.datetime.now()}_{ARCHIVE_NAME}.{ARCHIVE_TYPE}
 
 MAX_CHUNK_SIZE = int(1e8)  # 100 MB 1e7
 
-BACKUP_TIME_UTC = "10:00"  # 2am pst
-CHECK_INTERVAL = 60  # seconds
+BACKUP_TIME_UTC = "11:06"  # 2am pst
+CHECK_INTERVAL = 1  # seconds
 DELETE_BACKUP_TIME = datetime.timedelta(days=3)
 
 
