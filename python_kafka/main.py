@@ -1,29 +1,28 @@
 import base.python as base
-import asyncio
 from kafka import (
     KafkaConsumer,
     KafkaProducer
 )
+import time
 
-# LOG = base.log.init("kafka")
+LOG = base.log.init("test_kafka")
 TOPIC_NAME = "test"
 KAFKA_SERVER = "localhost:9092"
 
 consumer = KafkaConsumer(TOPIC_NAME)
 producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
 
-async def main():
-    # LOG.info("starting kafka loop")
+def main():
     while True:
-        producer.send(TOPIC_NAME, b"test message")
-        print("sent message")
-        # producer.flush()
-        # await asyncio.sleep(1.0)
-        print("reading messages")
+        producer.send(TOPIC_NAME, b"test message2")
+        producer.send(TOPIC_NAME, b"test message2")
+        producer.send(TOPIC_NAME, b"test message2")
+        producer.send(TOPIC_NAME, b"test message2")
+        producer.send(TOPIC_NAME, b"test message2")
+        LOG.info("sent message")
+        LOG.info("reading messages")
         for message in consumer:
-            print(message)
-            # LOG.info(message.value)
-        # asyncio.sleep(1.0)
-    
+            LOG.info(message)
+        time.sleep(1)
 
-asyncio.run(main())
+main()

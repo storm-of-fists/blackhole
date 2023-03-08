@@ -11,4 +11,7 @@ py3_image(
         requirement("dropbox"),
         requirement("schedule")
     ],
+    tags = [
+        "contron44/minecraft_backup_worker"
+    ]
 )

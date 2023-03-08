@@ -45,18 +45,17 @@ ARCHIVE_NAME = "minecraft_server_backup"
 ARCHIVE_FILE_FULL = f"{ARCHIVE_NAME}.{ARCHIVE_TYPE}"
 ARCHIVE_PATH = TMP_PATH / ARCHIVE_FILE_FULL
 
-DROPBOX_BACKUP_PATH = f"/{datetime.datetime.now()}_{ARCHIVE_NAME}.{ARCHIVE_TYPE}"
-
 MAX_CHUNK_SIZE = int(1e8)  # 100 MB 1e7
 
-BACKUP_TIME_UTC = "11:06"  # 2am pst
+BACKUP_TIME_UTC = "11:00"  # 3am pst
 CHECK_INTERVAL = 1  # seconds
 DELETE_BACKUP_TIME = datetime.timedelta(days=3)
 
 
 def backup_archive(dbx):
     try:
-        LOG.info(f"Uploading {ARCHIVE_FILE_FULL} to Dropbox as {DROPBOX_BACKUP_PATH} ...")
+        dropbox_backup_path = f"/{datetime.datetime.now()}_{ARCHIVE_NAME}.{ARCHIVE_TYPE}"
+        LOG.info(f"Uploading {ARCHIVE_FILE_FULL} to Dropbox as {dropbox_backup_path} ...")
 
         total_file_size = ARCHIVE_PATH.stat().st_size
         LOG.info(f"File size to be uploaded: {total_file_size}")
@@ -80,7 +79,7 @@ def backup_archive(dbx):
             dbx.files_upload_session_finish(
                 read_chunk,
                 UploadSessionCursor(session_id=upload_session.session_id, offset=offset),
-                CommitInfo(path=DROPBOX_BACKUP_PATH, mode=WriteMode('overwrite'))
+                CommitInfo(path=dropbox_backup_path, mode=WriteMode('overwrite'))
             )
 
             LOG.info("Upload session finished.")
