@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   minecraft_backup_worker:
-    image: bazel/friend_zone/minecraft_backup_worker:minecraft_backup_worker
+    image: contron44/minecraft_backup_worker:latest
     restart: unless-stopped
     volumes:
       - /var/lib/minecraft_backup_worker:/credentials:r

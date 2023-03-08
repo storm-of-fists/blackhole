@@ -8,10 +8,11 @@ sudo apt-get update
 
 # get curl for docker
 sudo apt-get install curl
+sudo apt-get install wget
 
-# install docker, includes docker compose cli
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh ./get-docker.sh
+sudo $path/install_docker.sh
 
 # Install bazel
 sudo $path/install_bazel.sh
+
+sudo $path/install_kubernetes.sh

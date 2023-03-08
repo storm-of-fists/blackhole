@@ -45,10 +45,10 @@ ARCHIVE_NAME = "minecraft_server_backup"
 ARCHIVE_FILE_FULL = f"{ARCHIVE_NAME}.{ARCHIVE_TYPE}"
 ARCHIVE_PATH = TMP_PATH / ARCHIVE_FILE_FULL
 
-MAX_CHUNK_SIZE = int(1e8)  # 100 MB 1e7
+MAX_CHUNK_SIZE = int(1e8)  # 100 MB 1e8
 
 BACKUP_TIME_UTC = "11:00"  # 3am pst
-CHECK_INTERVAL = 1  # seconds
+CHECK_INTERVAL = 60  # seconds
 DELETE_BACKUP_TIME = datetime.timedelta(days=3)
 
 
