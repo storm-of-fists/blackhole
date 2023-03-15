@@ -10,8 +10,29 @@ services:
       - /tmp:/tmp
       - type: tmpfs  # this is a cheat to mount a temp directory so we ignore plugins directory since its massive
         target: /server_data/plugins/
+    environment:
+      - MEMORYSIZE=0.5G
+      - PUID=1000
+      - PGID=1000
+      - TZ=US
+  minecraft_server:
+    image: marctv/minecraft-papermc-server:1.19
+    restart: unless-stopped
     ports:
-      - "443:443/tcp"
+    - 25565:25565
+    - 8123:8123
+    volumes:
+      - /home/connor/code/blackhole/friend_zone/minecraft_server/data:/data:rw
+    environment:
+      - MEMORYSIZE=2G
+      - PUID=1000
+      - PGID=1000
+      - TZ=US
+  friend_zone_rest_api:
+    image: contron44/friend_zone_rest_api:latest
+    restart: unless-stopped
+    ports:
+      - 8888:8888
     environment:
       - MEMORYSIZE=0.5G
       - PUID=1000

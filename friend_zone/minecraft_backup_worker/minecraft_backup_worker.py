@@ -49,7 +49,7 @@ MAX_CHUNK_SIZE = int(1e8)  # 100 MB 1e8
 
 BACKUP_TIME_UTC = "11:00"  # 3am pst
 CHECK_INTERVAL = 60  # seconds
-DELETE_BACKUP_TIME = datetime.timedelta(days=3)
+DELETE_BACKUP_TIME = datetime.timedelta(days=4)
 
 
 def backup_archive(dbx):

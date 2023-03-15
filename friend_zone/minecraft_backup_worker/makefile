@@ -8,16 +8,3 @@ build:
 
 push: build
 	docker push contron44/minecraft_backup_worker:latest
-
-up: build
-	docker compose -f docker-compose.yml up -d
-
-up_dev: build
-	docker compose -f docker-compose.yml --verbose up
-
-# stop:
-# 	docker stop contron44/minecraft_backup_worker:latest
-
-clean:
-	docker system prune
-	docker rm -vf $(docker ps -a -q)

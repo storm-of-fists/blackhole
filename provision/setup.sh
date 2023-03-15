@@ -12,7 +12,10 @@ sudo apt-get install wget
 
 sudo $path/install_docker.sh
 
-# Install bazel
-sudo $path/install_bazel.sh
+sudo $path/install_bazelisk.sh
 
 sudo $path/install_kubernetes.sh
+
+sudo $path/install_certbot.sh
+
+sudo $path/install_npx.sh

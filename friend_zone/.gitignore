@@ -1,2 +1,2 @@
-.env
-minecraft_server/
+insurgency_server/.env
+minecraft_server/data/

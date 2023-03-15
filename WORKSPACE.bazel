@@ -43,6 +43,14 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
 )
 
+# Nodejs
+http_archive(
+    name = "aspect_rules_js",
+    sha256 = "00e7b97b696af63812df0ca9e9dbd18579f3edd3ab9a56f227238b8405e4051c",
+    strip_prefix = "rules_js-1.23.0",
+    url = "https://github.com/aspect-build/rules_js/releases/download/v1.23.0/rules_js-v1.23.0.tar.gz",
+)
+
 ### RUST RULES ###
 
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
@@ -154,9 +162,30 @@ container_deps(
 ### PYTHON CONTAINER RULES ###
 load("@io_bazel_rules_docker//python3:image.bzl", py_image_repos = "repositories")
 py_image_repos()
-# load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
 
+### NODE JS ###
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
+rules_js_dependencies()
+
+load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains")
+
+nodejs_register_toolchains(
+    name = "nodejs",
+    node_version = DEFAULT_NODE_VERSION,
+)
+
+load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock")
+
+npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//third_party/javascript:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()
 
 
 # END -----------------------------------
