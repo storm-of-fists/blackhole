@@ -1,25 +1,48 @@
 import { 
     AppBar,
-    Box,
-    IconButton,
+    Button,
+    ButtonGroup,
     Toolbar,
-    Typography
+    Typography,
 } from "@suid/material";
-import { Routes, Route, A } from "@solidjs/router"
+import { type Component } from "solid-js";
+import { A } from "@solidjs/router"
 // import { createSignal } from "solid-js";
 
-export default function Header() {
+const HeaderMember: Component = (props) => {
+    const name = props.name;
+    const route = props.route ? `${props.route}` : `/${props.name}`;
     return <>
-        <Box>
-            <AppBar position="static">
-                <Toolbar>
-                    <nav>
-                        <Typography variant="h6" component="span"><A href = "/">Friendzone</A></Typography>
-                        <Typography variant="h6" component="span"><A href = "/about"> About</A></Typography>
-                        <Typography variant="h6" component="span"><A href = "/users"> Users</A></Typography>
-                    </nav>
-                </Toolbar>
-            </AppBar>
-        </Box> 
+        <Button><Typography variant="body1" component="span">
+            <A 
+            style={{
+                "text-decoration": "none",
+                "color": "inherit"
+            }}
+            href = {route}>{name}</A>
+        </Typography></Button>
     </>
 }
+
+const Header: Component = () => {
+    return <>
+        <AppBar 
+            position="static">
+            <Toolbar style={{
+                "min-height": 0,
+                "padding": 0
+            }}>
+                <nav style={{
+                    "min-height": 0,
+                    "padding": 0
+                }}>
+                    <HeaderMember name="home" route="/"/>
+                    <HeaderMember name="minecraft server" route="/minecraft_server"/>
+                    <HeaderMember name="users"/>
+                </nav>
+            </Toolbar>
+        </AppBar>
+    </>
+}
+
+export default Header;
