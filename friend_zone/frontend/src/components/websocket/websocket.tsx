@@ -7,7 +7,7 @@ const WebSocketDemo: Component = (props) => {
     const [ messageToSend, setMessageToSend ] = createSignal("")
     const [ messages, setMessages ] = createSignal([]);
     const [ warning, setWarning ] = createSignal();
-    const [ socketClosed, setSocketClosed ] = createSignal(false);
+    const [ socketClosed, setSocketClosed ] = createSignal(true);
 
     let socket = new ReconnectingWebSocket("ws://localhost:8001");
 
