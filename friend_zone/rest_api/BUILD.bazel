@@ -1,15 +1,16 @@
-# load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
-load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
+load("//tools/python:image.bzl", "py_image_combo")
 load("@third_party_python//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
 
-py3_image(
+py_image_combo(
     name= "rest_api",
     srcs = ["rest_api.py"],
+    main = "rest_api.py",
     deps = [
         "//base/python:base",
         requirement("fastapi"),
-        requirement("uvicorn")
+        requirement("uvicorn"),
+        requirement("redis"),
     ],
 )

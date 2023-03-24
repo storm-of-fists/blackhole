@@ -12,4 +12,5 @@ matplotlib==3.6.0
 dropbox==11.36.0
 schedule==1.1.0
 fastapi==0.92.0
-uvicorn==0.20.0
+uvicorn[standard]==0.20.0
+redis==4.5.2

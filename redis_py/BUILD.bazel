@@ -1,0 +1,14 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@third_party_python//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+py_binary(
+    name= "pubsub",
+    srcs = ["pubsub.py"],
+    main = "pubsub.py",
+    deps = [
+        "//base/python:base",
+        requirement("redis"),
+    ],
+)

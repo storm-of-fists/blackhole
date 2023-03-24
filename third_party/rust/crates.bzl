@@ -20,4 +20,15 @@ third_party_crates = {
     "kafka": {
         "version": "=0.9",
     },
+    "clap": {
+        "version": "=4.1.11",
+        "features": ["derive"]
+    },
+    "tokio": { 
+        "version": "=1", 
+        "features": ["full"]
+    },
+    "arrayvec": {
+        "version": "0.7.2",
+    },
 }

@@ -1,0 +1,16 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_binary(
+    name = "rocket",
+    srcs = [
+        "main.rs",
+    ],
+    deps = [
+       "//base/rust:base",
+       "//base/rust/context",
+       "//base/rust/raw_pointer",
+       "@third_party_rust//:tokio",
+    ],
+)

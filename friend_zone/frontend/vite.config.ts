@@ -5,7 +5,8 @@ import suidPlugin from "@suid/vite-plugin";
 export default defineConfig({
   plugins: [solidPlugin(), suidPlugin()],
   server: {
-    port: 3000,
+    port: 8000,
+    host: '127.0.0.1'
   },
   build: {
     target: 'esnext',
