@@ -11,6 +11,6 @@ rust_binary(
        "//base/rust:base",
        "//base/rust/context",
        "//base/rust/raw_pointer",
-       "@third_party_rust//:tokio",
+       "//base/rust/clock",
     ],
 )
