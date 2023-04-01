@@ -8,23 +8,29 @@ pub type ApplicationName = ArrayString<100>;
 /// Arguments for the rocket program.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-pub struct Args {
+pub struct ContextArgs {
     /// Name of the rocket.
     #[arg(short, long)]
-    application_name: ApplicationName,
+    application_id: ApplicationName,
+
+    /// Name of the rocket.
+    #[arg(short, long)]
+    asset_id: ApplicationName,
 }
 
 pub struct Context {
-    application_name: ApplicationName,
+    application_id: ApplicationName,
+    asset_id: ApplicationName
 }
 
 impl Context {
     pub fn new() -> Self {
-        let args = Args::parse();
+        let args = ContextArgs::parse();
         log::init();
 
         Self {
-            application_name: args.application_name,
+            application_id: args.application_id,
+            asset_id: args.asset_id,
         }
     }
 }

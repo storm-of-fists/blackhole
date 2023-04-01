@@ -1,5 +1,5 @@
 {
-  "checksum": "bc403935983ef7424c5338803426772b7762e97c93748b3238e67f1026dcb631",
+  "checksum": "671fdbd924f5e41e670f097c181d8d1047c7c0f3e5dc1943b144a53ab7f93b49",
   "crates": {
     "adler 1.0.2": {
       "name": "adler",
@@ -80,6 +80,92 @@
       },
       "license": "Unlicense OR MIT"
     },
+    "android_system_properties 0.1.5": {
+      "name": "android_system_properties",
+      "version": "0.1.5",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/android_system_properties/0.1.5/download",
+          "sha256": "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "android_system_properties",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "android_system_properties",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "libc 0.2.140",
+              "target": "libc"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.5"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "ansi_term 0.12.1": {
+      "name": "ansi_term",
+      "version": "0.12.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/ansi_term/0.12.1/download",
+          "sha256": "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ansi_term",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "ansi_term",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [],
+          "selects": {
+            "cfg(target_os = \"windows\")": [
+              {
+                "id": "winapi 0.3.9",
+                "target": "winapi"
+              }
+            ]
+          }
+        },
+        "edition": "2015",
+        "version": "0.12.1"
+      },
+      "license": "MIT"
+    },
     "arrayvec 0.7.2": {
       "name": "arrayvec",
       "version": "0.7.2",
@@ -116,6 +202,209 @@
         "version": "0.7.2"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "async-stream 0.3.4": {
+      "name": "async-stream",
+      "version": "0.3.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/async-stream/0.3.4/download",
+          "sha256": "ad445822218ce64be7a341abfb0b1ea43b5c23aa83902542a4542e78309d8e5e"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "async_stream",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "async_stream",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "futures-core 0.3.27",
+              "target": "futures_core"
+            },
+            {
+              "id": "pin-project-lite 0.2.9",
+              "target": "pin_project_lite"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "async-stream-impl 0.3.4",
+              "target": "async_stream_impl"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "0.3.4"
+      },
+      "license": "MIT"
+    },
+    "async-stream-impl 0.3.4": {
+      "name": "async-stream-impl",
+      "version": "0.3.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/async-stream-impl/0.3.4/download",
+          "sha256": "e4655ae1a7b0cdf149156f780c5bf3f1352bc53cbd9e0a361a7ef7b22947e965"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "async_stream_impl",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "async_stream_impl",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 1.0.109",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.4"
+      },
+      "license": "MIT"
+    },
+    "atoi 0.3.3": {
+      "name": "atoi",
+      "version": "0.3.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/atoi/0.3.3/download",
+          "sha256": "5c897df197d57c25b37df9d8fa2f93ddbfeee9ebd2264350ac79c8ec4b795885"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "atoi",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "atoi",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "num-traits 0.2.15",
+              "target": "num_traits"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.3"
+      },
+      "license": "MIT"
+    },
+    "atty 0.2.14": {
+      "name": "atty",
+      "version": "0.2.14",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/atty/0.2.14/download",
+          "sha256": "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "atty",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "atty",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [],
+          "selects": {
+            "cfg(target_os = \"hermit\")": [
+              {
+                "id": "hermit-abi 0.1.19",
+                "target": "hermit_abi"
+              }
+            ],
+            "cfg(unix)": [
+              {
+                "id": "libc 0.2.140",
+                "target": "libc"
+              }
+            ],
+            "cfg(windows)": [
+              {
+                "id": "winapi 0.3.9",
+                "target": "winapi"
+              }
+            ]
+          }
+        },
+        "edition": "2015",
+        "version": "0.2.14"
+      },
+      "license": "MIT"
     },
     "autocfg 1.1.0": {
       "name": "autocfg",
@@ -218,6 +507,42 @@
         "version": "2.0.2"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "bumpalo 3.12.0": {
+      "name": "bumpalo",
+      "version": "3.12.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/bumpalo/3.12.0/download",
+          "sha256": "0d261e256854913907f67ed06efbc3338dfe6179796deefc1ff763fc1aee5535"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "bumpalo",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "bumpalo",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "edition": "2021",
+        "version": "3.12.0"
+      },
+      "license": "MIT/Apache-2.0"
     },
     "byteorder 1.4.3": {
       "name": "byteorder",
@@ -371,6 +696,149 @@
       },
       "license": "MIT/Apache-2.0"
     },
+    "chrono 0.4.24": {
+      "name": "chrono",
+      "version": "0.4.24",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/chrono/0.4.24/download",
+          "sha256": "4e3c5919066adf22df73762e50cffcde3a758f2a848b113b586d1f86728b673b"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "chrono",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "chrono",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "clock",
+          "iana-time-zone",
+          "std",
+          "winapi"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "num-integer 0.1.45",
+              "target": "num_integer"
+            },
+            {
+              "id": "num-traits 0.2.15",
+              "target": "num_traits"
+            }
+          ],
+          "selects": {
+            "cfg(unix)": [
+              {
+                "id": "iana-time-zone 0.1.54",
+                "target": "iana_time_zone"
+              }
+            ],
+            "cfg(windows)": [
+              {
+                "id": "winapi 0.3.9",
+                "target": "winapi"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.4.24"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "clap 2.34.0": {
+      "name": "clap",
+      "version": "2.34.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/clap/2.34.0/download",
+          "sha256": "a0610544180c38b88101fecf2dd634b174a62eef6946f84dfc6a7127512b381c"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "clap",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "clap",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "ansi_term",
+          "atty",
+          "color",
+          "default",
+          "strsim",
+          "suggestions",
+          "vec_map"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "atty 0.2.14",
+              "target": "atty"
+            },
+            {
+              "id": "bitflags 1.3.2",
+              "target": "bitflags"
+            },
+            {
+              "id": "strsim 0.8.0",
+              "target": "strsim"
+            },
+            {
+              "id": "textwrap 0.11.0",
+              "target": "textwrap"
+            },
+            {
+              "id": "unicode-width 0.1.10",
+              "target": "unicode_width"
+            },
+            {
+              "id": "vec_map 0.8.2",
+              "target": "vec_map"
+            }
+          ],
+          "selects": {
+            "cfg(not(windows))": [
+              {
+                "id": "ansi_term 0.12.1",
+                "target": "ansi_term"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "2.34.0"
+      },
+      "license": "MIT"
+    },
     "clap 4.1.11": {
       "name": "clap",
       "version": "4.1.11",
@@ -506,7 +974,7 @@
               "target": "proc_macro_error"
             },
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -566,6 +1034,111 @@
         "version": "0.3.3"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "codespan-reporting 0.11.1": {
+      "name": "codespan-reporting",
+      "version": "0.11.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/codespan-reporting/0.11.1/download",
+          "sha256": "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "codespan_reporting",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "codespan_reporting",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "termcolor 1.2.0",
+              "target": "termcolor"
+            },
+            {
+              "id": "unicode-width 0.1.10",
+              "target": "unicode_width"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.11.1"
+      },
+      "license": "Apache-2.0"
+    },
+    "core-foundation-sys 0.8.3": {
+      "name": "core-foundation-sys",
+      "version": "0.8.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/core-foundation-sys/0.8.3/download",
+          "sha256": "5827cebf4670468b8772dd191856768aedcb1b0278a04f989f7766351917b9dc"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "core_foundation_sys",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "core_foundation_sys",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "core-foundation-sys 0.8.3",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.8.3"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT / Apache-2.0"
     },
     "crc 2.1.0": {
       "name": "crc",
@@ -709,6 +1282,249 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "cxx 1.0.94": {
+      "name": "cxx",
+      "version": "1.0.94",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/cxx/1.0.94/download",
+          "sha256": "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "cxx",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "cxx",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cxx 1.0.94",
+              "target": "build_script_build"
+            },
+            {
+              "id": "link-cplusplus 1.0.8",
+              "target": "link_cplusplus"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "cxxbridge-macro 1.0.94",
+              "target": "cxxbridge_macro"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "1.0.94"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cc 1.0.79",
+              "target": "cc"
+            },
+            {
+              "id": "cxxbridge-flags 1.0.94",
+              "target": "cxxbridge_flags"
+            }
+          ],
+          "selects": {}
+        },
+        "links": "cxxbridge1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "cxx-build 1.0.94": {
+      "name": "cxx-build",
+      "version": "1.0.94",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/cxx-build/1.0.94/download",
+          "sha256": "12cee708e8962df2aeb38f594aae5d827c022b6460ac71a7a3e2c3c2aae5a07b"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "cxx_build",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "cxx_build",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cc 1.0.79",
+              "target": "cc"
+            },
+            {
+              "id": "codespan-reporting 0.11.1",
+              "target": "codespan_reporting"
+            },
+            {
+              "id": "once_cell 1.17.1",
+              "target": "once_cell"
+            },
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "scratch 1.0.5",
+              "target": "scratch"
+            },
+            {
+              "id": "syn 2.0.10",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.94"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "cxxbridge-flags 1.0.94": {
+      "name": "cxxbridge-flags",
+      "version": "1.0.94",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/cxxbridge-flags/1.0.94/download",
+          "sha256": "7944172ae7e4068c533afbb984114a56c46e9ccddda550499caa222902c7f7bb"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "cxxbridge_flags",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "cxxbridge_flags",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "edition": "2018",
+        "version": "1.0.94"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "cxxbridge-macro 1.0.94": {
+      "name": "cxxbridge-macro",
+      "version": "1.0.94",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/cxxbridge-macro/1.0.94/download",
+          "sha256": "2345488264226bf682893e25de0769f3360aac9957980ec49361b083ddaa5bc5"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "cxxbridge_macro",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "cxxbridge_macro",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 2.0.10",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.94"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "direct-cargo-bazel-deps 0.0.1": {
       "name": "direct-cargo-bazel-deps",
       "version": "0.0.1",
@@ -757,6 +1573,10 @@
             {
               "id": "log 0.4.17",
               "target": "log"
+            },
+            {
+              "id": "mini-redis 0.4.1",
+              "target": "mini_redis"
             },
             {
               "id": "tokio 1.26.0",
@@ -833,7 +1653,7 @@
               "target": "log"
             },
             {
-              "id": "regex 1.7.2",
+              "id": "regex 1.7.3",
               "target": "regex"
             },
             {
@@ -1230,6 +2050,70 @@
       },
       "license": "MIT/Apache-2.0"
     },
+    "futures-core 0.3.27": {
+      "name": "futures-core",
+      "version": "0.3.27",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/futures-core/0.3.27/download",
+          "sha256": "86d7a0c1aa76363dac491de0ee99faf6941128376f1cf96f07db7603b7de69dd"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "futures_core",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "futures_core",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "alloc",
+          "default",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "futures-core 0.3.27",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.27"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "getrandom 0.2.8": {
       "name": "getrandom",
       "version": "0.2.8",
@@ -1323,7 +2207,7 @@
               "target": "proc_macro_error"
             },
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -1341,6 +2225,48 @@
         "version": "0.1.2"
       },
       "license": "MIT"
+    },
+    "heck 0.3.3": {
+      "name": "heck",
+      "version": "0.3.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/heck/0.3.3/download",
+          "sha256": "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "heck",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "heck",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "unicode-segmentation 1.10.1",
+              "target": "unicode_segmentation"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.3"
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "heck 0.4.1": {
       "name": "heck",
@@ -1377,6 +2303,51 @@
         "version": "0.4.1"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "hermit-abi 0.1.19": {
+      "name": "hermit-abi",
+      "version": "0.1.19",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/hermit-abi/0.1.19/download",
+          "sha256": "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "hermit_abi",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "hermit_abi",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "libc 0.2.140",
+              "target": "libc"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.19"
+      },
+      "license": "MIT/Apache-2.0"
     },
     "hermit-abi 0.2.6": {
       "name": "hermit-abi",
@@ -1491,6 +2462,153 @@
         "version": "2.1.0"
       },
       "license": "MIT/Apache-2.0"
+    },
+    "iana-time-zone 0.1.54": {
+      "name": "iana-time-zone",
+      "version": "0.1.54",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/iana-time-zone/0.1.54/download",
+          "sha256": "0c17cc76786e99f8d2f055c11159e7f0091c42474dcc3189fbab96072e873e6d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "iana_time_zone",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "iana_time_zone",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "fallback"
+        ],
+        "deps": {
+          "common": [],
+          "selects": {
+            "cfg(any(target_os = \"macos\", target_os = \"ios\"))": [
+              {
+                "id": "core-foundation-sys 0.8.3",
+                "target": "core_foundation_sys"
+              }
+            ],
+            "cfg(target_arch = \"wasm32\")": [
+              {
+                "id": "js-sys 0.3.61",
+                "target": "js_sys"
+              },
+              {
+                "id": "wasm-bindgen 0.2.84",
+                "target": "wasm_bindgen"
+              }
+            ],
+            "cfg(target_os = \"android\")": [
+              {
+                "id": "android_system_properties 0.1.5",
+                "target": "android_system_properties"
+              }
+            ],
+            "cfg(target_os = \"haiku\")": [
+              {
+                "id": "iana-time-zone-haiku 0.1.1",
+                "target": "iana_time_zone_haiku"
+              }
+            ],
+            "cfg(target_os = \"windows\")": [
+              {
+                "id": "windows 0.46.0",
+                "target": "windows"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.1.54"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "iana-time-zone-haiku 0.1.1": {
+      "name": "iana-time-zone-haiku",
+      "version": "0.1.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/iana-time-zone-haiku/0.1.1/download",
+          "sha256": "0703ae284fc167426161c2e3f1da3ea71d94b21bedbcc9494e92b28e334e3dca"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "iana_time_zone_haiku",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "iana_time_zone_haiku",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cxx 1.0.94",
+              "target": "cxx"
+            },
+            {
+              "id": "iana-time-zone-haiku 0.1.1",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.1"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cxx-build 1.0.94",
+              "target": "cxx_build"
+            }
+          ],
+          "selects": {}
+        }
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "indenter 0.3.3": {
       "name": "indenter",
@@ -1674,6 +2792,81 @@
       },
       "license": "MIT"
     },
+    "itoa 1.0.6": {
+      "name": "itoa",
+      "version": "1.0.6",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/itoa/1.0.6/download",
+          "sha256": "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "itoa",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "itoa",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "1.0.6"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "js-sys 0.3.61": {
+      "name": "js-sys",
+      "version": "0.3.61",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/js-sys/0.3.61/download",
+          "sha256": "445dde2150c55e483f3d8416706b97ec8e8237c307e5b7b4b8dd15e6af2a0730"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "js_sys",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "js_sys",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "wasm-bindgen 0.2.84",
+              "target": "wasm_bindgen"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.61"
+      },
+      "license": "MIT/Apache-2.0"
+    },
     "kafka 0.9.0": {
       "name": "kafka",
       "version": "0.9.0",
@@ -1787,6 +2980,39 @@
       },
       "license": "MIT"
     },
+    "lazy_static 1.4.0": {
+      "name": "lazy_static",
+      "version": "1.4.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/lazy_static/1.4.0/download",
+          "sha256": "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "lazy_static",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "lazy_static",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2015",
+        "version": "1.4.0"
+      },
+      "license": "MIT/Apache-2.0"
+    },
     "libc 0.2.140": {
       "name": "libc",
       "version": "0.2.140",
@@ -1848,6 +3074,78 @@
         "data_glob": [
           "**"
         ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "link-cplusplus 1.0.8": {
+      "name": "link-cplusplus",
+      "version": "1.0.8",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/link-cplusplus/1.0.8/download",
+          "sha256": "ecd207c9c713c34f95a097a5b029ac2ce6010530c7b49d7fea24d977dede04f5"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "link_cplusplus",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "link_cplusplus",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "link-cplusplus 1.0.8",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.8"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cc 1.0.79",
+              "target": "cc"
+            }
+          ],
+          "selects": {}
+        },
+        "links": "cplusplus"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -2028,6 +3326,48 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "matchers 0.0.1": {
+      "name": "matchers",
+      "version": "0.0.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/matchers/0.0.1/download",
+          "sha256": "f099785f7595cc4b4553a174ce30dd7589ef93391ff414dbb67f62392b9e0ce1"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "matchers",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "matchers",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "regex-automata 0.1.10",
+              "target": "regex_automata"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.0.1"
+      },
+      "license": "MIT"
+    },
     "memchr 2.5.0": {
       "name": "memchr",
       "version": "2.5.0",
@@ -2090,6 +3430,104 @@
         ]
       },
       "license": "Unlicense/MIT"
+    },
+    "mini-redis 0.4.1": {
+      "name": "mini-redis",
+      "version": "0.4.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/mini-redis/0.4.1/download",
+          "sha256": "528890a6b63c88c9bda173867128abe62c0f5050dd959f067aeea09e90439f33"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "mini_redis",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "Binary": {
+            "crate_name": "mini-redis-cli",
+            "crate_root": "src/bin/cli.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "Binary": {
+            "crate_name": "mini-redis-server",
+            "crate_root": "src/bin/server.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "mini_redis",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "async-stream 0.3.4",
+              "target": "async_stream"
+            },
+            {
+              "id": "atoi 0.3.3",
+              "target": "atoi"
+            },
+            {
+              "id": "bytes 1.4.0",
+              "target": "bytes"
+            },
+            {
+              "id": "structopt 0.3.26",
+              "target": "structopt"
+            },
+            {
+              "id": "tokio 1.26.0",
+              "target": "tokio"
+            },
+            {
+              "id": "tokio-stream 0.1.12",
+              "target": "tokio_stream"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-futures 0.2.5",
+              "target": "tracing_futures"
+            },
+            {
+              "id": "tracing-subscriber 0.2.25",
+              "target": "tracing_subscriber"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.4.1"
+      },
+      "license": "MIT"
     },
     "miniz_oxide 0.6.2": {
       "name": "miniz_oxide",
@@ -2206,6 +3644,150 @@
         "version": "0.8.6"
       },
       "license": "MIT"
+    },
+    "num-integer 0.1.45": {
+      "name": "num-integer",
+      "version": "0.1.45",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/num-integer/0.1.45/download",
+          "sha256": "225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "num_integer",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "num_integer",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "num-integer 0.1.45",
+              "target": "build_script_build"
+            },
+            {
+              "id": "num-traits 0.2.15",
+              "target": "num_traits"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.1.45"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "autocfg 1.1.0",
+              "target": "autocfg"
+            }
+          ],
+          "selects": {}
+        }
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "num-traits 0.2.15": {
+      "name": "num-traits",
+      "version": "0.2.15",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/num-traits/0.2.15/download",
+          "sha256": "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "num_traits",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "num_traits",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "num-traits 0.2.15",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.2.15"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "autocfg 1.1.0",
+              "target": "autocfg"
+            }
+          ],
+          "selects": {}
+        }
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "num_cpus 1.15.0": {
       "name": "num_cpus",
@@ -2433,7 +4015,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -2711,6 +4293,98 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "pin-project 1.0.12": {
+      "name": "pin-project",
+      "version": "1.0.12",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/pin-project/1.0.12/download",
+          "sha256": "ad29a609b6bcd67fee905812e544992d216af9d755757c05ed2d0e15a74c6ecc"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "pin_project",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "pin_project",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "pin-project-internal 1.0.12",
+              "target": "pin_project_internal"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "1.0.12"
+      },
+      "license": "Apache-2.0 OR MIT"
+    },
+    "pin-project-internal 1.0.12": {
+      "name": "pin-project-internal",
+      "version": "1.0.12",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/pin-project-internal/1.0.12/download",
+          "sha256": "069bdb1e05adc7a8990dce9cc75370895fbe4e3d58b9b73bf1aee56359344a55"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "pin_project_internal",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "pin_project_internal",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 1.0.109",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.12"
+      },
+      "license": "Apache-2.0 OR MIT"
+    },
     "pin-project-lite 0.2.9": {
       "name": "pin-project-lite",
       "version": "0.2.9",
@@ -2866,7 +4540,7 @@
               "target": "build_script_build"
             },
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -2955,7 +4629,7 @@
               "target": "build_script_build"
             },
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -2984,13 +4658,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "proc-macro2 1.0.53": {
+    "proc-macro2 1.0.54": {
       "name": "proc-macro2",
-      "version": "1.0.53",
+      "version": "1.0.54",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/proc-macro2/1.0.53/download",
-          "sha256": "ba466839c78239c09faf015484e5cc04860f88242cff4d03eb038f04b4699b73"
+          "url": "https://crates.io/api/v1/crates/proc-macro2/1.0.54/download",
+          "sha256": "e472a104799c74b514a57226160104aa483546de37e839ec50e3c2e41dd87534"
         }
       },
       "targets": [
@@ -3026,12 +4700,13 @@
         ],
         "crate_features": [
           "default",
-          "proc-macro"
+          "proc-macro",
+          "span-locations"
         ],
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "build_script_build"
             },
             {
@@ -3042,7 +4717,7 @@
           "selects": {}
         },
         "edition": "2018",
-        "version": "1.0.53"
+        "version": "1.0.54"
       },
       "build_script_attrs": {
         "data_glob": [
@@ -3098,7 +4773,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -3351,13 +5026,13 @@
       },
       "license": "Apache-2.0/MIT"
     },
-    "regex 1.7.2": {
+    "regex 1.7.3": {
       "name": "regex",
-      "version": "1.7.2",
+      "version": "1.7.3",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/regex/1.7.2/download",
-          "sha256": "cce168fea28d3e05f158bda4576cf0c844d5045bc2cc3620fa0292ed5bb5814c"
+          "url": "https://crates.io/api/v1/crates/regex/1.7.3/download",
+          "sha256": "8b1f693b24f6ac912f4893ef08244d70b6067480d2f1a46e950c9691e6749d1d"
         }
       },
       "targets": [
@@ -3407,9 +5082,56 @@
           "selects": {}
         },
         "edition": "2018",
-        "version": "1.7.2"
+        "version": "1.7.3"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "regex-automata 0.1.10": {
+      "name": "regex-automata",
+      "version": "0.1.10",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/regex-automata/0.1.10/download",
+          "sha256": "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "regex_automata",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "regex_automata",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "regex-syntax",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "regex-syntax 0.6.29",
+              "target": "regex_syntax"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.1.10"
+      },
+      "license": "Unlicense/MIT"
     },
     "regex-syntax 0.6.29": {
       "name": "regex-syntax",
@@ -3438,6 +5160,17 @@
       "common_attrs": {
         "compile_data_glob": [
           "**"
+        ],
+        "crate_features": [
+          "default",
+          "unicode",
+          "unicode-age",
+          "unicode-bool",
+          "unicode-case",
+          "unicode-gencat",
+          "unicode-perl",
+          "unicode-script",
+          "unicode-segment"
         ],
         "edition": "2018",
         "version": "0.6.29"
@@ -3553,6 +5286,39 @@
       },
       "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
     },
+    "ryu 1.0.13": {
+      "name": "ryu",
+      "version": "1.0.13",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/ryu/1.0.13/download",
+          "sha256": "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ryu",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "ryu",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "1.0.13"
+      },
+      "license": "Apache-2.0 OR BSL-1.0"
+    },
     "scopeguard 1.1.0": {
       "name": "scopeguard",
       "version": "1.1.0",
@@ -3585,6 +5351,245 @@
         "version": "1.1.0"
       },
       "license": "MIT/Apache-2.0"
+    },
+    "scratch 1.0.5": {
+      "name": "scratch",
+      "version": "1.0.5",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/scratch/1.0.5/download",
+          "sha256": "1792db035ce95be60c3f8853017b3999209281c24e2ba5bc8e59bf97a0c590c1"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "scratch",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "scratch",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "scratch 1.0.5",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "1.0.5"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "serde 1.0.158": {
+      "name": "serde",
+      "version": "1.0.158",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/serde/1.0.158/download",
+          "sha256": "771d4d9c4163ee138805e12c710dd365e4f44be8be0503cb1bb9eb989425d9c9"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "serde",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "serde",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "serde 1.0.158",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "1.0.158"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "serde_json 1.0.94": {
+      "name": "serde_json",
+      "version": "1.0.94",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/serde_json/1.0.94/download",
+          "sha256": "1c533a59c9d8a93a09c6ab31f0fd5e5f4dd1b8fc9434804029839884765d04ea"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "serde_json",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "serde_json",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "itoa 1.0.6",
+              "target": "itoa"
+            },
+            {
+              "id": "ryu 1.0.13",
+              "target": "ryu"
+            },
+            {
+              "id": "serde 1.0.158",
+              "target": "serde"
+            },
+            {
+              "id": "serde_json 1.0.94",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.94"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "sharded-slab 0.1.4": {
+      "name": "sharded-slab",
+      "version": "0.1.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sharded-slab/0.1.4/download",
+          "sha256": "900fba806f70c630b0a382d0d825e17a0f19fcd059a2ade1ff237bcddf446b31"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sharded_slab",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "sharded_slab",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.4"
+      },
+      "license": "MIT"
     },
     "signal-hook-registry 1.4.1": {
       "name": "signal-hook-registry",
@@ -3839,6 +5844,155 @@
       },
       "license": "MIT"
     },
+    "strsim 0.8.0": {
+      "name": "strsim",
+      "version": "0.8.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/strsim/0.8.0/download",
+          "sha256": "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "strsim",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "strsim",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2015",
+        "version": "0.8.0"
+      },
+      "license": "MIT"
+    },
+    "structopt 0.3.26": {
+      "name": "structopt",
+      "version": "0.3.26",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/structopt/0.3.26/download",
+          "sha256": "0c6b5c64445ba8094a6ab0c3cd2ad323e07171012d9c98b0b15651daf1787a10"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "structopt",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "structopt",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "clap 2.34.0",
+              "target": "clap"
+            },
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "structopt-derive 0.4.18",
+              "target": "structopt_derive"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "0.3.26"
+      },
+      "license": "Apache-2.0 OR MIT"
+    },
+    "structopt-derive 0.4.18": {
+      "name": "structopt-derive",
+      "version": "0.4.18",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/structopt-derive/0.4.18/download",
+          "sha256": "dcb5ae327f9cc13b68763b5749770cb9e048a99bd9dfdfa58d0cf05d5f64afe0"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "structopt_derive",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "structopt_derive",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "heck 0.3.3",
+              "target": "heck"
+            },
+            {
+              "id": "proc-macro-error 1.0.4",
+              "target": "proc_macro_error"
+            },
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 1.0.109",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.4.18"
+      },
+      "license": "Apache-2.0/MIT"
+    },
     "syn 1.0.109": {
       "name": "syn",
       "version": "1.0.109",
@@ -3895,7 +6049,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -3923,13 +6077,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "syn 2.0.8": {
+    "syn 2.0.10": {
       "name": "syn",
-      "version": "2.0.8",
+      "version": "2.0.10",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/syn/2.0.8/download",
-          "sha256": "bcc02725fd69ab9f26eab07fad303e2497fad6fb9eba4f96c4d1687bdf704ad9"
+          "url": "https://crates.io/api/v1/crates/syn/2.0.10/download",
+          "sha256": "5aad1363ed6d37b84299588d62d3a7d95b5a5c2d9aad5c85609fda12afaa1f40"
         }
       },
       "targets": [
@@ -3955,6 +6109,7 @@
           "clone-impls",
           "default",
           "derive",
+          "full",
           "parsing",
           "printing",
           "proc-macro",
@@ -3963,7 +6118,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -3978,7 +6133,7 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "2.0.8"
+        "version": "2.0.10"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -4025,6 +6180,48 @@
         "version": "1.2.0"
       },
       "license": "Unlicense OR MIT"
+    },
+    "textwrap 0.11.0": {
+      "name": "textwrap",
+      "version": "0.11.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/textwrap/0.11.0/download",
+          "sha256": "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "textwrap",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "textwrap",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "unicode-width 0.1.10",
+              "target": "unicode_width"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2015",
+        "version": "0.11.0"
+      },
+      "license": "MIT"
     },
     "thiserror 1.0.40": {
       "name": "thiserror",
@@ -4125,7 +6322,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -4133,7 +6330,7 @@
               "target": "quote"
             },
             {
-              "id": "syn 2.0.8",
+              "id": "syn 2.0.10",
               "target": "syn"
             }
           ],
@@ -4141,6 +6338,52 @@
         },
         "edition": "2018",
         "version": "1.0.40"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "thread_local 1.1.7": {
+      "name": "thread_local",
+      "version": "1.1.7",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/thread_local/1.1.7/download",
+          "sha256": "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "thread_local",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "thread_local",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "once_cell 1.17.1",
+              "target": "once_cell"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "1.1.7"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -4330,7 +6573,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -4346,6 +6589,60 @@
         },
         "edition": "2018",
         "version": "1.8.2"
+      },
+      "license": "MIT"
+    },
+    "tokio-stream 0.1.12": {
+      "name": "tokio-stream",
+      "version": "0.1.12",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tokio-stream/0.1.12/download",
+          "sha256": "8fb52b74f05dbf495a8fba459fdc331812b96aa086d9eb78101fa0d4569c3313"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tokio_stream",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "tokio_stream",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "time"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "futures-core 0.3.27",
+              "target": "futures_core"
+            },
+            {
+              "id": "pin-project-lite 0.2.9",
+              "target": "pin_project_lite"
+            },
+            {
+              "id": "tokio 1.26.0",
+              "target": "tokio"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.12"
       },
       "license": "MIT"
     },
@@ -4445,7 +6742,7 @@
         "deps": {
           "common": [
             {
-              "id": "proc-macro2 1.0.53",
+              "id": "proc-macro2 1.0.54",
               "target": "proc_macro2"
             },
             {
@@ -4493,8 +6790,10 @@
           "**"
         ],
         "crate_features": [
+          "default",
           "once_cell",
-          "std"
+          "std",
+          "valuable"
         ],
         "deps": {
           "common": [
@@ -4503,10 +6802,284 @@
               "target": "once_cell"
             }
           ],
-          "selects": {}
+          "selects": {
+            "cfg(tracing_unstable)": [
+              {
+                "id": "valuable 0.1.0",
+                "target": "valuable"
+              }
+            ]
+          }
         },
         "edition": "2018",
         "version": "0.1.30"
+      },
+      "license": "MIT"
+    },
+    "tracing-futures 0.2.5": {
+      "name": "tracing-futures",
+      "version": "0.2.5",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-futures/0.2.5/download",
+          "sha256": "97d095ae15e245a057c8e8451bab9b3ee1e1f68e9ba2b4fbc18d0ac5237835f2"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_futures",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "tracing_futures",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "pin-project",
+          "std",
+          "std-future"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "pin-project 1.0.12",
+              "target": "pin_project"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.5"
+      },
+      "license": "MIT"
+    },
+    "tracing-log 0.1.3": {
+      "name": "tracing-log",
+      "version": "0.1.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-log/0.1.3/download",
+          "sha256": "78ddad33d2d10b1ed7eb9d1f518a5674713876e97e5bb9b7345a7984fbb4f922"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_log",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "tracing_log",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "log-tracer",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            },
+            {
+              "id": "log 0.4.17",
+              "target": "log"
+            },
+            {
+              "id": "tracing-core 0.1.30",
+              "target": "tracing_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.3"
+      },
+      "license": "MIT"
+    },
+    "tracing-serde 0.1.3": {
+      "name": "tracing-serde",
+      "version": "0.1.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-serde/0.1.3/download",
+          "sha256": "bc6b213177105856957181934e4920de57730fc69bf42c37ee5bb664d406d9e1"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_serde",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "tracing_serde",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "serde 1.0.158",
+              "target": "serde"
+            },
+            {
+              "id": "tracing-core 0.1.30",
+              "target": "tracing_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.3"
+      },
+      "license": "MIT"
+    },
+    "tracing-subscriber 0.2.25": {
+      "name": "tracing-subscriber",
+      "version": "0.2.25",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-subscriber/0.2.25/download",
+          "sha256": "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_subscriber",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "tracing_subscriber",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "ansi",
+          "ansi_term",
+          "chrono",
+          "default",
+          "env-filter",
+          "fmt",
+          "json",
+          "lazy_static",
+          "matchers",
+          "regex",
+          "registry",
+          "serde",
+          "serde_json",
+          "sharded-slab",
+          "smallvec",
+          "thread_local",
+          "tracing",
+          "tracing-log",
+          "tracing-serde"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ansi_term 0.12.1",
+              "target": "ansi_term"
+            },
+            {
+              "id": "chrono 0.4.24",
+              "target": "chrono"
+            },
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            },
+            {
+              "id": "matchers 0.0.1",
+              "target": "matchers"
+            },
+            {
+              "id": "regex 1.7.3",
+              "target": "regex"
+            },
+            {
+              "id": "serde 1.0.158",
+              "target": "serde"
+            },
+            {
+              "id": "serde_json 1.0.94",
+              "target": "serde_json"
+            },
+            {
+              "id": "sharded-slab 0.1.4",
+              "target": "sharded_slab"
+            },
+            {
+              "id": "smallvec 1.10.0",
+              "target": "smallvec"
+            },
+            {
+              "id": "thread_local 1.1.7",
+              "target": "thread_local"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-core 0.1.30",
+              "target": "tracing_core"
+            },
+            {
+              "id": "tracing-log 0.1.3",
+              "target": "tracing_log"
+            },
+            {
+              "id": "tracing-serde 0.1.3",
+              "target": "tracing_serde"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.25"
       },
       "license": "MIT"
     },
@@ -4610,6 +7183,75 @@
       },
       "license": "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
     },
+    "unicode-segmentation 1.10.1": {
+      "name": "unicode-segmentation",
+      "version": "1.10.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/unicode-segmentation/1.10.1/download",
+          "sha256": "1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "unicode_segmentation",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "unicode_segmentation",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "1.10.1"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "unicode-width 0.1.10": {
+      "name": "unicode-width",
+      "version": "0.1.10",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/unicode-width/0.1.10/download",
+          "sha256": "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "unicode_width",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "unicode_width",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default"
+        ],
+        "edition": "2015",
+        "version": "0.1.10"
+      },
+      "license": "MIT/Apache-2.0"
+    },
     "uuid 1.1.2": {
       "name": "uuid",
       "version": "1.1.2",
@@ -4660,6 +7302,69 @@
       },
       "license": "Apache-2.0 OR MIT"
     },
+    "valuable 0.1.0": {
+      "name": "valuable",
+      "version": "0.1.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/valuable/0.1.0/download",
+          "sha256": "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "valuable",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "valuable",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "alloc",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "valuable 0.1.0",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.0"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT"
+    },
     "vcpkg 0.2.15": {
       "name": "vcpkg",
       "version": "0.2.15",
@@ -4690,6 +7395,39 @@
         ],
         "edition": "2015",
         "version": "0.2.15"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "vec_map 0.8.2": {
+      "name": "vec_map",
+      "version": "0.8.2",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/vec_map/0.8.2/download",
+          "sha256": "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "vec_map",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "vec_map",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2015",
+        "version": "0.8.2"
       },
       "license": "MIT/Apache-2.0"
     },
@@ -4763,6 +7501,322 @@
       },
       "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"
     },
+    "wasm-bindgen 0.2.84": {
+      "name": "wasm-bindgen",
+      "version": "0.2.84",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/wasm-bindgen/0.2.84/download",
+          "sha256": "31f8dcbc21f30d9b8f2ea926ecb58f6b91192c17e9d33594b3df58b2007ca53b"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "wasm_bindgen",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "wasm_bindgen",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "default",
+          "spans",
+          "std"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "wasm-bindgen 0.2.84",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "wasm-bindgen-macro 0.2.84",
+              "target": "wasm_bindgen_macro"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "0.2.84"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "wasm-bindgen-backend 0.2.84": {
+      "name": "wasm-bindgen-backend",
+      "version": "0.2.84",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/wasm-bindgen-backend/0.2.84/download",
+          "sha256": "95ce90fd5bcc06af55a641a86428ee4229e44e07033963a2290a8e241607ccb9"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "wasm_bindgen_backend",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "wasm_bindgen_backend",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "spans"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "bumpalo 3.12.0",
+              "target": "bumpalo"
+            },
+            {
+              "id": "log 0.4.17",
+              "target": "log"
+            },
+            {
+              "id": "once_cell 1.17.1",
+              "target": "once_cell"
+            },
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 1.0.109",
+              "target": "syn"
+            },
+            {
+              "id": "wasm-bindgen-shared 0.2.84",
+              "target": "wasm_bindgen_shared"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.84"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "wasm-bindgen-macro 0.2.84": {
+      "name": "wasm-bindgen-macro",
+      "version": "0.2.84",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/wasm-bindgen-macro/0.2.84/download",
+          "sha256": "4c21f77c0bedc37fd5dc21f897894a5ca01e7bb159884559461862ae90c0b4c5"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "wasm_bindgen_macro",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "wasm_bindgen_macro",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "spans"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "wasm-bindgen-macro-support 0.2.84",
+              "target": "wasm_bindgen_macro_support"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.84"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "wasm-bindgen-macro-support 0.2.84": {
+      "name": "wasm-bindgen-macro-support",
+      "version": "0.2.84",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/wasm-bindgen-macro-support/0.2.84/download",
+          "sha256": "2aff81306fcac3c7515ad4e177f521b5c9a15f2b08f4e32d823066102f35a5f6"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "wasm_bindgen_macro_support",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "wasm_bindgen_macro_support",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "spans"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "proc-macro2 1.0.54",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.26",
+              "target": "quote"
+            },
+            {
+              "id": "syn 1.0.109",
+              "target": "syn"
+            },
+            {
+              "id": "wasm-bindgen-backend 0.2.84",
+              "target": "wasm_bindgen_backend"
+            },
+            {
+              "id": "wasm-bindgen-shared 0.2.84",
+              "target": "wasm_bindgen_shared"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.84"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "wasm-bindgen-shared 0.2.84": {
+      "name": "wasm-bindgen-shared",
+      "version": "0.2.84",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/wasm-bindgen-shared/0.2.84/download",
+          "sha256": "0046fef7e28c3804e5e38bfa31ea2a0f73905319b677e57ebe37e49358989b5d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "wasm_bindgen_shared",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "wasm_bindgen_shared",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "wasm-bindgen-shared 0.2.84",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.84"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "links": "wasm_bindgen"
+      },
+      "license": "MIT/Apache-2.0"
+    },
     "winapi 0.3.9": {
       "name": "winapi",
       "version": "0.3.9",
@@ -4808,10 +7862,12 @@
           "errhandlingapi",
           "fileapi",
           "handleapi",
+          "minwinbase",
           "minwindef",
           "ntdef",
           "processenv",
           "std",
+          "timezoneapi",
           "winbase",
           "wincon",
           "winerror",
@@ -5012,6 +8068,54 @@
         ]
       },
       "license": "MIT/Apache-2.0"
+    },
+    "windows 0.46.0": {
+      "name": "windows",
+      "version": "0.46.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/windows/0.46.0/download",
+          "sha256": "cdacb41e6a96a052c6cb63a144f24900236121c6f63f4f8219fef5977ecb0c25"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "windows",
+            "crate_root": "src/lib.rs",
+            "srcs": {
+              "include": [
+                "**/*.rs"
+              ],
+              "exclude": []
+            }
+          }
+        }
+      ],
+      "library_target_name": "windows",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": [
+          "Globalization",
+          "default"
+        ],
+        "deps": {
+          "common": [],
+          "selects": {
+            "cfg(not(windows_raw_dylib))": [
+              {
+                "id": "windows-targets 0.42.2",
+                "target": "windows_targets"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.46.0"
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "windows-sys 0.45.0": {
       "name": "windows-sys",
@@ -5605,6 +8709,7 @@
   "binary_crates": [
     "cc 1.0.79",
     "clap 4.1.11",
+    "mini-redis 0.4.1",
     "twox-hash 1.6.3"
   ],
   "workspace_members": {
@@ -5658,6 +8763,14 @@
       "x86_64-linux-android",
       "x86_64-pc-windows-msvc",
       "x86_64-unknown-freebsd"
+    ],
+    "cfg(any(target_os = \"macos\", target_os = \"ios\"))": [
+      "aarch64-apple-darwin",
+      "aarch64-apple-ios",
+      "aarch64-apple-ios-sim",
+      "i686-apple-darwin",
+      "x86_64-apple-darwin",
+      "x86_64-apple-ios"
     ],
     "cfg(docsrs)": [],
     "cfg(not(any(target_arch = \"wasm32\", target_arch = \"wasm64\")))": [
@@ -5763,17 +8876,34 @@
       "x86_64-unknown-freebsd",
       "x86_64-unknown-linux-gnu"
     ],
+    "cfg(target_arch = \"wasm32\")": [
+      "wasm32-unknown-unknown",
+      "wasm32-wasi"
+    ],
     "cfg(target_env = \"msvc\")": [
       "aarch64-pc-windows-msvc",
       "i686-pc-windows-msvc",
       "x86_64-pc-windows-msvc"
     ],
+    "cfg(target_os = \"android\")": [
+      "aarch64-linux-android",
+      "armv7-linux-androideabi",
+      "i686-linux-android",
+      "x86_64-linux-android"
+    ],
     "cfg(target_os = \"dragonfly\")": [],
+    "cfg(target_os = \"haiku\")": [],
     "cfg(target_os = \"hermit\")": [],
     "cfg(target_os = \"redox\")": [],
     "cfg(target_os = \"wasi\")": [
       "wasm32-wasi"
     ],
+    "cfg(target_os = \"windows\")": [
+      "aarch64-pc-windows-msvc",
+      "i686-pc-windows-msvc",
+      "x86_64-pc-windows-msvc"
+    ],
+    "cfg(tracing_unstable)": [],
     "cfg(unix)": [
       "aarch64-apple-darwin",
       "aarch64-apple-ios",

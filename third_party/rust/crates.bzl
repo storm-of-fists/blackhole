@@ -31,4 +31,7 @@ third_party_crates = {
     "arrayvec": {
         "version": "0.7.2",
     },
+    "mini-redis": {
+        "version": "0.4"
+    }
 }

@@ -1,0 +1,15 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+package(default_visibility = ["//visibility:private"])
+
+rust_binary(
+    name = "tokio_tut",
+    srcs = [
+        "main.rs",
+    ],
+    deps = [
+       "//base/rust:base",
+       "@third_party_rust//:tokio",
+       "@third_party_rust//:mini-redis",
+    ],
+)
