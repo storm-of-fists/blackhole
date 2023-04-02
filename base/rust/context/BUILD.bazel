@@ -11,6 +11,7 @@ rust_library(
        "//base/rust:base",
        "//base/rust/raw_pointer",
        "@third_party_rust//:clap",
-       "@third_party_rust//:arrayvec"
+       "@third_party_rust//:arrayvec",
+       "@third_party_rust//:uuid",
     ],
 )
