@@ -1,0 +1,13 @@
+"""
+Connor Latham
+
+Program to control LEDs on my computer based on how loud Im yelling.
+"""
+
+load("//base:defs.bzl", "py_binary")
+
+py_binary(
+    name="led_scream",
+    main="main.py",
+    srcs = ["main.py"],
+)

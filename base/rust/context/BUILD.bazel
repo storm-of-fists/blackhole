@@ -1,4 +1,4 @@
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("//base:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -8,7 +8,6 @@ rust_library(
         "context.rs",
     ],
     deps = [
-       "//base/rust:base",
        "//base/rust/raw_pointer",
        "@third_party_rust//:clap",
        "@third_party_rust//:arrayvec",
