@@ -34,7 +34,9 @@
   "author": "Google LLC",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "lit": "^2.2.4"
+    "@material/web": "^1.0.0-pre.9",
+    "lit": "^2.2.4",
+    "material-symbols": "^0.5.5"
   },
   "devDependencies": {
     "@11ty/eleventy": "^1.0.1",
