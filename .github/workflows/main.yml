@@ -8,7 +8,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: install bazelisk
-        run: provision/install_bazelisk.sh
+        run: ../../provision/install_bazelisk.sh
         shell: bash
         
       
