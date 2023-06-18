@@ -7,8 +7,12 @@ jobs:
     name: ci
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+      - name: Setup Bazelisk
+        uses: bazelbuild/setup-bazelisk@v1.0.1
       - name: install bazelisk
-        run: ../../provision/install_bazelisk.sh
+        run: ls
         shell: bash
         
       
