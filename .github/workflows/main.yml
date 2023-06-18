@@ -12,7 +12,7 @@ jobs:
       - name: Setup Bazelisk
         uses: bazelbuild/setup-bazelisk@v1.0.1
       - name: install bazelisk
-        run: ls
+        run: bazel test //...
         shell: bash
         
       
