@@ -1,4 +1,4 @@
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -7,4 +7,12 @@ rust_library(
     srcs = [
         "token.rs",
     ],
+)
+
+rust_test(
+    name="test_token",
+    srcs = ["test_token.rs"],
+    deps = [
+        ":token",
+    ]
 )

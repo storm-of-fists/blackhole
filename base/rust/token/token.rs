@@ -12,10 +12,6 @@ macro_rules! custom_token {
 
                 return Self(COUNTER.fetch_add(1, Ordering::Relaxed));
             }
-
-            pub const unsafe fn from_raw(value: u64) -> Self {
-                return Self(value);
-            }
         }
 
         impl Deref for $name {
