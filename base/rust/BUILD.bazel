@@ -6,11 +6,13 @@ rust_library(
     name = "base",
     srcs = [
         "lib.rs",
-        "logging.rs",
     ],
     deps = [
-       "@third_party_rust//:env_logger",
-       "@third_party_rust//:log",
-       "@third_party_rust//:eyre",
+       "//base/rust/error",
+       "//base/rust/log",
+       "//base/rust/raw_pointer",
+       "//base/rust/clock",
+       "//base/rust/context",
+       "//base/rust/token",
     ],
 )

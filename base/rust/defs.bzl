@@ -8,12 +8,12 @@ load(
     _rust_library = "rust_library",
 )
 
-package(default_visibility = ["//visibility:public"])
-
 def rust_binary(**kwargs):
     deps = kwargs.get("deps", [])
     deps.append("//base/rust:base")
     kwargs["deps"] = deps
+    # args = ctx.actions.args()
+    # args.add("--RUST_LOG=INFO")
 
     _rust_binary(**kwargs)
 

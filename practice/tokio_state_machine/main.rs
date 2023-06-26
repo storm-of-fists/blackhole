@@ -1,5 +1,5 @@
 use base::log;
-use tokio::time::{Interval, interval, sleep, timeout};
+use tokio::{join, time::{Interval, interval, sleep, timeout}};
 use std::time::Duration;
 use std::sync::mpsc::channel;
 use std::pin::Pin;
@@ -76,9 +76,13 @@ impl StateMachine {
 
 #[tokio::main]
 async fn main() {
-    log::init();
+    log::default().init();
 
     let mut state_machine = StateMachine::new();
+    let mut state_machine_2 = StateMachine::new();
 
-    state_machine.run().await;
+    join!(
+        state_machine.run(),
+        state_machine_2.run()
+    );
 }

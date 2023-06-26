@@ -13,6 +13,5 @@ jobs:
         uses: bazelbuild/setup-bazelisk@v1.0.1
       - name: Test all targets
         run: bazel test //...
-        shell: bash
         
       
