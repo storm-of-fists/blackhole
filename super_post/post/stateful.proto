@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package post.stateful;
+
+message Post {
+    PostId id = 1;
+
+    PostType content = 2;
+    
+    // You can have multiple posters of a single thing.
+    Posters posters = 4;
+
+    // Time since epoch.
+    EpochTimestamp timestamp = 8;
+    
+    bool replyable = 6;
+    bool quotable = 7;
+
+    repeated uint64 likes_count = 3;
+    repeated uint64 dislikes_count = 9;
+    repeated string replies = 5;
+}
+
+message PostId {
+    string uuid = 1;
+}
+
+message EpochTimestamp {
+    uint64 timestamp_ms = 1;
+}
+
+message Posters {
+    repeated string poster_id = 1;
+}
+
+message Images {
+    repeated string image = 1;
+}
+
+message Videos {
+    repeated string video = 1;
+}
+
+message Audios {
+    repeated string audio = 1;
+}
+
+message SuperPost {
+    string tag_line = 2;
+    string text = 1;
+}
+
+message PostType {
+    // Posts MUST have a title/text component.
+    string text_post = 1;
+    optional Images images = 2;
+    optional Videos videos = 3;
+    optional SuperPost super_post = 4;
+    optional Audios audio_post = 5;
+}
+
+message Posts {
+    repeated Post post = 1;
+}

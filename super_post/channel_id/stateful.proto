@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package channel_id.stateful;
+
+message ChannelId {
+    string id = 1;
+    uint64 id_instance = 2;
+}
