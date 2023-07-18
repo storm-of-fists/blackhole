@@ -9,11 +9,13 @@
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
   --button-background-color: #1a1a1a;
   --button-text-color: #fdfcfc;
+  --small-spacing: 8px;
+}
+
+body {
+  margin: var(--small-spacing);
 }
 
 :root[theme="light"] {
