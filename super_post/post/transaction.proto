@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package post.transaction;
+
+import "super_post/post/stateful.proto";
+import "super_post/channel_id/stateful.proto";
+
+message CreatePost {
+    post.stateful.Post post = 1;
+    post.stateful.EpochTimestamp timestamp = 3;
+}
+
+message LikePost {
+    string user_uuid = 1;
+    post.stateful.PostId post_id = 2;
+}
+
+message DislikePost {
+    string user_uuid = 1;
+    post.stateful.PostId post_id = 2;
+}
+
+message FavoritePost {
+    string user_uuid = 1;
+    post.stateful.PostId post_id = 2;
+}
+
+message ReplyToPost {
+    post.stateful.PostId original_post_id = 1;
+    post.stateful.PostId reply_post_id = 2;
+}
+
+message QuotePost {
+    post.stateful.PostId original_post_id = 1;
+    post.stateful.PostId quote_post_id = 2;
+}

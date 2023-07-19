@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package channel.stateful;
+
+import "super_post/post/stateful.proto";
+import "super_post/channel_id/stateful.proto";
+
+message Channel {
+    channel_id.stateful.ChannelId id = 1;
+    SubscribedTo subscribed_to = 2;
+    Subscribers subscribers = 3;
+    post.stateful.Posts posts = 4;
+}
+
+message SubscribedTo {
+    repeated channel_id.stateful.ChannelId channel_id = 1;
+}
+
+message Subscribers {
+    repeated channel_id.stateful.ChannelId channel_id = 1;
+}

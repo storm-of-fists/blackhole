@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user.state;
+
+import "super_post/channel_id/stateful.proto";
+
+message User {
+    channel_id.stateful.ChannelId channel_id = 1;
+    UserName username = 3;
+    
+    ContactData contact_data = 5;
+}
+
+message ContactData {
+    optional string email = 1;
+    optional string phone_number = 2;
+}
+
+message UserName {
+    string name = 1;
+}

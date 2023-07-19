@@ -1,0 +1,9 @@
+load("//base:defs.bzl", "proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "proto",
+    deps = ["//super_post/post:proto", "//super_post/channel_id:proto",],
+    srcs = ["stateful.proto", "transaction.proto"],
+)
