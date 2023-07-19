@@ -10,6 +10,9 @@ message Channel {
     SubscribedTo subscribed_to = 2;
     Subscribers subscribers = 3;
     post.stateful.Posts posts = 4;
+    optional Encryption encryption = 5;
+    bannedUsers banned_users = 6;
+    optional AllowedUsers = 7;
 }
 
 message SubscribedTo {
@@ -19,3 +22,13 @@ message SubscribedTo {
 message Subscribers {
     repeated channel_id.stateful.ChannelId channel_id = 1;
 }
+
+message BannedUsers {
+    repeated channel_id.stateful.ChannelId channel_id = 1;
+}
+
+message AllowedUsers {
+    repeated channel_id.stateful.ChannelId channel_id = 1;
+}
+
+message Encryption {}
