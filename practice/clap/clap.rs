@@ -1,5 +1,5 @@
 use base::log;
-use clap::{Command, Parser};
+use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
