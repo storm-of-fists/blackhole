@@ -9,6 +9,6 @@ jobs:
       - name: Setup Bazelisk
         uses: bazelbuild/setup-bazelisk@v1.0.1
       - name: Test all targets
-        run: bazel test -- //... -//practice/... -//third_party/python/...
+        run: bazel test -- //... -//notebooks/... -//z_event_horizon/... -//third_party/python/...
         
       

@@ -4,7 +4,7 @@
 path=$(dirname -- "$0")
 
 # Rebuild the notebook
-bazel build //py_notebooks/...
+bazel build //notebooks/...
 
 # turn on the server
-$path/../bazel-bin/py_notebooks/jupyter
+$path/../bazel-bin/notebooks/jupyter

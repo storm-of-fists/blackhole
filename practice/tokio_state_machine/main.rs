@@ -1,8 +1,6 @@
 use base::log;
-use tokio::{join, time::{Interval, interval, sleep, timeout}};
+use tokio::{join, time::{interval, sleep, timeout}};
 use std::time::Duration;
-use std::sync::mpsc::channel;
-use std::pin::Pin;
 
 struct InitState {
     pub timeout: Duration,
@@ -41,7 +39,7 @@ impl InitState {
                     log::debug!("Timed out of init sequence after timeout of {:?}", self.timeout)
                 }
             }
-            controller_result = self.controller() => {}
+            _controller_result = self.controller() => {}
         }
     }
 }
@@ -51,7 +49,6 @@ enum States {
 }
 
 struct StateMachine {
-    target_state: States,
     current_state: States,
     init_state: InitState,
 }
@@ -59,7 +56,6 @@ struct StateMachine {
 impl StateMachine {
     pub fn new() -> Self {
         Self {
-            target_state: States::InitState,
             current_state: States::InitState,
             init_state: InitState::new(),
         }

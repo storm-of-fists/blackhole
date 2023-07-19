@@ -1,0 +1,10 @@
+load("//base:defs.bzl", "py_notebook")
+
+# Inspired by https://github.com/michael-quinlan/jupyter-bazel
+
+py_notebook(
+    name = "jupyter",
+    deps = [
+        "//solar_sim"
+    ]
+)

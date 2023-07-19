@@ -1,5 +1,4 @@
-load("@rules_python//python:defs.bzl", "py_library", "py_binary")
-load("@third_party_python//:requirements.bzl", "requirement")
+load("//base/python:defs.bzl", "py_binary", "py_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -8,29 +7,31 @@ py_binary(
     srcs = ["main.py"],
     deps = [
         ":solver",
-        ":const", 
-        ":system", 
-        ":util", 
-        requirement("astropy"), 
-        requirement("jplephem"), 
-        requirement("progress")
-    ]
+        ":const",
+        ":system",
+        ":util",
+    ],
+    reqs = [
+        "astropy",
+        "jplephem",
+        "progress",
+    ],
 )
 
 py_library(
     name = "solver",
     srcs = ["solver.py"],
-    deps = [requirement("numpy")]
+    reqs = ["numpy"]
 )
 
 py_library(
     name = "const",
     srcs = ["const.py"],
-    deps = [
-        requirement("jplephem"),
+    reqs = [
+        "jplephem",
     ],
     data = [
-        "//solar_sim/config:de440.bsp"
+        "//solar_sim/data:de440.bsp1"
     ]
 )
 
@@ -38,11 +39,13 @@ py_library(
     name = "system",
     srcs = ["system.py"],
     deps = [
-        requirement("numpy"), 
-        requirement("astropy"), 
         ":const", 
         ":util", 
-        requirement("jplephem")
+    ],
+    reqs = [
+        "numpy", 
+        "astropy", 
+        "jplephem",
     ]
 )
 
@@ -50,8 +53,10 @@ py_library(
     name = "util",
     srcs = ["util.py"],
     deps = [
-        ":const", 
-        requirement("PyYAML"),
+        ":const",
+    ],
+    reqs = [
+        "PyYAML"
     ]
 )
 
@@ -59,7 +64,9 @@ py_library(
     name = "plotter",
     srcs = ["plotter.py"],
     deps = [
-        ":const", 
-        requirement("matplotlib")
-    ]
+        ":const",
+    ],
+    reqs = [
+        "matplotlib"
+    ],
 )
