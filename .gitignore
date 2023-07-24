@@ -18,3 +18,6 @@ target/
 
 # Docker
 user_docker_config.json
+
+# Githubs actions runner for the repo.
+actions-runner
