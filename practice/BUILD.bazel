@@ -1,1 +1,11 @@
+load("//tools:defs.bzl", "render_jinja_template")
+
 package(default_visibility = [":__subpackages__"])
+
+render_jinja_template(
+    name = "jinja_render_test",
+    string_template = "nice{{config.cool}}",
+    dict_config = {
+        "cool": "3"
+    }
+)

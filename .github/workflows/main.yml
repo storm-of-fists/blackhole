@@ -1,5 +1,8 @@
 on:
   pull_request:
+    branches:
+      - main
+      - 'releases/**'
   push:
     branches:
       - main

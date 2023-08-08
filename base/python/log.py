@@ -8,9 +8,11 @@ def init(name, level=log.DEBUG):
     print_handler = log.StreamHandler(sys.stdout)
     print_handler.setLevel(level)
 
-    formatter = log.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = log.Formatter('[%(name)s %(asctime)s %(levelname)s] - %(message)s')
     print_handler.setFormatter(formatter)
 
     logger.addHandler(print_handler)
+
+    logger.debug(f"Enabled logging.")
 
     return logger
