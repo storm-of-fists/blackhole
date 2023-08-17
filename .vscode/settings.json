@@ -1,7 +1,8 @@
 {
-    "github-actions.workflows.pinned.workflows": [],
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
-    "python.formatting.provider": "none"
+  "github-actions.workflows.pinned.workflows": [],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "bazel.buildifierExecutable": "/usr/local/bin/buildifier",
+  "python.analysis.typeCheckingMode": "off"
 }
