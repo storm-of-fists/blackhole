@@ -1,9 +1,0 @@
-load("//base/python:defs.bzl", "py_binary")
-load("//tools:defs.bzl", "render_jinja_template")
-
-py_binary(
-    name="math_parser",
-    srcs=["main.py"],
-    main = "main.py"
-)
-

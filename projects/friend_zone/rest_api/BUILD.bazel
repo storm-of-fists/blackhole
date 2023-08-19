@@ -1,10 +1,10 @@
-load("//tools/python:image.bzl", "py_image_combo")
+load("//base/python:image.bzl", "py_image_combo")
 load("@third_party_python//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
 
 py_image_combo(
-    name= "rest_api",
+    name = "rest_api",
     srcs = ["rest_api.py"],
     main = "rest_api.py",
     deps = [

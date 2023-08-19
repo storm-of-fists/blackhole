@@ -1,8 +1,14 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("//base:defs.bzl", "config")
+
+config(
+    name = "python_reqs",
+    srcs = ["//third_party/python:requirements.in"],
+)
 
 compile_pip_requirements(
     name = "requirements",
     extra_args = ["--allow-unsafe"],
-    requirements_in = "//third_party/python:requirements.in",
+    requirements_in = ":python_reqs",
     requirements_txt = "//third_party/python:requirements_lock.txt",
 )

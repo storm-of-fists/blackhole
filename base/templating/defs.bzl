@@ -4,16 +4,33 @@ def _render_jinja_templates_impl(ctx):
 
     # Get template types
     string_templates = ctx.attr.string_templates
-    yaml_templates = ctx.attr.yaml_templates
+    srcs = ctx.attr.srcs
 
     # Get configs
     dict_config = ctx.attr.dict_config
     yaml_config = ctx.attr.yaml_config
+    json_config = ctx.attr.json_config
 
     # Get renderer settings
     combined_file_type = ctx.attr.combined_file_type
     only_combined_file = ctx.attr.only_combined_file
+    combine_mixed_srcs = ctx.attr.combine_mixed_srcs
 
+    # Check that all input files are the same type if want a combined file. Warn if not.
+    all_files_same = True
+    for i in range(0, len(srcs) - 1):
+        all_files_same = srcs[i].extension == srcs[i + 1].extension
+
+    if not all_files_same and combined_file_type and not combine_mixed_srcs:
+        fail(
+            """Not all input files are of the same type, but a combined_file was requested without an override!"
+            Please specify combine_mixed_srcs=True if you want to do this""",
+        )
+
+    if not combined_file_type:
+        combined_file_type = srcs[0].files.to_list()[0].extension
+
+    # We cant have a combined file without a type.
     if only_combined_file and not combined_file_type:
         fail("Cant ask for only the combined file but not specify a type!")
 
@@ -51,7 +68,7 @@ def _render_jinja_templates_impl(ctx):
         )
         template_list.append(template_file)
 
-    for file_group in yaml_templates:
+    for file_group in srcs:
         for template_file in file_group.files.to_list():
             template_symlink = ctx.actions.declare_file("{}/templates/{}".format(name, template_file.basename))
             ctx.actions.symlink(output = template_symlink, target_file = template_file)
@@ -80,7 +97,7 @@ def _render_jinja_templates_impl(ctx):
     if combined_file_type:
         exec_args.add("--combined_file_type={}".format(combined_file_type))
     if only_combined_file:
-        exec_args.add("--only_combined_file=True")
+        exec_args.add("--only_combined_file={}".format(only_combined_file))
 
     ### RUN PY BINARY TO RENDER THINGS ###
     ctx.actions.run(
@@ -96,11 +113,14 @@ render_jinja_templates = rule(
     implementation = _render_jinja_templates_impl,
     attrs = {
         # Template types
-        "string_templates": attr.string_dict(),
-        "yaml_templates": attr.label_list(),
+        "string_templates": attr.string_dict(default = {}),
+        "srcs": attr.label_list(allow_files = True),
+
         ### Config types ###
-        "dict_config": attr.string_dict(),
-        "yaml_config": attr.label_list(),
+        "dict_config": attr.string_dict(default = {}),
+        "yaml_config": attr.label_list(default = [], allow_files = True),
+        "json_config": attr.label_list(default = [], allow_files = True),
+
         ### Jinja settings ###
         # Blocks can be instantiated like {% for var in vars %}
         "block_start_string": attr.string(default = "{%"),
@@ -116,15 +136,25 @@ render_jinja_templates = rule(
         "line_comment_prefix": attr.string(default = "##/#"),
         # If the rendering will fail if the expected variables are not present
         "strict": attr.bool(default = True),
+
+        ### Renderer Settings ###
         # Other settings for the renderer
         "default_config_name": attr.string(default = "config"),
+        # Type of the combined file.
         "combined_file_type": attr.string(),
+        # If we should only output one combined file.
         "only_combined_file": attr.bool(default = False),
+        "combine_mixed_srcs": attr.bool(default = False),
+
+        ### Binary Path ###
         # Rendering binary, probably dont touch this.
         "_template_renderer_binary": attr.label(
-            default = Label("//tools/jinja:jinja_template_renderer"),
+            default = Label("//base/templating:jinja_template_renderer"),
             executable = True,
             cfg = "exec",
         ),
     },
 )
+
+def config(srcs, config = [], **kwargs):
+    render_jinja_templates(srcs = srcs, yaml_config = config, only_combined_file = True, **kwargs)

@@ -23,15 +23,11 @@ render_jinja_templates(
 config(
     name = "config_test",
     srcs = ["//practice/templates"],
-    config = [
-        "//practice/config",
-    ],
+    config = ["//practice/config"],
 )
 
 config(
     name = "config_test2",
     srcs = ["//practice/templates:templates2"],
-    config = [
-        ":config_test",
-    ],
+    config = [":config_test"],
 )

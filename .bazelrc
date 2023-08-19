@@ -5,9 +5,6 @@ import %workspace%/bazelrc/debug.bazelrc
 import %workspace%/bazelrc/performance.bazelrc
 import %workspace%/bazelrc/container_rules.bazelrc
 
-# Get all rust settings
-import %workspace%/bazelrc/rust.bazelrc
-
 # Load any settings & overrides specific to the current user from `.aspect/bazelrc/user.bazelrc`.
 # This file should appear in `.gitignore` so that settings are not shared with team members. This
 # should be last statement in this config so the user configuration is able to overwrite flags from
