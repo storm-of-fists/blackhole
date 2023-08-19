@@ -5,7 +5,7 @@ load("//third_party/python:requirements.bzl", "PY_DEPS")
 config(
     name = "reqs.in",
     srcs = ["requirements.in"],
-    json_string_config = "{}".format({"deps": PY_DEPS}),
+    dict_string_config = "{}".format({"deps": PY_DEPS}),
 )
 
 compile_pip_requirements(
