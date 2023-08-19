@@ -1,2 +1,0 @@
-neaters: {{ config.nice }}
-coolio: {{ 10 * config.ok }}
