@@ -1,0 +1,19 @@
+deps:
+  astropy: 5.2
+  numpy: 1.20.0
+  PyYAML: 5.4.1
+  jplephem: 2.16
+  packaging: 21.0
+  pyerfa: 2.0
+  pyparsing: 3.0.9
+  progress: 1.6
+  confluent-kafka: 2.0.2
+  notebook: 6.5.2
+  matplotlib: 3.6.0
+  dropbox: 11.36.0
+  schedule: 1.1.0
+  fastapi: 0.92.0
+  uvicorn[standard]: 0.20.0
+  redis: 4.5.2
+  pyaudio: 0.2.13
+  Jinja2: 3.1.2

@@ -41,12 +41,13 @@ def _render_jinja_templates_impl(ctx):
 
     ### CREATE THE CONFIG FILES ###
     # Create a json file for any raw dict config.
-    config_file = ctx.actions.declare_file("{}/config_files/_dict_config.json".format(name))
-    ctx.actions.write(
-        output = config_file,
-        content = json.encode(dict_config),
-    )
-    config_list.append(config_file)
+    if dict_config:
+        config_file = ctx.actions.declare_file("{}/config_files/_dict_config.json".format(name))
+        ctx.actions.write(
+            output = config_file,
+            content = json.encode(dict_config),
+        )
+        config_list.append(config_file)
 
     # Create a dir to collect all yaml config files.
     for file_group in yaml_config:
@@ -156,5 +157,5 @@ render_jinja_templates = rule(
     },
 )
 
-def config(srcs, config = [], **kwargs):
-    render_jinja_templates(srcs = srcs, yaml_config = config, only_combined_file = True, **kwargs)
+def config(srcs, yaml_config = [], **kwargs):
+    render_jinja_templates(srcs = srcs, yaml_config = yaml_config, only_combined_file = True, **kwargs)

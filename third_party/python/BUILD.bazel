@@ -3,7 +3,8 @@ load("//base:defs.bzl", "config")
 
 config(
     name = "python_reqs",
-    srcs = ["//third_party/python:requirements.in"],
+    srcs = ["requirements_tpl.in"],
+    yaml_config = ["//third_party/python:requirements.yaml"],
 )
 
 compile_pip_requirements(
