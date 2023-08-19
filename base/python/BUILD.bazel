@@ -12,3 +12,7 @@ py_library(
     srcs = ["__init__.py"],
     deps = [":log"],
 )
+
+exports_files(
+    ["jupyter.py"],
+)

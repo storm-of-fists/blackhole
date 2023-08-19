@@ -5,68 +5,68 @@ package(default_visibility = ["//visibility:public"])
 py_binary(
     name = "main",
     srcs = ["main.py"],
-    deps = [
-        ":solver",
-        ":const",
-        ":system",
-        ":util",
-    ],
     reqs = [
         "astropy",
         "jplephem",
         "progress",
+    ],
+    deps = [
+        ":const",
+        ":solver",
+        ":system",
+        ":util",
     ],
 )
 
 py_library(
     name = "solver",
     srcs = ["solver.py"],
-    reqs = ["numpy"]
+    reqs = ["numpy"],
 )
 
 py_library(
     name = "const",
     srcs = ["const.py"],
+    data = [
+        "//projects/solar_sim/data:de440.bsp1",
+    ],
     reqs = [
         "jplephem",
     ],
-    data = [
-        "//solar_sim/data:de440.bsp1"
-    ]
 )
 
 py_library(
     name = "system",
     srcs = ["system.py"],
-    deps = [
-        ":const", 
-        ":util", 
-    ],
     reqs = [
-        "numpy", 
-        "astropy", 
+        "numpy",
+        "astropy",
         "jplephem",
-    ]
+    ],
+    deps = [
+        ":const",
+        ":util",
+    ],
 )
 
 py_library(
     name = "util",
     srcs = ["util.py"],
+    reqs = [
+        "PyYAML",
+    ],
     deps = [
         ":const",
     ],
-    reqs = [
-        "PyYAML"
-    ]
 )
 
 py_library(
     name = "plotter",
     srcs = ["plotter.py"],
+    reqs = [
+        "matplotlib",
+    ],
     deps = [
         ":const",
-    ],
-    reqs = [
-        "matplotlib"
     ],
 )

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Rebuild the notebook
-bazel build //notebooks/...
+bazel build :{{ name }}
 
 # turn on the server
 ./bazel-bin/notebooks/jupyter

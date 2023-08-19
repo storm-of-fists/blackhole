@@ -53,10 +53,37 @@ def py_image(**kwargs):
 
     _py3_image(**kwargs)
 
+def _py_notebook_runner_impl(ctx):
+    bin = ctx.attr.py_bin
+    bin_file = [file for file in bin.files.to_list() if "py_binary" in file.basename].pop()
+
+    ctx.actions.run_shell(
+        inputs = bin.files,
+        outputs = [ctx.outputs.executable],
+        command = "{} --ip=0.0.0.0 --port=25252 --NotebookApp.token='' --NotebookApp.password=''".format(bin_file.path),
+        execution_requirements = {
+            "no-sandbox": "True",
+            "no-cache": "True",
+            "no-remote": "True",
+            "local": "True",
+            "requires-network": "True",
+            "manual": "True",
+        },
+    )
+
+py_notebook_runner = rule(
+    implementation = _py_notebook_runner_impl,
+    executable = True,
+    attrs = {
+        "py_bin": attr.label(),
+    },
+)
+
 def py_notebook(name, deps):
     py_binary(
-        name = name,
-        srcs = ["{}.py".format(name)],
+        name = "{}.py_binary".format(name),
+        srcs = ["//base/python:jupyter.py"],
+        main = "//base/python:jupyter.py",
         deps = deps,
         tags = ["manual"],
         reqs = [
@@ -66,4 +93,7 @@ def py_notebook(name, deps):
         ],
     )
 
-    sh_binary()
+    py_notebook_runner(
+        name = name,
+        py_bin = ":{}.py_binary".format(name),
+    )

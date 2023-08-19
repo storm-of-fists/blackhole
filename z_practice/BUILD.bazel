@@ -1,33 +1,6 @@
-load("//tools:defs.bzl", "config", "render_jinja_templates")
-
 package(default_visibility = [":__subpackages__"])
 
-render_jinja_templates(
-    name = "jinja_render_test",
-    combined_file_type = "yaml",
-    dict_config = {
-        "cool": "3",
-    },
-    only_combined_file = True,
-    string_templates = {
-        "test.yaml": "wow: nice{{config.cool}}",
-    },
-    yaml_config = [
-        "//practice/config",
-    ],
-    yaml_templates = [
-        "//practice/templates",
-    ],
-)
-
-config(
-    name = "config_test",
-    srcs = ["//practice/templates"],
-    config = ["//practice/config"],
-)
-
-config(
-    name = "config_test2",
-    srcs = ["//practice/templates:templates2"],
-    config = [":config_test"],
+sh_binary(
+    name = "bin_test",
+    srcs = ["test.sh"],
 )
