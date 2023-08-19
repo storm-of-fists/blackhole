@@ -150,7 +150,7 @@ render_jinja_templates = rule(
         ### Binary Path ###
         # Rendering binary, probably dont touch this.
         "_template_renderer_binary": attr.label(
-            default = Label("//base/templating:jinja_template_renderer"),
+            default = Label("//common/templating:jinja_template_renderer"),
             executable = True,
             cfg = "exec",
         ),

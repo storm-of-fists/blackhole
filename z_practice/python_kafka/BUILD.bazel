@@ -1,20 +1,19 @@
-load("//base/python:defs.bzl", "py_binary")
-load("@third_party_python//:requirements.bzl", "requirement")
+load("//common/python:defs.bzl", "py_binary")
 
 py_binary(
-    name="producer",
-    srcs=["producer.py"],
-    reqs=[
-        "confluent-kafka"
+    name = "producer",
+    srcs = ["producer.py"],
+    data = ["config.ini"],
+    reqs = [
+        "confluent-kafka",
     ],
-    data = ["config.ini"]
 )
 
 py_binary(
-    name="consumer",
-    srcs=["consumer.py"],
-    reqs=[
-        "confluent-kafka"
+    name = "consumer",
+    srcs = ["consumer.py"],
+    data = ["config.ini"],
+    reqs = [
+        "confluent-kafka",
     ],
-    data = ["config.ini"]
 )

@@ -1,4 +1,4 @@
-load("//base/python:defs.bzl", "py_binary")
+load("//common/python:defs.bzl", "py_binary")
 
 package(default_visibility = ["//visibility:public"])
 

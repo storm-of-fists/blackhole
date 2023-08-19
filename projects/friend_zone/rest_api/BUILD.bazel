@@ -1,4 +1,4 @@
-load("//base:defs.bzl", "py_image")
+load("//common:defs.bzl", "py_image")
 
 package(default_visibility = ["//visibility:public"])
 

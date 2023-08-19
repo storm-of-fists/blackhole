@@ -10,7 +10,7 @@ load(
 
 def rust_binary(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//base/rust:base")
+    deps.append("//common/rust:base")
     kwargs["deps"] = deps
     # args = ctx.actions.args()
     # args.add("--RUST_LOG=INFO")
@@ -19,7 +19,7 @@ def rust_binary(**kwargs):
 
 def rust_library(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//base/rust:base")
+    deps.append("//common/rust:base")
     kwargs["deps"] = deps
 
     _rust_library(**kwargs)

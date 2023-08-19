@@ -1,15 +1,15 @@
-load("//base/python:defs.bzl", "py_image")
+load("//common/python:defs.bzl", "py_image")
 
 package(default_visibility = ["//visibility:public"])
 
 py_image(
-    name= "minecraft_backup_worker",
+    name = "minecraft_backup_worker",
     srcs = ["minecraft_backup_worker.py"],
     reqs = [
         "dropbox",
-        "schedule"
+        "schedule",
     ],
     tags = [
-        "contron44/minecraft_backup_worker"
-    ]
+        "contron44/minecraft_backup_worker",
+    ],
 )

@@ -1,7 +1,7 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
 load("@rules_proto_grpc//rust:defs.bzl", "rust_proto_library")
-load("//base/python:defs.bzl", "py_binary")
+load("//common/python:defs.bzl", "py_binary")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 
 proto_library(
@@ -17,16 +17,16 @@ python_proto_library(
 py_binary(
     name = "py_test_bin",
     srcs = ["py_test_bin.py"],
-    deps = [":py_person_proto"]
+    deps = [":py_person_proto"],
 )
 
 rust_proto_library(
     name = "rust_person_proto",
-    protos = [":person_proto"]
+    protos = [":person_proto"],
 )
 
 rust_binary(
     name = "rust_test_bin",
     srcs = ["my_proto.rs"],
-    deps = [":rust_person_proto"]
+    deps = [":rust_person_proto"],
 )

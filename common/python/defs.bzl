@@ -6,6 +6,7 @@ load(
     "@rules_python//python:defs.bzl",
     _py_binary = "py_binary",
     _py_library = "py_library",
+    _py_test = "py_test",
 )
 load("@third_party_python//:requirements.bzl", "requirement")
 load("@io_bazel_rules_docker//python3:image.bzl", _py3_image = "py3_image")
@@ -13,7 +14,7 @@ load("//third_party/python:requirements.bzl", "PY_DEPS")
 
 def py_binary(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//base/python:base")
+    deps.append("//common/python:base")
 
     reqs = kwargs.get("reqs", [])
     if reqs:
@@ -27,7 +28,7 @@ def py_binary(**kwargs):
 
 def py_library(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//base/python:base")
+    deps.append("//common/python:base")
 
     reqs = kwargs.get("reqs", [])
     if reqs:
@@ -41,7 +42,7 @@ def py_library(**kwargs):
 
 def py_image(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//base/python:base")
+    deps.append("//common/python:base")
 
     reqs = kwargs.get("reqs", [])
     if reqs:
@@ -81,8 +82,8 @@ py_notebook_runner = rule(
 def py_notebook(name, deps):
     py_binary(
         name = "{}.py_binary".format(name),
-        srcs = ["//base/python:jupyter.py"],
-        main = "//base/python:jupyter.py",
+        srcs = ["//common/python:jupyter.py"],
+        main = "//common/python:jupyter.py",
         deps = deps,
         tags = ["manual"],
         reqs = [
@@ -97,3 +98,6 @@ def py_notebook(name, deps):
         py_bin = ":{}.py_binary".format(name),
         tags = ["manual"],
     )
+
+def py_test(**kwargs):
+    _py_test(**kwargs)

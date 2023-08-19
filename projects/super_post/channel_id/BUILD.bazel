@@ -1,9 +1,9 @@
-load("//base:defs.bzl", "proto_library")
+load("//common:defs.bzl", "proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
 proto_library(
     name = "proto",
-    deps = [],
     srcs = ["stateful.proto"],
+    deps = [],
 )

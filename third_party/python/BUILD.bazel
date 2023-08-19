@@ -1,5 +1,5 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//base:defs.bzl", "config")
+load("//common:defs.bzl", "config")
 load("//third_party/python:requirements.bzl", "PY_DEPS")
 
 config(

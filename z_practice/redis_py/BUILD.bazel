@@ -1,14 +1,12 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@third_party_python//:requirements.bzl", "requirement")
 
-
-
 py_binary(
-    name= "pubsub",
+    name = "pubsub",
     srcs = ["pubsub.py"],
     main = "pubsub.py",
     deps = [
-        "//base/python:base",
+        "//common/python:base",
         requirement("redis"),
     ],
 )

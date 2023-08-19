@@ -8,11 +8,11 @@ rust_library(
         "lib.rs",
     ],
     deps = [
-       "//base/rust/error",
-       "//base/rust/log",
-       "//base/rust/raw_pointer",
-       "//base/rust/clock",
-       "//base/rust/context",
-       "//base/rust/token",
+        "//common/rust/clock",
+        "//common/rust/context",
+        "//common/rust/error",
+        "//common/rust/log",
+        "//common/rust/raw_pointer",
+        "//common/rust/token",
     ],
 )

@@ -8,7 +8,7 @@ rust_binary(
         "clap.rs",
     ],
     deps = [
-        "//base/rust:base",
+        "//common/rust:base",
         "@third_party_rust//:clap",
-    ]
+    ],
 )

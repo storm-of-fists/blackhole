@@ -4,5 +4,12 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "bazel.buildifierExecutable": "/usr/local/bin/buildifier",
-  "python.analysis.typeCheckingMode": "off"
+  "python.analysis.typeCheckingMode": "off",
+  "[json]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

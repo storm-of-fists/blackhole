@@ -1,1 +1,9 @@
-exports_files(["de440.bsp", "de440.bsp1"])
+filegroup(
+    name = "data",
+    srcs = [
+        "de440.bsp",
+        "sol_system.yaml",
+        "toy_system.yaml",
+    ],
+    visibility = ["//visibility:public"],
+)

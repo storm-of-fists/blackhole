@@ -1,4 +1,4 @@
-load("//base/python:defs.bzl", "py_binary", "py_library")
+load("//common/python:defs.bzl", "py_binary", "py_library", "py_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -28,11 +28,18 @@ py_library(
     name = "const",
     srcs = ["const.py"],
     data = [
-        "//projects/solar_sim/data:de440.bsp1",
+        "//projects/solar_sim/data",
     ],
     reqs = [
         "jplephem",
     ],
+)
+
+py_test(
+    name = "const_test",
+    srcs = ["const.py"],
+    main = "const.py",
+    deps = [":const"],
 )
 
 py_library(
