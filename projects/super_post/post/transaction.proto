@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package post.transaction;
 
-import "super_post/post/stateful.proto";
-import "super_post/channel_id/stateful.proto";
+import "projects/super_post/post/stateful.proto";
+import "projects/super_post/channel_id/stateful.proto";
 
 message CreatePost {
     post.stateful.Post post = 1;

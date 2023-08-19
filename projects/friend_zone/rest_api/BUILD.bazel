@@ -1,16 +1,14 @@
-load("//base/python:image.bzl", "py_image_combo")
-load("@third_party_python//:requirements.bzl", "requirement")
+load("//base:defs.bzl", "py_image")
 
 package(default_visibility = ["//visibility:public"])
 
-py_image_combo(
+py_image(
     name = "rest_api",
     srcs = ["rest_api.py"],
     main = "rest_api.py",
-    deps = [
-        "//base/python:base",
-        requirement("fastapi"),
-        requirement("uvicorn"),
-        requirement("redis"),
+    reqs = [
+        "fastapi",
+        "uvicorn",
+        "redis",
     ],
 )

@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 proto_library(
     name = "proto",
     deps = [
-        "//super_post/channel_id:proto",
+        "//projects/super_post/channel_id:proto",
     ],
     srcs = ["stateful.proto", "transaction.proto"],
 )

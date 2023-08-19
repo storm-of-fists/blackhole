@@ -67,7 +67,6 @@ def _py_notebook_runner_impl(ctx):
             "no-remote": "True",
             "local": "True",
             "requires-network": "True",
-            "manual": "True",
         },
     )
 
@@ -96,4 +95,5 @@ def py_notebook(name, deps):
     py_notebook_runner(
         name = name,
         py_bin = ":{}.py_binary".format(name),
+        tags = ["manual"],
     )

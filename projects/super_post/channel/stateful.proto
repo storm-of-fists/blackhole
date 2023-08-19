@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package channel.stateful;
 
-import "super_post/post/stateful.proto";
-import "super_post/channel_id/stateful.proto";
+import "projects/super_post/post/stateful.proto";
+import "projects/super_post/channel_id/stateful.proto";
 
 message Channel {
     channel_id.stateful.ChannelId id = 1;

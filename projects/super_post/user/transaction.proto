@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user.transaction;
 
-import "super_post/channel_id/stateful.proto";
+import "projects/super_post/channel_id/stateful.proto";
 
 message UpdateUsername {
     channel_id.stateful.ChannelId user_id = 2;
@@ -10,5 +10,5 @@ message UpdateUsername {
 }
 
 message SubscribeToUser {
-    
+
 }

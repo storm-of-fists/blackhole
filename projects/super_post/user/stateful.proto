@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package user.state;
 
-import "super_post/channel_id/stateful.proto";
+import "projects/super_post/channel_id/stateful.proto";
 
 message User {
     channel_id.stateful.ChannelId channel_id = 1;
     UserName username = 3;
-    
+
     ContactData contact_data = 5;
 }
 
