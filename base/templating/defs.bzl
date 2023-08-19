@@ -7,9 +7,9 @@ def _render_jinja_templates_impl(ctx):
     srcs = ctx.attr.srcs
 
     # Get configs
-    dict_config = ctx.attr.dict_config
     yaml_config = ctx.attr.yaml_config
     json_config = ctx.attr.json_config
+    json_string_config = ctx.attr.json_string_config
 
     # Get renderer settings
     combined_file_type = ctx.attr.combined_file_type
@@ -41,11 +41,11 @@ def _render_jinja_templates_impl(ctx):
 
     ### CREATE THE CONFIG FILES ###
     # Create a json file for any raw dict config.
-    if dict_config:
-        config_file = ctx.actions.declare_file("{}/config_files/_dict_config.json".format(name))
+    if json_string_config:
+        config_file = ctx.actions.declare_file("{}/config_files/_json_string_config.json".format(name))
         ctx.actions.write(
             output = config_file,
-            content = json.encode(dict_config),
+            content = json.encode(json_string_config),
         )
         config_list.append(config_file)
 
@@ -118,9 +118,9 @@ render_jinja_templates = rule(
         "srcs": attr.label_list(allow_files = True),
 
         ### Config types ###
-        "dict_config": attr.string_dict(default = {}),
         "yaml_config": attr.label_list(default = [], allow_files = True),
         "json_config": attr.label_list(default = [], allow_files = True),
+        "json_string_config": attr.string(default = ""),
 
         ### Jinja settings ###
         # Blocks can be instantiated like {% for var in vars %}

@@ -1,3 +1,0 @@
-{% for dep_name, dep_version in deps.items() %}
-{{ dep_name }}=={{ dep_version }}
-{% endfor %}

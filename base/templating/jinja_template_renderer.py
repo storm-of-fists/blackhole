@@ -36,14 +36,18 @@ if __name__ == "__main__":
     combined_config = {}
 
     for config_file in config_dir.iterdir():
+        config_dict = {}
+
         if config_file.suffix == ".yaml":
             with config_file.open() as yaml_file:
                 # TODO check for duplicate keys here
-                combined_config.update(yaml.load(yaml_file, Loader=yaml.FullLoader))
+                config_dict = yaml.load(yaml_file, Loader=yaml.FullLoader)
         elif config_file.suffix == ".json":
             with config_file.open() as json_file:
                 # TODO check for duplicate keys here
-                combined_config.update(json.load(json_file))
+                config_dict = json.loads(json.load(json_file))
+
+        combined_config.update(config_dict)
 
     if combined_file_type:
         combined_rendered = rendered_dir / f"combined.{combined_file_type}"

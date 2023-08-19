@@ -1,15 +1,16 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("//base:defs.bzl", "config")
+load("//third_party/python:requirements.bzl", "PY_DEPS")
 
 config(
-    name = "python_reqs",
-    srcs = ["requirements_tpl.in"],
-    yaml_config = ["//third_party/python:requirements.yaml"],
+    name = "reqs.in",
+    srcs = ["requirements.in"],
+    json_string_config = "{}".format({"deps": PY_DEPS}),
 )
 
 compile_pip_requirements(
     name = "requirements",
     extra_args = ["--allow-unsafe"],
-    requirements_in = ":python_reqs",
+    requirements_in = ":reqs.in",
     requirements_txt = "//third_party/python:requirements_lock.txt",
 )

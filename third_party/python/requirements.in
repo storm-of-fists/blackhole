@@ -1,0 +1,3 @@
+{% for dep_name, dep_info in deps.items() %}
+{{ dep_name }}=={{ dep_info.version }}
+{% endfor %}
