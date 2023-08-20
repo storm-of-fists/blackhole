@@ -10,18 +10,19 @@ import json
 if __name__ == "__main__":
     # Parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument("template_dir", type=Path)
-    parser.add_argument("rendered_dir", type=Path)
-    parser.add_argument("config_dir", type=Path)
+    parser.add_argument("templates", type=Path)
+    parser.add_argument("rendered", type=Path)
+    parser.add_argument("config", type=Path)
     parser.add_argument("--combined_file_type", type=str, default=None)
     parser.add_argument("--only_combined_file", type=bool, default=False)
     parser.add_argument("--config_name", type=str, default="")
     args = parser.parse_args()
 
     # Set up directories for the outputs
-    template_dir = args.template_dir
-    rendered_dir = args.rendered_dir
-    config_dir = args.config_dir
+    template_dir = args.templates
+    rendered_dir = args.rendered
+    config_dir = args.config
+
     combined_file_type = args.combined_file_type
     only_combined_file = args.only_combined_file
     config_name = args.config_name
@@ -31,6 +32,8 @@ if __name__ == "__main__":
         loader=FileSystemLoader(template_dir),
         undefined=StrictUndefined,
         autoescape=False,
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
 
     combined_config = {}
@@ -47,7 +50,8 @@ if __name__ == "__main__":
                 # TODO check for duplicate keys here
                 config_dict = json.loads(json.load(json_file))
 
-        combined_config.update(config_dict)
+        if config_dict:
+            combined_config.update(config_dict)
 
     if combined_file_type:
         combined_rendered = rendered_dir / f"combined.{combined_file_type}"

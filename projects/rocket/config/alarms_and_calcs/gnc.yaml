@@ -1,0 +1,25 @@
+gnc_group_1:
+  common:
+    persistence: 1.0 s
+    operation_types: [launch]
+    states: [nice, fun, cool, prep]
+  alarms:
+    {% for axis in imu.accel.axes %}
+    "gnc_imu_axis_{{ axis }}_out_of_bounds":
+      display_name: "GNC IMU Axis {{ axis }} Out Of Bounds"
+      response_description: "Try whacking the thing."
+      ref:
+        - "eat shit"
+      alert:
+        conditions:
+          {% if axis > 1 %}
+          - channel: "imu_axis_{{ axis }} >= 10.0"
+          {% else %}
+          - channel: "imu_axis_{{ axis }} >= 15.0"
+          {% endif %}
+        preconditions:
+          - channel: "imu_mode == init"
+    {% endfor %}
+
+gnc_group_2:
+  alarms:

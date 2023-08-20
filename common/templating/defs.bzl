@@ -56,9 +56,10 @@ def _render_jinja_templates_impl(ctx):
             ctx.actions.symlink(output = config_symlink, target_file = yaml_file)
             config_list.append(config_symlink)
 
-    # Now that we have collected all config, check that we actually have some.
-    if not config_list:
-        fail("No config found!")
+    # Create an empty config file just in case.
+    empty_config = ctx.actions.declare_file("{}/config/_empty.yaml".format(name))
+    ctx.actions.write(output = empty_config, content = "")
+    config_list.append(empty_config)
 
     ### COLLECT TEMPLATES ###
     for template_name, template_str in string_templates.items():
