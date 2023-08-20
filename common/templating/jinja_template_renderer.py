@@ -3,7 +3,6 @@ import jinja2
 from jinja2 import Environment, StrictUndefined, FileSystemLoader
 from pathlib import Path
 
-# import ast
 import yaml
 import json
 
@@ -16,6 +15,14 @@ if __name__ == "__main__":
     parser.add_argument("--combined_file_type", type=str, default=None)
     parser.add_argument("--only_combined_file", type=bool, default=False)
     parser.add_argument("--config_name", type=str, default="")
+    parser.add_argument("--block_start_string", type=str, default="")
+    parser.add_argument("--block_end_string", type=str, default="")
+    parser.add_argument("--variable_start_string", type=str, default="")
+    parser.add_argument("--variable_end_string", type=str, default="")
+    parser.add_argument("--comment_start_string", type=str, default="")
+    parser.add_argument("--comment_end_string", type=str, default="")
+    parser.add_argument("--line_statement_prefix", type=str, default="")
+    parser.add_argument("--line_comment_prefix", type=str, default="")
     args = parser.parse_args()
 
     # Set up directories for the outputs
@@ -34,6 +41,14 @@ if __name__ == "__main__":
         autoescape=False,
         trim_blocks=True,
         lstrip_blocks=True,
+        block_start_string=args.block_start_string,
+        block_end_string=args.block_end_string,
+        variable_start_string=args.variable_start_string,
+        variable_end_string=args.variable_end_string,
+        comment_start_string=args.comment_start_string,
+        comment_end_string=args.comment_end_string,
+        line_statement_prefix=args.line_statement_prefix,
+        line_comment_prefix=args.line_comment_prefix,
     )
 
     combined_config = {}

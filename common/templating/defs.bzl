@@ -101,6 +101,15 @@ def _render_jinja_templates_impl(ctx):
     if only_combined_file:
         exec_args.add("--only_combined_file={}".format(only_combined_file))
 
+    exec_args.add("--block_start_string={}".format(ctx.attr.block_start_string))
+    exec_args.add("--block_end_string={}".format(ctx.attr.block_end_string))
+    exec_args.add("--variable_start_string={}".format(ctx.attr.variable_start_string))
+    exec_args.add("--variable_end_string={}".format(ctx.attr.variable_end_string))
+    exec_args.add("--comment_start_string={}".format(ctx.attr.comment_start_string))
+    exec_args.add("--comment_end_string={}".format(ctx.attr.comment_end_string))
+    exec_args.add("--line_statement_prefix={}".format(ctx.attr.line_statement_prefix))
+    exec_args.add("--line_comment_prefix={}".format(ctx.attr.line_comment_prefix))
+
     ### RUN PY BINARY TO RENDER THINGS ###
     ctx.actions.run(
         executable = ctx.executable._template_renderer_binary,
@@ -158,5 +167,21 @@ render_jinja_templates = rule(
     },
 )
 
-def config(srcs, yaml_config = [], **kwargs):
-    render_jinja_templates(srcs = srcs, yaml_config = yaml_config, only_combined_file = True, **kwargs)
+def config(
+        srcs,
+        yaml_config = [],
+        block_start_string = "{{",
+        block_end_string = "}}",
+        variable_start_string = "{",
+        variable_end_string = "}",
+        **kwargs):
+    render_jinja_templates(
+        srcs = srcs,
+        yaml_config = yaml_config,
+        only_combined_file = True,
+        block_start_string = block_start_string,
+        block_end_string = block_end_string,
+        variable_start_string = variable_start_string,
+        variable_end_string = variable_end_string,
+        **kwargs
+    )
