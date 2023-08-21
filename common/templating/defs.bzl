@@ -170,10 +170,10 @@ render_jinja_templates = rule(
 def config(
         srcs,
         yaml_config = [],
-        block_start_string = "{{",
-        block_end_string = "}}",
-        variable_start_string = "{",
-        variable_end_string = "}",
+        block_start_string = "{%",
+        block_end_string = "%}",
+        variable_start_string = "{{",
+        variable_end_string = "}}",
         **kwargs):
     render_jinja_templates(
         srcs = srcs,

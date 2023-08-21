@@ -1,0 +1,17 @@
+imu:
+  accelerometer:
+    units: g
+    max_magnitude: 16
+    axes:
+      {% for axis_num in [1, 2, 3] %}
+      axis_{{ axis_num }}:
+        calibration: 1
+      {% endfor %}
+  gyroscope:
+    units: rad/s
+    max_magnitude: 500
+    axes:
+      {% for axis_num in [1, 2, 3] %}
+      axis_{{ axis_num }}:
+        calibration: 1
+      {% endfor %}

@@ -1,0 +1,11 @@
+imu_test:
+  accel_test:
+    {% for axis_name, axis_info in imu.accelerometer.axes.items() %}
+    axis_{{ axis_name}}:
+      shake_at: {{ axis_info.calibration * imu.accelerometer.max_magnitude }}
+    {% endfor %}
+  gyro_test:
+    {% for axis_name, axis_info in imu.gyroscope.axes.items() %}
+    axis_{{ axis_name}}:
+      rotate_at: {{ axis_info.calibration * imu.gyroscope.max_magnitude }}
+    {% endfor %}

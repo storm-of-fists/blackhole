@@ -1,0 +1,42 @@
+load(
+    "//common:defs.bzl",
+    "config",
+    "py_binary",
+    "rust_binary",
+)
+
+config(
+    name = "config",
+    srcs = ["config.yaml"],
+)
+
+config(
+    name = "dep_config",
+    srcs = ["dep_config.yaml"],
+    yaml_config = [":config"],
+)
+
+# TODO: just make a py_binary template rule so you dont need 2
+config(
+    name = "python_tpl",
+    srcs = ["py_example.py"],
+    yaml_config = [":config"],
+)
+
+py_binary(
+    name = "python",
+    srcs = [":python_tpl"],
+    # TODO: change it so you can name the combined files
+    main = "combined.py",
+)
+
+config(
+    name = "rust_tpl",
+    srcs = ["rust_example.rs"],
+    yaml_config = [":config"],
+)
+
+rust_binary(
+    name = "rust",
+    srcs = [":rust_tpl"],
+)
