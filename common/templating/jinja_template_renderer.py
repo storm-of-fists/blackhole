@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument("--comment_end_string", type=str, default="")
     parser.add_argument("--line_statement_prefix", type=str, default="")
     parser.add_argument("--line_comment_prefix", type=str, default="")
-    args = parser.parse_args()
+    args = parser.parse_args() 
 
     # Set up directories for the outputs
     template_dir = args.templates

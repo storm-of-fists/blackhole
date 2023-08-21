@@ -1,25 +1,37 @@
 gnc_group_1:
+  # These attributes are common to all alarms in the group.
   common:
-    persistence: 1.0 s
-    operation_types: [launch]
-    states: [nice, fun, cool, prep]
+    preconditions:
+      - operations: [launch]
+      - states: [nice, fun, cool, prep]
+      # Name preconditions in order to override them.
+      - channel: "imu_mode == init"
+        name: init_precondition
+    references:
+      - tkt: "TICKET-1523"
+      - url: "https://youtube.com"
+    persistence: 1.0 seconds
   alarms:
+    # Generate an alarm for each axis.
     {{ for axis in imu.accel.axes }}
-    "gnc_imu_axis_{ axis }_out_of_bounds":
+    # Axis 1 has lower limits.
+    {{ set limit = 15.0 if axis > 1 else 10.0 }}
+
+    gnc_imu_axis_{ axis }_out_of_bounds:
       display_name: "GNC IMU Axis { axis } Out Of Bounds"
+      trigger_description: "The IMU is acting weird."
       response_description: "Try whacking the thing."
-      ref:
-        - "eat shit"
       alert:
         conditions:
-          {{ if axis > 1 }}
-          - channel: "imu_axis_{ axis } >= 10.0"
-          {{ else }}
-          - channel: "imu_axis_{ axis } >= 15.0"
-          {{ endif }}
+          - channel: "imu_axis_{ axis } >= { limit }"
+        # Preconditions added here when there are common ones defined are added.
+        # Use an override field to override ones above.
         preconditions:
-          - channel: "imu_mode == init"
-    {{ endfor }}
+          - channel: "imu_setting == high_speed"
+          common_overrides:
+            - channel: "imu_mode == init_2"
+              name: init_precondition
+      common_overrides:
+        persistence: 3.0
 
-gnc_group_2:
-  alarms:
+    {{ endfor }}

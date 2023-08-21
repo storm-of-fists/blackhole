@@ -1,8 +1,15 @@
 imu:
   accel:
+    units: g
     axes:
       {{ for num in [1, 2, 3] }}
       { num }:
-        min: -50
-        max: 50
+        name: imu_axis_{ num }
       {{ endfor }}
+    max_magnitude: 16
+  gyroscope:
+    units: rad/s
+    max_magnitude: 16
+  magnetometer:
+    units: mag/s?
+    max_magnitude: 16
