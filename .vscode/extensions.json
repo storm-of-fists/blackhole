@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "BazelBuild.vscode-bazel",
+    "eamodio.gitlens",
+    "ms-python.python",
+    "rust-lang.rust-analyzer",
+    "foxundermoon.shell-format",
+    "zxh404.vscode-proto3",
+    "ms-python.black-formatter",
+    "esbenp.prettier-vscode"
+  ]
+}
