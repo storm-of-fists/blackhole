@@ -1,0 +1,23 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "do_every",
+    srcs = [
+        "do_every.rs",
+    ],
+)
+
+rust_test(
+    name = "test_do_every",
+    srcs = ["test_do_every.rs"],
+    deps = [
+        ":do_every",
+    ],
+)
+
+rust_binary(
+    name = "run_do_every",
+    srcs = ["do_every.rs"],
+)
