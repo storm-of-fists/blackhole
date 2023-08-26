@@ -14,6 +14,7 @@ load(
     "//common/rust:defs.bzl",
     _rust_binary = "rust_binary",
     _rust_library = "rust_library",
+    _rust_test = "rust_test",
 )
 load(
     "//common/proto:defs.bzl",
@@ -37,6 +38,7 @@ py_test = _py_test
 ### RUST ###
 rust_library = _rust_library
 rust_binary = _rust_binary
+rust_test = _rust_test
 
 ### PROTO ###
 proto_library = _proto_library
