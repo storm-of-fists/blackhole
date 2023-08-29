@@ -1,5 +1,5 @@
 use arrayvec::ArrayString;
-use clap::{arg, Arg, Command, ArgMatches};
+use clap::{arg, Arg, ArgMatches, Command};
 use raw_pointer::RawPointer;
 use uuid::Uuid;
 
@@ -17,10 +17,7 @@ impl Context {
             .arg(arg!(--app_name <APP_NAME> "set the app name"))
             .arg(arg!(--uuid_override [UUID_OVERRIDE] "Specify the uuid that should be used by the application."));
 
-        Self {
-            uuid,
-            command,
-        }
+        Self { uuid, command }
     }
 
     pub fn add_arg(mut self, arg: Arg) -> Self {
@@ -32,7 +29,8 @@ impl Context {
         let parsed_args = self.command.get_matches_mut();
 
         if let Some(uuid_override) = parsed_args.get_one::<String>("uuid_override") {
-            self.uuid = Uuid::try_parse(uuid_override).expect("UUID override was improperly formatted!");
+            self.uuid =
+                Uuid::try_parse(uuid_override).expect("UUID override was improperly formatted!");
         }
 
         return parsed_args;
@@ -51,6 +49,6 @@ macro_rules! init_context {
         use context::Context;
 
         let mut context = Context::new();
-        create_raw_ptr!(context)
-    }}
+        raw_pointer::create_raw_ptr!(context)
+    }};
 }

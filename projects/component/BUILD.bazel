@@ -1,9 +1,22 @@
-load("//common/rust:defs.bzl", "rust_library")
+load("//common/rust:defs.bzl", "rust_binary", "rust_library")
 
 package(default_visibility = ["//visibility:private"])
 
 rust_library(
     name = "component",
+    srcs = [
+        "component.rs",
+    ],
+    deps = [
+        "//common/rust/clock",
+        "//common/rust/context",
+        "//common/rust/raw_pointer",
+        "@third_party_rust//:tokio",
+    ],
+)
+
+rust_binary(
+    name = "comp_run",
     srcs = [
         "component.rs",
     ],

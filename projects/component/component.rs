@@ -1,6 +1,7 @@
 #![feature(async_fn_in_trait)]
 
-use context::ContextPtr;
+use base::log;
+use context::{init_context, ContextPtr};
 
 pub enum ComponentLifecycleState {
     Create,
@@ -81,4 +82,32 @@ pub trait ComponentTrait: Sized {
     async fn destroy(&mut self) {
         return;
     }
+}
+
+pub struct CoolComp {}
+
+impl ComponentTrait for CoolComp {
+    async fn create(_context: ContextPtr) -> Self {
+        log::info!("create!");
+        Self {}
+    }
+
+    async fn start(&mut self) {
+        log::info!("start!");
+    }
+
+    fn dispatch(&mut self) {
+        log::info!("dispatch!");
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    log::default().init();
+
+    let context = unsafe { init_context!() };
+
+    let mut comp = Component::create(context, CoolComp {}).await;
+
+    comp.start().await;
 }
