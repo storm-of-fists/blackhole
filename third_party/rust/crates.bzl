@@ -1,7 +1,4 @@
 third_party_crates = {
-    "getset": {
-        "version": "=0.1.2",
-    },
     "eyre": {
         "version": "=0.6.8",
     },
@@ -9,29 +6,29 @@ third_party_crates = {
         "version": "=0.10.0",
     },
     "log": {
-        "version": "=0.4.17",
+        "version": "=0.4.20",
     },
     "uuid": {
         "features": [
             "v4",
         ],
-        "version": "=1.1.2",
+        "version": "=1.4.1",
     },
     "kafka": {
         "version": "=0.9",
     },
     "clap": {
-        "version": "=4.1.11",
-        "features": ["derive"]
+        "version": "=4.4.1",
+        "features": ["derive"],
     },
-    "tokio": { 
-        "version": "=1", 
-        "features": ["full"]
+    "tokio": {
+        "version": "=1.32.0",
+        "features": ["full"],
     },
     "arrayvec": {
-        "version": "0.7.2",
+        "version": "0.7.4",
     },
-    "mini-redis": {
-        "version": "0.4"
-    }
+    "proc-macro2": {
+        "version": "1.0.66",
+    },
 }
