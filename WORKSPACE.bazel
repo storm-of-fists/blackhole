@@ -1,249 +1,38 @@
-workspace(name = "blackhole")
+# workspace(name = "blackhole")
 
-### DEPS ###
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Rust rules
-http_archive(
-    name = "rules_rust",
-    sha256 = "9d04e658878d23f4b00163a72da3db03ddb451273eb347df7d7c50838d698f49",
-    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.26.0/rules_rust-v0.26.0.tar.gz"],
-)
 
-# Python rules
-http_archive(
-    name = "rules_python",
-    sha256 = "0a8003b044294d7840ac7d9d73eef05d6ceb682d7516781a4ec62eeb34702578",
-    strip_prefix = "rules_python-0.24.0",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.24.0/rules_python-0.24.0.tar.gz",
-)
 
-# Protobuf rules
-http_archive(
-    name = "rules_proto",
-    sha256 = "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
-    strip_prefix = "rules_proto-5.3.0-21.7",
-    urls = [
-        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
-    ],
-)
-
-# Protoc/language proto rules
-http_archive(
-    name = "rules_proto_grpc",
-    sha256 = "fb7fc7a3c19a92b2f15ed7c4ffb2983e956625c1436f57a3430b897ba9864059",
-    strip_prefix = "rules_proto_grpc-4.3.0",
-    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.3.0.tar.gz"],
-)
-
-# Docker archive
-http_archive(
-    name = "io_bazel_rules_docker",
-    sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
-)
-
-# Rules JS
+# # Protoc/language proto rules
 # http_archive(
-#     name = "aspect_rules_js",
-#     sha256 = "00e7b97b696af63812df0ca9e9dbd18579f3edd3ab9a56f227238b8405e4051c",
-#     strip_prefix = "rules_js-1.23.0",
-#     url = "https://github.com/aspect-build/rules_js/releases/download/v1.23.0/rules_js-v1.23.0.tar.gz",
+#     name = "rules_proto_grpc",
+#     sha256 = "fb7fc7a3c19a92b2f15ed7c4ffb2983e956625c1436f57a3430b897ba9864059",
+#     strip_prefix = "rules_proto_grpc-4.3.0",
+#     urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.3.0.tar.gz"],
 # )
 
-# # Rules TS
+# # Docker archive
 # http_archive(
-#     name = "aspect_rules_ts",
-#     sha256 = "58b6c0ad158fc42883dafa157f1a25cddd65bcd788a772620192ac9ceefa0d78",
-#     strip_prefix = "rules_ts-1.3.2",
-#     url = "https://github.com/aspect-build/rules_ts/releases/download/v1.3.2/rules_ts-v1.3.2.tar.gz",
+#     name = "io_bazel_rules_docker",
+#     sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
+#     urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
 # )
 
-# # Rules Jest
-# http_archive(
-#     name = "aspect_rules_jest",
-#     sha256 = "9f327ea58950c88274ea7243419256c74ae29a55399d2f5964eb7686c7a5660d",
-#     strip_prefix = "rules_jest-0.15.0",
-#     url = "https://github.com/aspect-build/rules_jest/archive/refs/tags/v0.15.0.tar.gz",
+
+
+# ### DOCKER DEPS ###
+# load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
+
+# container_repositories()
+
+# load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+# container_deps(
+#     # https://github.com/bazelbuild/rules_docker/issues/1902
+#     go_repository_default_config = "@//:WORKSPACE.bazel",
 # )
 
-### RUST RULES ###
+# ### PYTHON CONTAINER RULES ###
+# load("@io_bazel_rules_docker//python3:image.bzl", py_image_repos = "repositories")
 
-load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
-
-rules_rust_dependencies()
-
-RUST_STABLE_VERSION = "1.72.0"
-
-RUST_NIGHTLY_VERSION = "nightly/2023-08-26"
-
-rust_register_toolchains(
-    edition = "2021",
-    rust_analyzer_version = RUST_STABLE_VERSION,
-    rustfmt_version = RUST_STABLE_VERSION,
-    versions = [
-        RUST_STABLE_VERSION,
-        RUST_NIGHTLY_VERSION,
-    ],
-)
-
-### RUST THIRD PARTY ###
-
-load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
-
-crate_universe_dependencies()
-
-load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository", "render_config")
-load("//third_party/rust:crates.bzl", "third_party_crates")
-
-crates_repository(
-    name = "third_party_rust",
-    cargo_lockfile = "//third_party/rust:Cargo.Bazel.lock",
-    lockfile = "//third_party/rust:cargo-bazel-lock.json",
-    packages = {
-        name: crate.spec(
-            default_features = info.get("default_features", True),
-            features = info.get("features", []),
-            version = info["version"],
-        )
-        for name, info in third_party_crates.items()
-    },
-    # Setting the default package name to `""` forces the use of the macros defined in this repository
-    # to always use the root package when looking for dependencies or aliases. This should be considered
-    # optional as the repository also exposes alises for easy access to all dependencies.
-    render_config = render_config(
-        default_package_name = "",
-    ),
-    rust_version = RUST_STABLE_VERSION,
-)
-
-load("@third_party_rust//:defs.bzl", "crate_repositories")
-
-crate_repositories()
-
-### RUST ANALYZER ###
-load("@rules_rust//tools/rust_analyzer:deps.bzl", "rust_analyzer_dependencies")
-
-rust_analyzer_dependencies()
-
-### PYTHON RULES ###
-load("@rules_python//python:repositories.bzl", "python_register_toolchains")
-
-PYTHON_VERSION = "3.9"
-
-python_register_toolchains(
-    name = "python3",
-    python_version = PYTHON_VERSION,
-)
-
-load("@python3//:defs.bzl", "interpreter")
-
-### PIP THIRD PARTY ###
-load("@rules_python//python:pip.bzl", "pip_parse")
-
-pip_parse(
-    name = "third_party_python",
-    python_interpreter_target = interpreter,
-    requirements_lock = "//third_party/python:requirements_lock.txt",
-)
-
-# Create a central repo that knows about the dependencies needed from Pipfile.lock
-# Each dependency will only be loaded if needed by a target.
-# load("//tools/python/pipenv:defs.bzl", "pipenv_parse")
-# pipenv_parse(
-#     name="third_party_python",
-#     pipfile="//third_party/python:Pipfile",
-#     pipfile_lock="//third_party/python:Pipfile.lock",
-#     python_interpreter_target=interpreter,
-# )
-# steal this https://github.com/jacksmith15/bazel-python-demo
-
-# Load the starlark macro which will define your dependencies.
-load("@third_party_python//:requirements.bzl", "install_deps")
-
-# Call it to define repos for your requirements.
-install_deps()
-
-### RULES_PROTO ###
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
-rules_proto_dependencies()
-
-rules_proto_toolchains()
-
-### PROTOBUFS ###
-load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
-
-rules_proto_grpc_toolchains()
-
-rules_proto_grpc_repos()
-
-### PYTHON PROTOBUF ###
-load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
-
-rules_proto_grpc_python_repos()
-
-### RUST PROTOBUF ###
-load("@rules_proto_grpc//rust:repositories.bzl", rules_proto_grpc_rust_repos = "rust_repos")
-
-rules_proto_grpc_rust_repos()
-
-### DOCKER DEPS ###
-load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
-
-container_repositories()
-
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-
-container_deps(
-    # https://github.com/bazelbuild/rules_docker/issues/1902
-    go_repository_default_config = "@//:WORKSPACE.bazel",
-)
-
-### PYTHON CONTAINER RULES ###
-load("@io_bazel_rules_docker//python3:image.bzl", py_image_repos = "repositories")
-
-py_image_repos()
-
-### NODE JS ###
-# load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
-
-# rules_js_dependencies()
-
-# load("@rules_nodejs//nodejs:repositories.bzl", "DEFAULT_NODE_VERSION", "nodejs_register_toolchains")
-
-# nodejs_register_toolchains(
-#     name = "nodejs",
-#     node_version = DEFAULT_NODE_VERSION,
-# )
-
-# load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock")
-
-# npm_translate_lock(
-#     name = "npm",
-#     pnpm_lock = "//third_party/javascript:pnpm-lock.yaml",
-#     verify_node_modules_ignored = "//:.bazelignore",
-# )
-
-# load("@npm//:repositories.bzl", "npm_repositories")
-
-# npm_repositories()
-
-# load("@aspect_rules_jest//jest:dependencies.bzl", "rules_jest_dependencies")
-
-# rules_jest_dependencies()
-
-# # Fetches the npm packages for jest-cli.
-# load("@aspect_rules_jest//jest:repositories.bzl", "jest_repositories")
-
-# jest_repositories(name = "jest")
-
-# load("@jest//:npm_repositories.bzl", jest_npm_repositories = "npm_repositories")
-
-# jest_npm_repositories()
-
-# load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies", "LATEST_VERSION")
-
-# rules_ts_dependencies(ts_version = LATEST_VERSION)
-
-# END -----------------------------------
+# py_image_repos()

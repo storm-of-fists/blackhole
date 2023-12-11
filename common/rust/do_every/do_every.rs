@@ -13,17 +13,14 @@ macro_rules! do_every_duration {
     };
 
     ($duration:expr, $do_every:expr) => {
-        let start = std::time::Instant::now();
         static mut LAST_DONE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
         let current_time = std::time::SystemTime::now()
             .duration_since(std::time::SystemTime::UNIX_EPOCH)
             .unwrap()
             .as_micros() as u64;
-        let start = std::time::Instant::now();
         unsafe {
             if current_time - LAST_DONE.get_mut().clone() > $duration.as_micros() as u64 {
                 LAST_DONE.store(current_time, std::sync::atomic::Ordering::Relaxed);
-                println!("{:?}", start.elapsed());
                 $do_every;
             }
         }

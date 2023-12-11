@@ -1,4 +1,4 @@
-load("//common/rust:defs.bzl", "rust_binary", "rust_library")
+load("//common/rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -16,7 +16,7 @@ rust_library(
 )
 
 rust_binary(
-    name = "comp_run",
+    name = "run",
     srcs = [
         "component.rs",
     ],
@@ -26,4 +26,9 @@ rust_binary(
         "//common/rust/raw_pointer",
         "@third_party_rust//:tokio",
     ],
+)
+
+rust_test(
+    name = "test",
+    crate = ":component",
 )

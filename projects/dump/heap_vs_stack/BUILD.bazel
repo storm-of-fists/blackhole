@@ -1,0 +1,8 @@
+load("//common/rust:defs.bzl", "rust_test")
+
+rust_test(
+    name = "test",
+    srcs = [
+        "main.rs",
+    ],
+)

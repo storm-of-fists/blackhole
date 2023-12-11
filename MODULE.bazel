@@ -1,0 +1,42 @@
+### Python ###
+bazel_dep(name = "rules_python", version = "0.27.1")
+
+PYTHON_VERSION = "3.11"
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+
+python.toolchain(
+    python_version = PYTHON_VERSION,
+    is_default = True,
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+
+pip.parse(
+    hub_name = "pypi",
+    python_version = PYTHON_VERSION,
+    requirements_lock = "//third_party/python:requirements_lock.txt",
+)
+
+use_repo(pip, "pypi")
+
+### Proto ###
+bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
+
+### Shell ###
+bazel_dep(name = "rules_shellcheck", version = "0.2.4")
+
+### C++ ###
+bazel_dep(name = "rules_cc", version = "0.0.9")
+
+### Rust ###
+rules_rust = use_extension("//third_party/rust:rust_deps.bzl", "rules_rust")
+use_repo(rules_rust, "rules_rust", "third_party_rust")
+
+### INTEGRATION TEST ###
+# https://github.com/bazel-contrib/rules_bazel_integration_test
+# bazel_dep(
+#     name = "rules_bazel_integration_test",
+#     version = "0.20.0",
+#     dev_dependency = True,
+# )
