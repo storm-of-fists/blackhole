@@ -1,17 +1,7 @@
-# use the registered python toolchain for building py images
-build --incompatible_use_python_toolchains
-test --incompatible_use_python_toolchains
-
 # Attempt to build & test every target whose prerequisites were successfully built.
 # Docs: https://bazel.build/docs/user-manual#keep-going
 build --keep_going
 test  --keep_going
-
-# Output test errors to stderr so users don't have to `cat` or open test failure log files when test
-# fail. This makes the log noiser in exchange for reducing the time-to-feedback on test failures for
-# users.
-# Docs: https://bazel.build/docs/user-manual#test-output
-test --test_output=errors
 
 # Show the output files created by builds that requested more than one target. This helps users
 # locate the build outputs in more cases
@@ -56,52 +46,12 @@ test --sandbox_default_allow_network=false
 # Docs: https://bazel.build/docs/user-manual#test-verbose-timeout-warnings
 test --test_verbose_timeout_warnings
 
-# Allow the Bazel server to check directory sources for changes. Ensures that the Bazel server
-# notices when a directory changes, if you have a directory listed in the srcs of some target.
-# Recommended when using
-# [copy_directory](https://github.com/aspect-build/bazel-lib/blob/main/docs/copy_directory.md) and
-# [rules_js](https://github.com/aspect-build/rules_js) since npm package are source directories
-# inputs to copy_directory actions.
-# Docs: https://bazel.build/reference/command-line-reference#flag--host_jvm_args
-startup --host_jvm_args=-DBAZEL_TRACK_SOURCE_DIRECTORIES=1
-
 # Use a static value for `PATH` and does not inherit `LD_LIBRARY_PATH`. Doesn't let environment
 # variables like `PATH` sneak into the build, which can cause massive cache misses when they change.
 # Use `--action_env=ENV_VARIABLE` if you want to inherit specific environment variables from the
 # client, but note that doing so can prevent cross-user caching if a shared cache is used.
 # Docs: https://bazel.build/reference/command-line-reference#flag--incompatible_strict_action_env
 build --incompatible_strict_action_env
-
-# Propagate tags from a target declaration to the actions' execution requirements.
-# Ensures that tags applied in your BUILD file, like `tags=["no-remote"]`
-# get propagated to actions created by the rule.
-# Without this option, you rely on rules authors to manually check the tags you passed
-# and apply relevant ones to the actions they create.
-# See https://github.com/bazelbuild/bazel/issues/8830 for details.
-# Docs: https://bazel.build/reference/command-line-reference#flag--experimental_allow_tags_propagation
-build --experimental_allow_tags_propagation
-fetch --experimental_allow_tags_propagation
-query --experimental_allow_tags_propagation
-
-############################################################
-# Use `bazel test --config=debug` to enable these settings #
-############################################################
-
-# Stream stdout/stderr output from each test in real-time.
-# Docs: https://bazel.build/docs/user-manual#test-output
-test:debug --test_output=streamed
-
-# Run one test at a time.
-# Docs: https://bazel.build/reference/command-line-reference#flag--test_strategy
-test:debug --test_strategy=exclusive
-
-# Prevent long running tests from timing out.
-# Docs: https://bazel.build/docs/user-manual#test-timeout
-test:debug --test_timeout=9999
-
-# Always run tests even if they have cached results.
-# Docs: https://bazel.build/docs/user-manual#cache-test-results
-test:debug --nocache_test_results
 
 # Merkle tree calculations will be memoized to improve the remote cache hit checking speed. The
 # memory foot print of the cache is controlled by `--experimental_remote_merkle_tree_cache_size`.
@@ -117,15 +67,6 @@ query --experimental_remote_merkle_tree_cache
 build --experimental_remote_merkle_tree_cache_size=1000
 query --experimental_remote_merkle_tree_cache_size=1000
 
-# Speed up all builds by not checking if output files have been modified. Lets you make changes to
-# the output tree without triggering a build for local debugging. For example, you can modify
-# [rules_js](https://github.com/aspect-build/rules_js) 3rd party npm packages in the output tree
-# when local debugging.
-# Docs: https://github.com/bazelbuild/bazel/blob/1af61b21df99edc2fc66939cdf14449c2661f873/src/main/java/com/google/devtools/build/lib/pkgcache/PackageOptions.java#L185
-build --noexperimental_check_output_files
-fetch --noexperimental_check_output_files
-query --noexperimental_check_output_files
-
 # Don't apply `--noremote_upload_local_results` and `--noremote_accept_cached` to the disk cache.
 # If you have both `--noremote_upload_local_results` and `--disk_cache`, then this fixes a bug where
 # Bazel doesn't write to the local disk cache as it treats as a remote cache.
@@ -133,11 +74,9 @@ query --noexperimental_check_output_files
 build --incompatible_remote_results_ignore_disk
 
 # Directories used by sandboxed non-worker execution may be reused to avoid unnecessary setup costs.
-# Save time on Sandbox creation and deletion when many of the same kind of action run during the
-# build.
-# No longer experimental in Bazel 6: https://github.com/bazelbuild/bazel/commit/c1a95501a5611878e5cc43a3cc531f2b9e47835b
+# Save time on Sandbox creation and deletion when many of the same kind of action run during the build.
 # Docs: https://bazel.build/reference/command-line-reference#flag--reuse_sandbox_directories
-build --experimental_reuse_sandbox_directories
+build --reuse_sandbox_directories
 
 # Do not build runfiles symlink forests for external repositories under
 # `.runfiles/wsname/external/repo` (in addition to `.runfiles/repo`). This reduces runfiles &
@@ -158,14 +97,36 @@ test --nolegacy_external_runfiles
 # https://bazel.build/reference/command-line-reference#flag--modify_execution_info
 build --modify_execution_info=PackageTar=+no-remote
 
-# Load any settings & overrides specific to the current user from `.aspect/bazelrc/user.bazelrc`.
+# Python aspects for type checking and mypy config file.
+# build --aspects @mypy_integration//:mypy.bzl%mypy_aspect
+# build --output_groups=+mypy
+# build --@mypy_integration//:mypy_config=//:mypy.ini
+
+# Buildbuddy
+build --bes_results_url=https://blackhole.buildbuddy.io/invocation/
+build --bes_backend=grpcs://blackhole.buildbuddy.io
+build --remote_cache=grpcs://blackhole.buildbuddy.io
+build --noremote_upload_local_results # Uploads logs & artifacts without writing to cache
+build --remote_timeout=3600
+build --remote_header=x-buildbuddy-api-key=bhtCPCmedfo26b6mLlEh
+
+build --symlink_prefix="./out/bazel"
+
+# Make bazel use the nightly toolchain by default.
+build --@rules_rust//rust/toolchain/channel=nightly
+
+# Use bazel module file for most dependencies.
+common --enable_bzlmod
+
+# Buildbuddy suggestions
+build --remote_cache_compression
+build --remote_build_event_upload=all
+build --noslim_profile
+build --experimental_profile_include_target_label
+build --experimental_profile_include_primary_output
+build --nolegacy_important_outputs
+
 # This file should appear in `.gitignore` so that settings are not shared with team members. This
 # should be last statement in this config so the user configuration is able to overwrite flags from
 # this file. See https://bazel.build/configure/best-practices#bazelrc-file.
-
-try-import %workspace%/.aspect/bazelrc/user.bazelrc
-
-build --symlink_prefix="./out/bazel"
-<!-- build --@rules_rust//rust/toolchain/channel=nightly -->
-
-common --enable_bzlmod
+try-import %workspace%/user.bazelrc

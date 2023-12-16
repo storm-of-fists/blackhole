@@ -1,6 +1,6 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
-load("@rules_proto_grpc//rust:defs.bzl", "rust_proto_library")
+load("@grpc//bazel:python_rules.bzl", "py_proto_library")
+# load("@grpc//:rust/defs.bzl", "rust_proto_library")
 load("//common/python:defs.bzl", "py_binary")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 
@@ -9,9 +9,9 @@ proto_library(
     srcs = ["person.proto"],
 )
 
-python_proto_library(
+py_proto_library(
     name = "py_person_proto",
-    protos = [":person_proto"],
+    deps = [":person_proto"],
 )
 
 py_binary(
@@ -20,13 +20,13 @@ py_binary(
     deps = [":py_person_proto"],
 )
 
-rust_proto_library(
-    name = "rust_person_proto",
-    protos = [":person_proto"],
-)
+# rust_proto_library(
+#     name = "rust_person_proto",
+#     protos = [":person_proto"],
+# )
 
-rust_binary(
-    name = "rust_test_bin",
-    srcs = ["my_proto.rs"],
-    deps = [":rust_person_proto"],
-)
+# rust_binary(
+#     name = "rust_test_bin",
+#     srcs = ["my_proto.rs"],
+#     deps = [":rust_person_proto"],
+# )

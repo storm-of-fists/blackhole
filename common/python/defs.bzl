@@ -9,7 +9,7 @@ load(
     _py_test = "py_test",
 )
 load("@pypi//:requirements.bzl", "requirement")
-load("@io_bazel_rules_docker//python3:image.bzl", _py3_image = "py3_image")
+# load("@io_bazel_rules_docker//python3:image.bzl", _py3_image = "py3_image")
 load("//third_party/python:requirements.bzl", "PY_DEPS")
 
 def py_binary(**kwargs):
@@ -40,19 +40,19 @@ def py_library(**kwargs):
 
     _py_library(**kwargs)
 
-def py_image(**kwargs):
-    deps = kwargs.get("deps", [])
-    deps.append("//common/python:base")
+# def py_image(**kwargs):
+#     deps = kwargs.get("deps", [])
+#     deps.append("//common/python:base")
 
-    reqs = kwargs.get("reqs", [])
-    if reqs:
-        for req in reqs:
-            deps.append(requirement(req))
-        kwargs.pop("reqs")
+#     reqs = kwargs.get("reqs", [])
+#     if reqs:
+#         for req in reqs:
+#             deps.append(requirement(req))
+#         kwargs.pop("reqs")
 
-    kwargs["deps"] = deps
+#     kwargs["deps"] = deps
 
-    _py3_image(**kwargs)
+#     _py3_image(**kwargs)
 
 def _py_notebook_runner_impl(ctx):
     bin = ctx.attr.py_bin

@@ -23,20 +23,20 @@ use_repo(pip, "pypi")
 ### Proto ###
 bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
 
+### GRPC ##
+bazel_dep(name = "grpc", version = "1.48.1.bcr.2")
+
 ### Shell ###
 bazel_dep(name = "rules_shellcheck", version = "0.2.4")
 
 ### C++ ###
 bazel_dep(name = "rules_cc", version = "0.0.9")
 
-### Rust ###
-rules_rust = use_extension("//third_party/rust:rust_deps.bzl", "rules_rust")
-use_repo(rules_rust, "rules_rust", "third_party_rust")
+### Skylib ###
+bazel_dep(name = "bazel_skylib", version = "1.5.0")
 
-### INTEGRATION TEST ###
-# https://github.com/bazel-contrib/rules_bazel_integration_test
-# bazel_dep(
-#     name = "rules_bazel_integration_test",
-#     version = "0.20.0",
-#     dev_dependency = True,
-# )
+### Codeowners ###
+bazel_dep(name = "rules_codeowners", version = "0.2.1")
+
+### Common Platforms ###
+bazel_dep(name="platforms", version="0.0.8")

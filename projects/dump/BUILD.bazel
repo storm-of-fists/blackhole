@@ -1,6 +1,6 @@
-package(default_visibility = [":__subpackages__"])
+"""
+This is a directory for random projects. They are built, but
+cannot be relied on.
+"""
 
-sh_binary(
-    name = "bin_test",
-    srcs = ["test.sh"],
-)
+package(default_visibility = [":__subpackages__"])
