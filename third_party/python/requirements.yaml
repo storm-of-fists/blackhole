@@ -1,21 +1,22 @@
 deps:
-  # astropy:
-  # # numpy:
-  # pyYAML:
-  # jplephem:
-  # # packaging:
-  # #   version :  "21.0"
-  # pyerfa:
-  # pyparsing:
-  # notebook:
-  # matplotlib:
-  # dropbox:
-  # schedule:
-  # fastapi:
-  #   no_notebooks: true
+  astropy:
+  numpy:
+  pyYAML:
+  jplephem:
+  packaging:
+    version :  "21.0"
+  pyerfa:
+  pyparsing:
+  notebook:
+  matplotlib:
+  dropbox:
+  schedule:
+  fastapi:
+    no_notebooks: true
   uvicorn[standard]:
     no_notebooks: true
-  # redis:
-  #   no_notebooks: true
-  # pyaudio:
-  #   no_notebooks: true
+  redis:
+    no_notebooks: true
+  pyaudio:
+    no_notebooks: true
+  confluent-kafka:

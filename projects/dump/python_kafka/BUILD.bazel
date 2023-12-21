@@ -4,8 +4,8 @@ py_binary(
     name = "producer",
     srcs = ["producer.py"],
     data = ["config.ini"],
-    reqs = [
-        "confluent-kafka",
+    deps = [
+        "@third_party_py//confluent_kafka",
     ],
 )
 
@@ -13,7 +13,7 @@ py_binary(
     name = "consumer",
     srcs = ["consumer.py"],
     data = ["config.ini"],
-    reqs = [
-        "confluent-kafka",
+    deps = [
+        "@third_party_py//confluent_kafka",
     ],
 )

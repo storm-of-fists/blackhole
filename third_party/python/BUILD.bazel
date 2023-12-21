@@ -1,10 +1,10 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@bazel_advanced_config//jinja_templater:defs.bzl", "render_templates")
+load("@bazel_advanced_config//render_templates:defs.bzl", "render_templates")
 
 render_templates(
     name = "reqs.in",
     srcs = ["requirements.in"],
-    config = ["requirements.yaml"],
+    deps = ["requirements.yaml"],
 )
 
 compile_pip_requirements(

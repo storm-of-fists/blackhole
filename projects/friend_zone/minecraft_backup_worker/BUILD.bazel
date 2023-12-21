@@ -1,15 +1,40 @@
-load("//common/python:defs.bzl", "py_image")
+load("//common/python:defs.bzl", "py_binary")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_oci//oci:defs.bzl", "oci_image")
 
 package(default_visibility = ["//visibility:public"])
 
-py_image(
-    name = "minecraft_backup_worker",
+py_binary(
+    name = "minecraft_backup_worker_bin",
     srcs = ["minecraft_backup_worker.py"],
-    reqs = [
-        "dropbox",
-        "schedule",
-    ],
-    tags = [
-        "contron44/minecraft_backup_worker",
+    main = "minecraft_backup_worker.py",
+    deps = [
+        "@third_party_py//dropbox",
+        "@third_party_py//schedule",
     ],
 )
+
+pkg_tar(
+    name = "minecraft_backup_worker_layer",
+    srcs = [":minecraft_backup_worker_bin"]
+)
+
+# Step 3: Build image and add built layer to it
+oci_image(
+    name = "minecraft_backup_worker_image",
+    base = "@distroless_base",
+    tars = [":minecraft_backup_worker_layer"],
+    entrypoint = ["/minecraft_backup_worker_bin"],
+)
+
+# py_image(
+#     name = "minecraft_backup_worker",
+#     srcs = ["minecraft_backup_worker.py"],
+#     reqs = [
+#         "dropbox",
+#         "schedule",
+#     ],
+#     tags = [
+#         "contron44/minecraft_backup_worker",
+#     ],
+# )

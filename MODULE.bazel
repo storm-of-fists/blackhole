@@ -42,12 +42,21 @@ bazel_dep(name = "rules_codeowners", version = "0.2.1")
 bazel_dep(name = "platforms", version = "0.0.8")
 
 ### Templating and config tools ###
-bazel_dep(name="bazel_advanced_config")
+bazel_dep(name = "bazel_advanced_config")
 
 git_override(
     module_name = "bazel_advanced_config",
     remote = "https://github.com/ConnorJLatham/bazel-advanced-config",
-    commit = "29ca358391b8d159974695fbd620a3a653c544a4",
+    commit = "b27c027bd7c1b596e095c900c6baf4e619b9bedb",
+)
+
+### Packaging ###
+bazel_dep(name = "rules_pkg")
+
+git_override(
+    module_name = "rules_pkg",
+    remote = "https://github.com/bazelbuild/rules_pkg",
+    commit = "a0d0debf671682c27898de152bb691f0360e5517",
 )
 
 ### Containers ###
@@ -59,12 +68,8 @@ oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 # Declare external images you need to pull, for example:
 oci.pull(
     name = "distroless_base",
-    # 'latest' is not reproducible, but it's convenient.
-    # During the build we print a WARNING message that includes recommended 'digest' and 'platforms'
-    # values which you can use here in place of 'tag' to pin for reproducibility.
-    tag = "latest",
-    image = "gcr.io/distroless/base",
-    platforms = ["linux/amd64"],
+    digest = "sha256:13b7e62e8df80264dbb747995705a986aa530415763a6c58f84a3ca8af9a5bcd",
+    image = "index.docker.io/library/alpine",
 )
 
 # For each oci.pull call, repeat the "name" here to expose them as dependencies.
