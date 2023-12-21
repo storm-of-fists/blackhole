@@ -1,11 +1,10 @@
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//common:defs.bzl", "config")
-load("//third_party/python:requirements.bzl", "PY_DEPS")
+load("@bazel_advanced_config//jinja_templater:defs.bzl", "render_templates")
 
-config(
+render_templates(
     name = "reqs.in",
     srcs = ["requirements.in"],
-    dict_string_config = "{}".format({"deps": PY_DEPS}),
+    config = ["requirements.yaml"],
 )
 
 compile_pip_requirements(

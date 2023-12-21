@@ -8,7 +8,7 @@ load(
     _py_library = "py_library",
     _py_test = "py_test",
 )
-load("@pypi//:requirements.bzl", "requirement")
+load("@third_party_py//:requirements.bzl", "requirement")
 # load("@io_bazel_rules_docker//python3:image.bzl", _py3_image = "py3_image")
 load("//third_party/python:requirements.bzl", "PY_DEPS")
 
