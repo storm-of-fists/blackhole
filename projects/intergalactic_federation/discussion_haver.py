@@ -4,6 +4,17 @@ from pathlib import Path
 
 DIR_PATH = Path(__file__).parent.resolve()
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--discussion_path", type=Path)
+args = parser.parse_args()
+
+discussion = cbor2.load((DIR_PATH / args.discussion_path).open(mode="rb"))[
+    "weird_discussion"
+]
+
+starter_keys = discussion["starter_dialogue_keys"]
+dialogues = discussion["dialogues"]
+
 
 def _input(string):
     print(string)
@@ -25,22 +36,9 @@ def _run_dialogue(next_dialogue_keys, dialogues):
 
     return chosen_dialogue
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--discussion_path", type=Path)
-args = parser.parse_args()
-
-discussion = cbor2.load((DIR_PATH / args.discussion_path).open(mode="rb"))[
-    "weird_discussion"
-]
-
-starter_keys = discussion["starter_dialogue_keys"]
-dialogues = discussion["dialogues"]
-
 print(
     """
-You are about to have 'weird_discussion'.
-How will you start? Choose from:
+Start 'weird_discussion'.
 """
 )
 

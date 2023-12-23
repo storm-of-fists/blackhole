@@ -66,6 +66,4 @@ elif args.discussion_part_type == "discussion":
 
     put_in_file = {args.discussion_key: put_in_file}
 
-print(put_in_file)
-
 cbor2.dump(put_in_file, args.output_path.open(mode="wb"))

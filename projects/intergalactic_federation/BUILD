@@ -79,8 +79,16 @@ dialogue(
     name = "awkward_reply",
     character = ":rafael_character.name",
     character_line = "whyd you say hello again?",
-    next_dialogues = [":awkward_goodbye"],
+    next_dialogues = [":awkward_goodbye", ":more_awkward_reply"],
     player_line = "hello there!",
+)
+
+dialogue(
+    name = "more_awkward_reply",
+    character = ":rafael_character.name",
+    character_line = "dude what?",
+    next_dialogues = [":awkward_goodbye"],
+    player_line = "ill fuck ya er uh!",
 )
 
 dialogue(
