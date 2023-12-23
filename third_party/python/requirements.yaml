@@ -20,3 +20,4 @@ deps:
   pyaudio:
     no_notebooks: true
   confluent-kafka:
+  cbor2:

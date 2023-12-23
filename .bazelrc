@@ -3,11 +3,6 @@
 build --keep_going
 test  --keep_going
 
-# Show the output files created by builds that requested more than one target. This helps users
-# locate the build outputs in more cases
-# Docs: https://bazel.build/docs/user-manual#show-result
-build --show_result=20
-
 # Bazel picks up host-OS-specific config lines from bazelrc files. For example, if the host OS is
 # Linux and you run bazel build, Bazel picks up lines starting with build:linux. Supported OS
 # identifiers are `linux`, `macos`, `windows`, `freebsd`, and `openbsd`. Enabling this flag is

@@ -1,4 +1,4 @@
-load("//projects/intergalactic_federation/characters:name.bzl", "character_name")
+load("//projects/intergalactic_federation:name.bzl", "character_name")
 
 # CharacterInfo = provider(
 #     "A character provider",

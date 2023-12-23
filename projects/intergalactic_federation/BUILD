@@ -1,10 +1,99 @@
-"""
-This is the working graph for Intergalactic Federation.
+load("//projects/intergalactic_federation:character.bzl", "character")
+load("//projects/intergalactic_federation:discussion.bzl", "dialogue", "discussion", "line")
+load("//projects/intergalactic_federation:condition.bzl", "condition")
+load("//common/python:defs.bzl", "py_binary")
 
-It allows us to declare characters and quests and stories and
-create a graph out of it that we can then work with.
+py_binary(
+    name = "discussion_maker",
+    srcs = ["discussion_maker.py"],
+    deps = [
+        "@third_party_py//cbor2",
+    ],
+)
 
-It should be noted that the layers go Storyline is made of Quests
-and Quests are made of Objectives. All three of those can contain
+py_binary(
+    name = "discussion_haver",
+    srcs = ["discussion_haver.py"],
+    deps = [
+        "@third_party_py//cbor2",
+    ],
+    data =[
+        ":weird_discussion",
+    ],
 
-"""
+    args = [
+        "--discussion_path weird_discussion.cbor"
+    ]
+)
+
+### Phrases ###
+line(
+    name = "what_in_the_worlds",
+    line = "What in the worlds!",
+)
+
+### Awkward hello discussion ###
+
+character(
+    name = "rafael_character",
+    used_first_name = "Rafael",
+    used_last_name = "Jender",
+)
+
+condition(
+    name = "some_charm",
+    statement = "charm >= 2",
+)
+
+# The start of the conversation.
+dialogue(
+    name = "hello_there",
+    character = ":rafael_character.name",
+    character_line = "hey whats up",
+    next_dialogues = [
+        ":awkward_reply",
+        ":normal_reply",
+    ],
+    player_line = "hello there!",
+)
+
+# You dont stumble on your words.
+dialogue(
+    name = "normal_reply",
+    character = ":rafael_character.name",
+    character_line = "doin good man",
+    conditions = [":some_charm"],
+    next_dialogues = [":normal_goodbye"],
+    player_line = "nothing much how are you",
+)
+
+dialogue(
+    name = "normal_goodbye",
+    character = ":rafael_character.name",
+    character_line = "alright see ya man",
+    player_line = "goodbye!",
+)
+
+# You completely fumble your words
+dialogue(
+    name = "awkward_reply",
+    character = ":rafael_character.name",
+    character_line = "whyd you say hello again?",
+    next_dialogues = [":awkward_goodbye"],
+    player_line = "hello there!",
+)
+
+dialogue(
+    name = "awkward_goodbye",
+    character = ":rafael_character.name",
+    character_line = "ok great, see ya",
+    player_line = "im uh not sure",
+)
+
+# Finally, you put it as one of multiple starters for a discussion.
+discussion(
+    name = "weird_discussion",
+    starter_dialogues = [
+        ":hello_there",
+    ],
+)
