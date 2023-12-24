@@ -1,12 +1,12 @@
-# load("//common:defs.bzl", "proto_library")
+load("//common:defs.bzl", "proto_library")
 
-# package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
-# proto_library(
-#     name = "proto",
-#     srcs = [
-#         "stateful.proto",
-#         "transaction.proto",
-#     ],
-#     deps = ["//projects/super_post/channel_id:proto"],
-# )
+proto_library(
+    name = "proto",
+    srcs = [
+        "stateful.proto",
+        "transaction.proto",
+    ],
+    deps = ["//projects/super_post/channel_id:proto"],
+)

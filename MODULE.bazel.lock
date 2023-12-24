@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "6486c7bcf29e2938b20d4bf1295397c04214baacbc059485fbdf3dbd242461a2",
+  "moduleFileHash": "9864fd24ea224829d4a9b4874c23f34ffd74f21b4750db4860db7d0eb666455c",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -91,7 +91,7 @@
           "usingModule": "<root>",
           "location": {
             "file": "@@//:MODULE.bazel",
-            "line": 72,
+            "line": 63,
             "column": 20
           },
           "imports": {
@@ -109,7 +109,7 @@
               "devDependency": false,
               "location": {
                 "file": "@@//:MODULE.bazel",
-                "line": 75,
+                "line": 66,
                 "column": 9
               }
             }
@@ -128,7 +128,7 @@
         "rules_codeowners": "rules_codeowners@0.2.1",
         "platforms": "platforms@0.0.8",
         "bazel_advanced_config": "bazel_advanced_config@_",
-        "rules_pkg": "rules_pkg@_",
+        "rules_pkg": "rules_pkg@0.9.1",
         "aspect_bazel_lib": "aspect_bazel_lib@1.36.0",
         "rules_oci": "rules_oci@1.5.1",
         "bazel_tools": "bazel_tools@_",
@@ -617,20 +617,34 @@
         "local_config_platform": "local_config_platform@_"
       }
     },
-    "rules_pkg@_": {
+    "rules_pkg@0.9.1": {
       "name": "rules_pkg",
-      "version": "0.10.0",
-      "key": "rules_pkg@_",
+      "version": "0.9.1",
+      "key": "rules_pkg@0.9.1",
       "repoName": "rules_pkg",
       "executionPlatformsToRegister": [],
       "toolchainsToRegister": [],
       "extensionUsages": [],
       "deps": {
         "rules_license": "rules_license@0.0.7",
-        "rules_python": "rules_python@0.27.1",
         "bazel_skylib": "bazel_skylib@1.5.0",
+        "rules_python": "rules_python@0.27.1",
         "bazel_tools": "bazel_tools@_",
         "local_config_platform": "local_config_platform@_"
+      },
+      "repoSpec": {
+        "bzlFile": "@bazel_tools//tools/build_defs/repo:http.bzl",
+        "ruleClassName": "http_archive",
+        "attributes": {
+          "name": "rules_pkg~0.9.1",
+          "urls": [
+            "https://github.com/bazelbuild/rules_pkg/releases/download/0.9.1/rules_pkg-0.9.1.tar.gz"
+          ],
+          "integrity": "sha256-j57i3BDBrlFO5ZmotC7Zn6Jit1cFj2WtPDhCif9wxLg=",
+          "strip_prefix": "",
+          "remote_patches": {},
+          "remote_patch_strip": 0
+        }
       }
     },
     "aspect_bazel_lib@1.36.0": {
@@ -1015,7 +1029,7 @@
         "rules_cc": "rules_cc@0.0.9",
         "rules_proto": "rules_proto@5.3.0-21.7",
         "rules_java": "rules_java@7.1.0",
-        "rules_pkg": "rules_pkg@_",
+        "rules_pkg": "rules_pkg@0.9.1",
         "com_google_abseil": "abseil-cpp@20220623.1",
         "zlib": "zlib@1.3",
         "upb": "upb@0.0.0-20220923-a547704",
