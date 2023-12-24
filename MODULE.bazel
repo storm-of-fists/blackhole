@@ -59,7 +59,13 @@ git_override(
     commit = "a0d0debf671682c27898de152bb691f0360e5517",
 )
 
+
+
+
 ### Containers ###
+# Fix a bad dep https://github.com/bazel-contrib/rules_oci/pull/449 TODO
+bazel_dep(name = "aspect_bazel_lib", version = "1.36.0")
+
 bazel_dep(name = "rules_oci", version = "1.5.1")
 # For testing, we also recommend https://registry.bazel.build/modules/container_structure_test
 

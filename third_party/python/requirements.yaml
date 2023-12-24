@@ -6,6 +6,7 @@ deps:
   packaging:
     version :  "21.0"
   pyerfa:
+  progress:
   pyparsing:
   notebook:
   matplotlib:

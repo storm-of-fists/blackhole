@@ -1,8 +1,0 @@
-load("//common:defs.bzl", "config")
-
-package(default_visibility = ["//visibility:public"])
-
-config(
-    name = "imu_config",
-    srcs = ["imu.yaml"],
-)

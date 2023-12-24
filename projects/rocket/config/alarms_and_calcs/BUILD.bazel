@@ -1,9 +1,0 @@
-load("//common:defs.bzl", "config")
-
-package(default_visibility = ["//visibility:public"])
-
-config(
-    name = "gnc_alarms_and_calcs",
-    srcs = ["gnc.yaml"],
-    yaml_config = ["//projects/rocket/config:imu_config"],
-)
