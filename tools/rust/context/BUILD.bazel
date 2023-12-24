@@ -9,8 +9,8 @@ rust_library(
     ],
     deps = [
         "//tools/rust/raw_pointer",
-        "@third_party_rust//:arrayvec",
-        "@third_party_rust//:clap",
-        "@third_party_rust//:uuid",
+        "@external_rust//:arrayvec",
+        "@external_rust//:clap",
+        "@external_rust//:uuid",
     ],
 )

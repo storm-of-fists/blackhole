@@ -8,6 +8,6 @@ rust_library(
         "error.rs",
     ],
     deps = [
-        "@third_party_rust//:eyre",
+        "@external_rust//:eyre",
     ],
 )

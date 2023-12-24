@@ -9,8 +9,8 @@ py_binary(
     srcs = ["minecraft_backup_worker.py"],
     main = "minecraft_backup_worker.py",
     deps = [
-        "@third_party_py//dropbox",
-        "@third_party_py//schedule",
+        "@external_py//dropbox",
+        "@external_py//schedule",
     ],
 )
 

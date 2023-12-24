@@ -36,7 +36,7 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository", "rend
 load("//tools/rust/external:crates.bzl", "third_party_crates")
 
 crates_repository(
-    name = "third_party_rust",
+    name = "external_rust",
     cargo_lockfile = "//tools/rust/external:Cargo.Bazel.lock",
     lockfile = "//tools/rust/external:cargo-bazel-lock.json",
     packages = {
@@ -56,7 +56,7 @@ crates_repository(
     rust_version = RUST_STABLE_VERSION,
 )
 
-load("@third_party_rust//:defs.bzl", "crate_repositories")
+load("@external_rust//:defs.bzl", "crate_repositories")
 
 crate_repositories()
 

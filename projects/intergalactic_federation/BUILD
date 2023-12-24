@@ -7,7 +7,7 @@ py_binary(
     name = "discussion_maker",
     srcs = ["discussion_maker.py"],
     deps = [
-        "@third_party_py//cbor2",
+        "@external_py//cbor2",
     ],
 )
 
@@ -15,7 +15,7 @@ py_binary(
     name = "discussion_haver",
     srcs = ["discussion_haver.py"],
     deps = [
-        "@third_party_py//cbor2",
+        "@external_py//cbor2",
     ],
     data =[
         ":weird_discussion",

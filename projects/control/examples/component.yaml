@@ -1,0 +1,71 @@
+
+interface:
+  channel_1:
+    type: grpc
+
+  channel_2:
+    io: output
+    type: telemetry
+    value_type: f32
+    unit: Kelvin
+    wire_settings:
+      value_type: u32
+      # scaling coefficients in little endian
+      scaling_coefficients: [1, 0.3]
+
+  mode:
+    io: output
+    type: telemetry
+    value_type: enum
+    values_allowed:
+      - test_mode
+      - manual
+
+  channel_2_div_by_2:
+    io: output
+    type: calc
+    transform: '{channel_2} / 2'
+
+  channel_2_too_high:
+    io: output
+    type: alarm
+    response_description: 'Go turn down channel_2.'
+    conditions:
+      - '{channel_2} > 2'
+
+  channel_somewhere_else:
+    io: input
+
+control:
+  # Control rate is bounded by X process.
+  control_rate: 10 Hz
+
+  states:
+    state_1:
+      timeout: 10 second
+      on_enter:
+        sequence: []
+          timeout: 1 second
+        controller: []
+      run:
+        sequence: []
+          timeout: 5 second
+        controller:
+          - if {mode} == 5 { println!("hey!") }
+      on_exit:
+        sequence: []
+          timeout: 5 dispatch
+        controller: []
+
+    state_2:
+      on_enter:
+        sequence: ''
+        controller: ''
+      run:
+        sequence: ''
+        controller:
+          - MODE == manual -> transition STATE_1
+      on_exit:
+        sequence: ''
+        controller: ''
+

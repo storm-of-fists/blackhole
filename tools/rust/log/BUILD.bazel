@@ -8,7 +8,7 @@ rust_library(
         "log.rs",
     ],
     deps = [
-       "@third_party_rust//:env_logger",
-       "@third_party_rust//:log",
+       "@external_rust//:env_logger",
+       "@external_rust//:log",
     ],
 )

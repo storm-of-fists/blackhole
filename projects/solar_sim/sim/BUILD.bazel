@@ -10,16 +10,16 @@ py_binary(
         ":solver",
         ":system",
         ":util",
-        "@third_party_py//astropy",
-        "@third_party_py//jplephem",
-        "@third_party_py//progress",
+        "@external_py//astropy",
+        "@external_py//jplephem",
+        "@external_py//progress",
     ],
 )
 
 py_library(
     name = "solver",
     srcs = ["solver.py"],
-    deps = ["@third_party_py//numpy"],
+    deps = ["@external_py//numpy"],
 )
 
 py_library(
@@ -30,7 +30,7 @@ py_library(
         "@de440//file",
     ],
     deps = [
-        "@third_party_py//jplephem",
+        "@external_py//jplephem",
     ],
 )
 
@@ -48,9 +48,9 @@ py_library(
     deps = [
         ":const",
         ":util",
-        "@third_party_py//astropy",
-        "@third_party_py//jplephem",
-        "@third_party_py//progress",
+        "@external_py//astropy",
+        "@external_py//jplephem",
+        "@external_py//progress",
     ],
 )
 
@@ -59,7 +59,7 @@ py_library(
     srcs = ["util.py"],
     deps = [
         ":const",
-        "@third_party_py//pyyaml",
+        "@external_py//pyyaml",
     ],
 )
 
@@ -68,6 +68,6 @@ py_library(
     srcs = ["plotter.py"],
     deps = [
         ":const",
-        "@third_party_py//matplotlib",
+        "@external_py//matplotlib",
     ],
 )
