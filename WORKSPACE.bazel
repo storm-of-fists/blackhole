@@ -33,12 +33,12 @@ load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencie
 crate_universe_dependencies()
 
 load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository", "render_config")
-load("//third_party/rust:crates.bzl", "third_party_crates")
+load("//tools/rust/external:crates.bzl", "third_party_crates")
 
 crates_repository(
     name = "third_party_rust",
-    cargo_lockfile = "//third_party/rust:Cargo.Bazel.lock",
-    lockfile = "//third_party/rust:cargo-bazel-lock.json",
+    cargo_lockfile = "//tools/rust/external:Cargo.Bazel.lock",
+    lockfile = "//tools/rust/external:cargo-bazel-lock.json",
     packages = {
         name: crate.spec(
             default_features = info.get("default_features", True),

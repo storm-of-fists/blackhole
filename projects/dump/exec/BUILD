@@ -1,27 +1,12 @@
-load(":defs.bzl", "exec_rule1", "exec_rule2")
-load("//common/python:defs.bzl", "py_binary")
-
-exec_rule1(name = "foo")
-
-exec_rule1(name = "bar")
-
-exec_rule2(
-    name = "baz",
-    deps = [
-        ":bar",
-        ":foo",
-    ],
-)
+load(":defs.bzl", "run_binary")
+load("//tools/python:defs.bzl", "py_binary")
 
 py_binary(
     name = "wow",
     srcs = ["wow.py"],
 )
 
-
-exec_rule2(
+run_binary(
     name = "bae",
-    deps = [
-        ":wow"
-    ]
+    run = ":wow"
 )

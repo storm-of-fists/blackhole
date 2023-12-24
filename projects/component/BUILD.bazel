@@ -1,4 +1,4 @@
-load("//common/rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+load("//tools/rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -8,9 +8,9 @@ rust_library(
         "component.rs",
     ],
     deps = [
-        "//common/rust/clock",
-        "//common/rust/context",
-        "//common/rust/raw_pointer",
+        "//tools/rust/clock",
+        "//tools/rust/context",
+        "//tools/rust/raw_pointer",
         "@third_party_rust//:tokio",
     ],
 )
@@ -21,9 +21,9 @@ rust_binary(
         "component.rs",
     ],
     deps = [
-        "//common/rust/clock",
-        "//common/rust/context",
-        "//common/rust/raw_pointer",
+        "//tools/rust/clock",
+        "//tools/rust/context",
+        "//tools/rust/raw_pointer",
         "@third_party_rust//:tokio",
     ],
 )

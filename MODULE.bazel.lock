@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "8253e0c71ac6f20dd4f0c9dd988af7fa3f21c8937c0a785c9097e59f208cd3c4",
+  "moduleFileHash": "58e35d7ce6aca392250ef86adc096d587ed0ce094d4783d59b8b67807408ed26",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -72,7 +72,7 @@
               "attributeValues": {
                 "hub_name": "third_party_py",
                 "python_version": "3.11",
-                "requirements_lock": "//third_party/python:requirements_lock.txt"
+                "requirements_lock": "//tools/python/external:requirements_lock.txt"
               },
               "devDependency": false,
               "location": {
@@ -3359,7 +3359,7 @@
       "os:linux,arch:amd64": {
         "bzlTransitiveDigest": "ZWtBC26/TEjSAGjT+8n5tDaKyKozKfg1CJk5KX5McLw=",
         "accumulatedFileDigests": {
-          "@@//third_party/python:requirements_lock.txt": "5af1c26f409d9e106768adc37ed8128e4ab14f2dffda45e6cd82120f85ce2950",
+          "@@//tools/python/external:requirements_lock.txt": "ff5adc2fa7a2383a552d209c463c4aade7e51ce65fd8b05e4407e171f4035126",
           "@@bazel_advanced_config~override//:requirements_lock.txt": "6e2e25c8e1722319e6f65b2d276c38acb1b58f29e052facf69f26b19a00022f2"
         },
         "envVariables": {},

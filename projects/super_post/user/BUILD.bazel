@@ -1,4 +1,4 @@
-load("//common:defs.bzl", "proto_library")
+load("//tools/proto:defs.bzl", "proto_library")
 
 package(default_visibility = ["//visibility:public"])
 

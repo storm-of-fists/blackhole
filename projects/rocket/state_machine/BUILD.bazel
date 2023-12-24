@@ -1,4 +1,4 @@
-load("//common/rust:defs.bzl", "rust_binary")
+load("//tools/rust:defs.bzl", "rust_binary")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -8,9 +8,9 @@ rust_binary(
         "main.rs",
     ],
     deps = [
-        "//common/rust/clock",
-        "//common/rust/context",
-        "//common/rust/raw_pointer",
+        "//tools/rust/clock",
+        "//tools/rust/context",
+        "//tools/rust/raw_pointer",
         "@third_party_rust//:tokio",
     ],
 )

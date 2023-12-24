@@ -1,4 +1,4 @@
-load("//common/python:defs.bzl", "py_binary")
+load("//tools/python:defs.bzl", "py_binary")
 
 py_binary(
     name = "main",

@@ -2,7 +2,7 @@
 
 load("//projects/intergalactic_federation:name.bzl", "CharacterNameInfo")
 load("//projects/intergalactic_federation:condition.bzl", "ConditionInfo")
-load("//common/python:defs.bzl", "py_binary")
+load("//tools/python:defs.bzl", "py_binary")
 
 LineInfo = provider(
     "A line that a character says.",

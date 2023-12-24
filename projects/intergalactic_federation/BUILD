@@ -1,7 +1,7 @@
 load("//projects/intergalactic_federation:character.bzl", "character")
 load("//projects/intergalactic_federation:discussion.bzl", "dialogue", "discussion", "line")
 load("//projects/intergalactic_federation:condition.bzl", "condition")
-load("//common/python:defs.bzl", "py_binary")
+load("//tools/python:defs.bzl", "py_binary")
 
 py_binary(
     name = "discussion_maker",

@@ -1,4 +1,4 @@
-# load("//common:defs.bzl", "py_image")
+# load("//tools/python:defs.bzl", "py_image")
 
 # package(default_visibility = ["//visibility:public"])
 

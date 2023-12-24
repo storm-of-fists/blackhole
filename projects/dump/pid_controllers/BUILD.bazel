@@ -1,4 +1,4 @@
-load("//common:defs.bzl", "rust_library", "rust_test")
+load("//tools/rust:defs.bzl", "rust_library", "rust_test")
 
 rust_library(
     name = "pid_controllers",

@@ -11,21 +11,21 @@ load(
 
 def rust_binary(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//common/rust:base")
+    deps.append("//tools/rust:base")
     kwargs["deps"] = deps
 
     _rust_binary(**kwargs)
 
 def rust_library(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//common/rust:base")
+    deps.append("//tools/rust:base")
     kwargs["deps"] = deps
 
     _rust_library(**kwargs)
 
 def rust_test(**kwargs):
     deps = kwargs.get("deps", [])
-    deps.append("//common/rust:base")
+    deps.append("//tools/rust:base")
     kwargs["deps"] = deps
     kwargs["timeout"] = "short"
 

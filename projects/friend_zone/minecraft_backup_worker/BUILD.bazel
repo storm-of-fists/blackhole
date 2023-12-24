@@ -1,4 +1,4 @@
-load("//common/python:defs.bzl", "py_binary")
+load("//tools/python:defs.bzl", "py_binary")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("@rules_oci//oci:defs.bzl", "oci_image")
 

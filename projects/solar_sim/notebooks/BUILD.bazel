@@ -1,4 +1,4 @@
-load("//common:defs.bzl", "py_notebook")
+load("//tools/nootbooks:defs.bzl", "py_notebook")
 
 # Inspired by https://github.com/michael-quinlan/jupyter-bazel
 

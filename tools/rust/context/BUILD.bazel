@@ -8,7 +8,7 @@ rust_library(
         "context.rs",
     ],
     deps = [
-        "//common/rust/raw_pointer",
+        "//tools/rust/raw_pointer",
         "@third_party_rust//:arrayvec",
         "@third_party_rust//:clap",
         "@third_party_rust//:uuid",
