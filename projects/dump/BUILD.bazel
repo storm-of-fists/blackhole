@@ -1,6 +1,0 @@
-"""
-This is a directory for random projects. They are built, but
-cannot be relied on.
-"""
-
-package(default_visibility = [":__subpackages__"])

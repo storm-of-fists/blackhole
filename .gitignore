@@ -12,6 +12,7 @@ target/
 **/*.rs.bk
 
 out
+user
 
 # Jupyter Notebook
 **./*.ipynb_checkpoints

@@ -1,7 +1,0 @@
-cc_library(
-    name = "base",
-    srcs = [
-        "base.c",
-    ],
-    hdrs = ["base.h"],
-)
