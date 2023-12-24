@@ -1,7 +1,6 @@
 filegroup(
     name = "data",
     srcs = [
-        "de440.bsp",
         "sol_system.yaml",
         "toy_system.yaml",
     ],

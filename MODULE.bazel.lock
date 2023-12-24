@@ -1,6 +1,6 @@
 {
   "lockFileVersion": 3,
-  "moduleFileHash": "9864fd24ea224829d4a9b4874c23f34ffd74f21b4750db4860db7d0eb666455c",
+  "moduleFileHash": "41865a82ebb630074c34a479199f20e68f2debfb66ea469815259c44f188b864",
   "flags": {
     "cmdRegistries": [
       "https://bcr.bazel.build/"
@@ -114,6 +114,23 @@
               }
             }
           ],
+          "hasDevUseExtension": false,
+          "hasNonDevUseExtension": true
+        },
+        {
+          "extensionBzlFile": "@//projects/solar_sim:download_de440.bzl",
+          "extensionName": "download_de440",
+          "usingModule": "<root>",
+          "location": {
+            "file": "@@//:MODULE.bazel",
+            "line": 76,
+            "column": 31
+          },
+          "imports": {
+            "de440": "de440"
+          },
+          "devImports": [],
+          "tags": [],
           "hasDevUseExtension": false,
           "hasNonDevUseExtension": true
         }
@@ -1883,6 +1900,24 @@
     }
   },
   "moduleExtensions": {
+    "//projects/solar_sim:download_de440.bzl%download_de440": {
+      "general": {
+        "bzlTransitiveDigest": "aPPbAm0HzNrvkQTB4Tbn981Lg3pCGRIcPC5NEReD5w4=",
+        "accumulatedFileDigests": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "de440": {
+            "bzlFile": "@@bazel_tools//tools/build_defs/repo:http.bzl",
+            "ruleClassName": "http_file",
+            "attributes": {
+              "name": "_main~download_de440~de440",
+              "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440.bsp",
+              "integrity": "sha256-pM6b+bMoK+zJ9LKsPOvgOirnWZmBqr1yZf2Egv/3xLU="
+            }
+          }
+        }
+      }
+    },
     "@@apple_support~1.5.0//crosstool:setup.bzl%apple_cc_configure_extension": {
       "general": {
         "bzlTransitiveDigest": "pMLFCYaRPkgXPQ8vtuNkMfiHfPmRBy6QJfnid4sWfv0=",

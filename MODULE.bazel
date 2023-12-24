@@ -71,3 +71,7 @@ oci.pull(
 
 # For each oci.pull call, repeat the "name" here to expose them as dependencies.
 use_repo(oci, "distroless_base")
+
+### Solar Sim Deps ###
+download_de440 = use_extension("//projects/solar_sim:download_de440.bzl", "download_de440")
+use_repo(download_de440, "de440")

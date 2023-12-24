@@ -27,6 +27,7 @@ py_library(
     srcs = ["const.py"],
     data = [
         "//projects/solar_sim/data",
+        "@de440//file",
     ],
     deps = [
         "@third_party_py//jplephem",
@@ -35,10 +36,10 @@ py_library(
 
 py_test(
     name = "const_test",
+    timeout = "short",
     srcs = ["const.py"],
     main = "const.py",
     deps = [":const"],
-    timeout = "short",
 )
 
 py_library(

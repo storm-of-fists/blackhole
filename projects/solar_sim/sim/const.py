@@ -4,9 +4,9 @@ from functools import lru_cache
 
 G = 6.67408e-11
 
-DIR_PATH = Path(__file__).parent.parent
-YAML_PATH = DIR_PATH / "data" / "sol_system.yaml"
-EPHEMERIS_PATH = DIR_PATH / "data" / "de440.bsp"
+DIR_PATH = Path(__file__).parent.resolve()
+# YAML_PATH = DIR_PATH / "data" / "sol_system.yaml"
+EPHEMERIS_PATH = Path("de440")
 
 
 @lru_cache
