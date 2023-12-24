@@ -1,3 +1,7 @@
+"""
+Blackhole is my personal monorepo where I just try stuff out.
+"""
+
 ### Python ###
 bazel_dep(name = "rules_python", version = "0.27.1")
 
