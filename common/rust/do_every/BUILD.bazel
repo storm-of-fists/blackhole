@@ -11,6 +11,7 @@ rust_library(
 
 rust_test(
     name = "test_do_every",
+    timeout = "short",
     srcs = ["test_do_every.rs"],
     deps = [
         ":do_every",

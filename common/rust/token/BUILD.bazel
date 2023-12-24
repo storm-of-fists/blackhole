@@ -10,9 +10,10 @@ rust_library(
 )
 
 rust_test(
-    name="test_token",
+    name = "test_token",
+    timeout = "short",
     srcs = ["test_token.rs"],
     deps = [
         ":token",
-    ]
+    ],
 )

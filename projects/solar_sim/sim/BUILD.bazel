@@ -38,6 +38,7 @@ py_test(
     srcs = ["const.py"],
     main = "const.py",
     deps = [":const"],
+    timeout = "short",
 )
 
 py_library(

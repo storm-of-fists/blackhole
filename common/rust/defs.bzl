@@ -27,5 +27,6 @@ def rust_test(**kwargs):
     deps = kwargs.get("deps", [])
     deps.append("//common/rust:base")
     kwargs["deps"] = deps
+    kwargs["timeout"] = "short"
 
     _rust_test(**kwargs)
