@@ -1,20 +1,18 @@
 on:
-  pull_request:
-    branches:
-      - main
-      - "releases/**"
-  push:
-    branches:
-      - main
-      - "releases/**"
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
 jobs:
-  ci_job:
-    name: ci
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.5.3
-      - name: Setup Bazelisk
-        uses: bazelbuild/setup-bazelisk@v1.0.1
-      - name: Test all targets
-        run: bazel test -- //... -//z_practice/... -//third_party/python/...
+    ci_job:
+        name: ci
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@vv4.1.1
+            - name: Setup Bazelisk
+              uses: bazelbuild/setup-bazelisk@v2.0.0
+            - name: Test all targets
+              run: bazel test //...
