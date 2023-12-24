@@ -4,14 +4,11 @@ from functools import lru_cache
 
 G = 6.67408e-11
 
-DIR_PATH = Path(__file__).parent.resolve()
-# YAML_PATH = DIR_PATH / "data" / "sol_system.yaml"
-EPHEMERIS_PATH = Path("de440")
-
+DE440_PATH = Path("../_main~download_de440~de440/file/downloaded")
 
 @lru_cache
 def eph_data():
-    return SPK.open(EPHEMERIS_PATH)
+    return SPK.open(DE440_PATH)
 
 
 def test_open_eph_data():
