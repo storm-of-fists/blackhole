@@ -17,13 +17,6 @@ py_binary(
     deps = [
         "@external_py//cbor2",
     ],
-    data =[
-        ":weird_discussion",
-    ],
-
-    args = [
-        "--discussion_path weird_discussion.cbor"
-    ]
 )
 
 ### Phrases ###
@@ -79,7 +72,10 @@ dialogue(
     name = "awkward_reply",
     character = ":rafael_character.name",
     character_line = "whyd you say hello again?",
-    next_dialogues = [":awkward_goodbye", ":more_awkward_reply"],
+    next_dialogues = [
+        ":awkward_goodbye",
+        ":more_awkward_reply",
+    ],
     player_line = "hello there!",
 )
 
@@ -105,3 +101,4 @@ discussion(
         ":hello_there",
     ],
 )
+

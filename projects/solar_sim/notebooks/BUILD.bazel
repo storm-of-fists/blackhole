@@ -2,9 +2,9 @@ load("//tools/nootbooks:defs.bzl", "py_notebook")
 
 # Inspired by https://github.com/michael-quinlan/jupyter-bazel
 
-py_notebook(
-    name = "notebooks",
-    deps = [
-        "//projects/solar_sim/sim:main",
-    ],
-)
+# py_notebook(
+#     name = "notebooks",
+#     deps = [
+#         "//projects/solar_sim/sim:main",
+#     ],
+# )

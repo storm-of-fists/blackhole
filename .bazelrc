@@ -105,8 +105,6 @@ build --noremote_upload_local_results # Uploads logs & artifacts without writing
 build --remote_timeout=3600
 build --remote_header=x-buildbuddy-api-key=bhtCPCmedfo26b6mLlEh
 
-build --symlink_prefix="./out/bazel"
-
 # Make bazel use the nightly toolchain by default.
 build --@rules_rust//rust/toolchain/channel=nightly
 

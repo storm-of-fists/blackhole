@@ -2,7 +2,6 @@
 
 load("//projects/intergalactic_federation:name.bzl", "CharacterNameInfo")
 load("//projects/intergalactic_federation:condition.bzl", "ConditionInfo")
-load("//tools/python:defs.bzl", "py_binary")
 
 LineInfo = provider(
     "A line that a character says.",
@@ -196,7 +195,10 @@ def _discussion_impl(ctx):
     )
 
     return [
-        DefaultInfo(files = depset([discussion_file])),
+        DefaultInfo(
+            files = depset([discussion_file]),
+            runfiles = ctx.runfiles([discussion_file]),
+        ),
         DiscussionInfo(
             starter_dialogues = ctx.attr.starter_dialogues,
             conditions = ctx.attr.conditions,
@@ -218,35 +220,39 @@ _discussion = rule(
     },
 )
 
+def _have_discussion_impl(ctx):
+    file_to_run = ctx.attr._discussion_haver
+    discussion_file = ctx.attr.discussion[DiscussionInfo].file
 
-# def _have_discussion_impl(ctx):
-#     discussion_file = ctx.attr.discussion[DiscussionInfo].file
-#     log = ctx.actions.declare_file("log")
+    run_file = ctx.actions.declare_file("{}".format(ctx.attr.name))
+    run_file_contents = "./" + file_to_run.files_to_run.executable.short_path + " --discussion_path " + discussion_file.short_path
 
-#     args = ctx.actions.args()
-#     args.add("--discussion_path", discussion_file)
+    ctx.actions.write(
+        content = run_file_contents,
+        is_executable = True,
+        output = run_file,
+    )
 
-#     ctx.actions.run(
-#         arguments = [args],
-#         inputs = [ctx.executable._discussion_haver, discussion_file],
-#         executable = ctx.executable._discussion_haver,
-#         outputs = [log]
-#     )
+    # merge runfiles
+    runfiles = file_to_run.default_runfiles.merge(ctx.runfiles([discussion_file, run_file]))
 
-#     return [DefaultInfo(executable=ctx.executable._discussion_haver)]
+    return DefaultInfo(
+        executable = run_file,
+        runfiles = runfiles,
+    )
 
-# _have_discussion = rule(
-#     implementation = _have_discussion_impl,
-#     executable = True,
-#     attrs = {
-#         "discussion": attr.label(providers = [DiscussionInfo], mandatory = True),
-#         "_discussion_haver": attr.label(
-#             default = Label("//projects/intergalactic_federation:discussion_haver"),
-#             executable = True,
-#             cfg = "exec",
-#         ),
-#     },
-# )
+_have_discussion = rule(
+    implementation = _have_discussion_impl,
+    executable = True,
+    attrs = {
+        "discussion": attr.label(providers = [DiscussionInfo], mandatory = True),
+        "_discussion_haver": attr.label(
+            default = Label("//projects/intergalactic_federation:discussion_haver"),
+            executable = True,
+            cfg = "exec",
+        ),
+    },
+)
 
 def discussion(name, **kwargs):
     _discussion(
@@ -254,8 +260,8 @@ def discussion(name, **kwargs):
         **kwargs
     )
 
-    # _have_discussion(
-    #     name = "{}.run".format(name),
-    #     discussion = name,
-    #     tags = ["manual"]
-    # )
+    _have_discussion(
+        name = "{}.run".format(name),
+        discussion = name,
+        tags = ["manual"],
+    )

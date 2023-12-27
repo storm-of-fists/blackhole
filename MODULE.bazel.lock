@@ -3359,7 +3359,7 @@
       "os:linux,arch:amd64": {
         "bzlTransitiveDigest": "ZWtBC26/TEjSAGjT+8n5tDaKyKozKfg1CJk5KX5McLw=",
         "accumulatedFileDigests": {
-          "@@//tools/python/external:requirements_lock.txt": "ff5adc2fa7a2383a552d209c463c4aade7e51ce65fd8b05e4407e171f4035126",
+          "@@//tools/python/external:requirements_lock.txt": "57395945c91f037af63e962888238132b4c6fc9e4651f851db25833ee0f13081",
           "@@bazel_advanced_config~override//:requirements_lock.txt": "6e2e25c8e1722319e6f65b2d276c38acb1b58f29e052facf69f26b19a00022f2"
         },
         "envVariables": {},
@@ -4456,27 +4456,6 @@
               "environment": {}
             }
           },
-          "external_py_311_notebook": {
-            "bzlFile": "@@rules_python~0.27.1//python/pip_install:pip_repository.bzl",
-            "ruleClassName": "whl_library",
-            "attributes": {
-              "name": "rules_python~0.27.1~pip~external_py_311_notebook",
-              "requirement": "notebook==7.0.6     --hash=sha256:0fe8f67102fea3744fedf652e4c15339390902ca70c5a31c4f547fa23da697cc     --hash=sha256:ec6113b06529019f7f287819af06c97a2baf7a95ac21a8f6e32192898e9f9a58",
-              "repo": "external_py_311",
-              "repo_prefix": "external_py_311_",
-              "whl_patches": {},
-              "python_interpreter": "",
-              "python_interpreter_target": "@@rules_python~0.27.1~python~python_3_11_x86_64-unknown-linux-gnu//:bin/python3",
-              "quiet": true,
-              "timeout": 600,
-              "isolated": true,
-              "extra_pip_args": [],
-              "download_only": false,
-              "pip_data_exclude": [],
-              "enable_implicit_namespace_pkgs": false,
-              "environment": {}
-            }
-          },
           "external_py_311_ipython": {
             "bzlFile": "@@rules_python~0.27.1//python/pip_install:pip_repository.bzl",
             "ruleClassName": "whl_library",
@@ -5403,9 +5382,6 @@
                   "3.11.6"
                 ],
                 "nest_asyncio": [
-                  "3.11.6"
-                ],
-                "notebook": [
                   "3.11.6"
                 ],
                 "notebook_shim": [

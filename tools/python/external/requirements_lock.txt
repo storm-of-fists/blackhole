@@ -612,7 +612,6 @@ jupyter-server==2.12.1 \
     #   jupyter-lsp
     #   jupyterlab
     #   jupyterlab-server
-    #   notebook
     #   notebook-shim
 jupyter-server-terminals==0.5.0 \
     --hash=sha256:2fc0692c883bfd891f4fba0c4b4a684a37234b0ba472f2e97ed0a3888f46e1e4 \
@@ -621,7 +620,7 @@ jupyter-server-terminals==0.5.0 \
 jupyterlab==4.0.9 \
     --hash=sha256:9ebada41d52651f623c0c9f069ddb8a21d6848e4c887d8e5ddc0613166ed5c0b \
     --hash=sha256:9f6f8e36d543fdbcc3df961a1d6a3f524b4a4001be0327a398f68fa4e534107c
-    # via notebook
+    # via -r tools/python/external/reqs.in/rendered/requirements.in
 jupyterlab-pygments==0.3.0 \
     --hash=sha256:721aca4d9029252b11cfa9d185e5b5af4d54772bb8072f9b7036f4170054d35d \
     --hash=sha256:841a89020971da1d8693f1a99997aefc5dc424bb1b251fd6322462a1b8842780
@@ -629,9 +628,7 @@ jupyterlab-pygments==0.3.0 \
 jupyterlab-server==2.25.2 \
     --hash=sha256:5b1798c9cc6a44f65c757de9f97fc06fc3d42535afbf47d2ace5e964ab447aaf \
     --hash=sha256:bd0ec7a99ebcedc8bcff939ef86e52c378e44c2707e053fcd81d046ce979ee63
-    # via
-    #   jupyterlab
-    #   notebook
+    # via jupyterlab
 kiwisolver==1.4.5 \
     --hash=sha256:00bd361b903dc4bbf4eb165f24d1acbee754fce22ded24c3d56eec268658a5cf \
     --hash=sha256:040c1aebeda72197ef477a906782b5ab0d387642e93bda547336b8957c61022e \
@@ -861,16 +858,10 @@ nest-asyncio==1.5.8 \
     --hash=sha256:25aa2ca0d2a5b5531956b9e273b45cf664cae2b145101d73b86b199978d48fdb \
     --hash=sha256:accda7a339a70599cb08f9dd09a67e0c2ef8d8d6f4c07f96ab203f2ae254e48d
     # via ipykernel
-notebook==7.0.6 \
-    --hash=sha256:0fe8f67102fea3744fedf652e4c15339390902ca70c5a31c4f547fa23da697cc \
-    --hash=sha256:ec6113b06529019f7f287819af06c97a2baf7a95ac21a8f6e32192898e9f9a58
-    # via -r tools/python/external/reqs.in/rendered/requirements.in
 notebook-shim==0.2.3 \
     --hash=sha256:a83496a43341c1674b093bfcebf0fe8e74cbe7eda5fd2bbc56f8e39e1486c0c7 \
     --hash=sha256:f69388ac283ae008cd506dda10d0288b09a017d822d5e8c7129a152cbd3ce7e9
-    # via
-    #   jupyterlab
-    #   notebook
+    # via jupyterlab
 numpy==1.26.2 \
     --hash=sha256:06fa1ed84aa60ea6ef9f91ba57b5ed963c3729534e6e54055fc151fad0423f0a \
     --hash=sha256:174a8880739c16c925799c018f3f55b8130c1f7c8e75ab0a6fa9d41cab092fd6 \
@@ -1568,7 +1559,6 @@ tornado==6.4 \
     #   jupyter-client
     #   jupyter-server
     #   jupyterlab
-    #   notebook
     #   terminado
 traitlets==5.14.0 \
     --hash=sha256:f14949d23829023013c47df20b4a76ccd1a85effb786dc060f34de7948361b33 \

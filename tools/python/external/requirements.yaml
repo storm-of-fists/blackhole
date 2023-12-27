@@ -8,7 +8,8 @@ deps:
   pyerfa:
   progress:
   pyparsing:
-  notebook:
+  jupyterlab:
+    version: "v4.1.0b0"
   matplotlib:
   dropbox:
   schedule:
