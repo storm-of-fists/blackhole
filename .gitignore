@@ -1,5 +1,5 @@
 # Bazel Patterns
-/bazel-*
+bazel-*
 /user.bazelrc
 
 # Rust Ignore Patterns
@@ -149,9 +149,6 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
-.pyre/
-
 # Data
 *.csv
 
@@ -163,3 +160,6 @@ dmypy.json
 
 # planet position data
 *.bsp
+
+# github
+actions-runner
