@@ -1,6 +1,6 @@
-third_party_crates = {
-    "eyre": {
-        "version": "=0.6.8",
+[dependencies]
+[eyre]
+version= "0.6.8"
     },
     "env_logger": {
         "version": "=0.10.0",
@@ -31,4 +31,3 @@ third_party_crates = {
     "proc-macro2": {
         "version": "1.0.66",
     },
-}

@@ -79,3 +79,20 @@ use_repo(oci, "distroless_base")
 ### Solar Sim Deps ###
 download_de440 = use_extension("//projects/solar_sim:download_de440.bzl", "download_de440")
 use_repo(download_de440, "de440")
+
+### Rust ###
+bazel_dep(name = "rules_rust", version = "0.35.0")
+
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+
+RUST_STABLE_VERSION = "1.75.0"
+
+rust.toolchain(
+    edition = "2021",
+    versions = [RUST_STABLE_VERSION],
+)
+use_repo(rust, "rust_toolchains")
+register_toolchains("@rust_toolchains//:all")
+
+# crate_repositories = use_extension("//tools/rust/external:extension.bzl", "crate_repositories")
+# use_repo(cargo_bazel_bootstrap, "external_rust")

@@ -1,0 +1,14 @@
+load("//tools/rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "tokio",
+    srcs = [
+        "main.rs",
+    ],
+    deps = [
+        "//tools/rust/clock",
+        "//tools/rust/context",
+        "//tools/rust/raw_pointer",
+        "@external_rust//:tokio",
+    ],
+)

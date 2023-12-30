@@ -1,0 +1,12 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "clap",
+    srcs = [
+        "clap.rs",
+    ],
+    deps = [
+        "//tools/rust:base",
+        "@external_rust//:clap",
+    ],
+)

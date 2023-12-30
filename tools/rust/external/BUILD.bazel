@@ -1,0 +1,10 @@
+load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
+# TODO https://github.com/bazelbuild/rules_rust/blob/main/proto/prost/private/3rdparty/BUILD.bazel
+crates_vendor(
+    name = "vendor",
+    cargo_lockfile = "//tools/rust/external:Cargo.lock",
+    generate_build_scripts = True,
+    manifests = ["//tools/rust/external:Cargo.toml"],
+    mode = "remote",
+    tags = ["manual"],
+)

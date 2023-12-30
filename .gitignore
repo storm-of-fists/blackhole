@@ -12,7 +12,6 @@ target/
 **/*.rs.bk
 
 bazel-*
-user
 
 # Jupyter Notebook
 **./*.ipynb_checkpoints

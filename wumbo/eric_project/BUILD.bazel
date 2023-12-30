@@ -1,0 +1,11 @@
+load("//tools/python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    data = [
+        "decodethis.txt",
+        "training.txt",
+    ],
+    deps = [],
+)

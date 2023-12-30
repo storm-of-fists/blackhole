@@ -1,0 +1,19 @@
+load("//tools/python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "producer",
+    srcs = ["producer.py"],
+    data = ["config.ini"],
+    deps = [
+        "@external_py//confluent_kafka",
+    ],
+)
+
+py_binary(
+    name = "consumer",
+    srcs = ["consumer.py"],
+    data = ["config.ini"],
+    deps = [
+        "@external_py//confluent_kafka",
+    ],
+)
