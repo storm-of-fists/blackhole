@@ -1,0 +1,47 @@
+load(
+    "//tools:defs.bzl",
+    "oci_image",
+    "oci_push",
+    "pkg_tar",
+    "py_binary",
+)
+
+py_binary(
+    name = "sadie_bot",
+    srcs = ["sadie_bot.py"],
+    tags = [
+        "manual",
+        "no-sandbox",
+    ],
+    deps = [
+        "@external_py//discord_py",
+    ],
+)
+
+pkg_tar(
+    name = "sadie_bot_pkg",
+    srcs = [
+        ":sadie_bot",
+    ],
+)
+
+oci_image(
+    name = "sadie_bot_image",
+    base = "@python_base",
+    cmd = ["./sadie_bot"],
+    tars = [":sadie_bot_pkg"],
+)
+
+oci_push(
+    name = "sadie_bot_push_image_latest",
+    image = ":sadie_bot_image",
+    remote_tags = ["latest"],
+    repository = "index.docker.io/contron44/sadie_bot",
+)
+
+oci_push(
+    name = "sadie_bot_push_image_release",
+    image = ":sadie_bot_image",
+    remote_tags = ["0.0.1"],
+    repository = "index.docker.io/contron44/sadie_bot",
+)

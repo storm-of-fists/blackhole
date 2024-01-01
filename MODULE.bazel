@@ -68,13 +68,13 @@ oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 
 # Declare external images you need to pull, for example:
 oci.pull(
-    name = "distroless_base",
-    digest = "sha256:13b7e62e8df80264dbb747995705a986aa530415763a6c58f84a3ca8af9a5bcd",
-    image = "index.docker.io/library/alpine",
+    name = "python_base",
+    digest = "sha256:79d902e3c05bb26b70c5bdf4942e7e6383b927e29d91349eca306a433ae41050",
+    image = "docker.io/library/python",
 )
 
 # For each oci.pull call, repeat the "name" here to expose them as dependencies.
-use_repo(oci, "distroless_base")
+use_repo(oci, "python_base")
 
 ### Solar Sim Deps ###
 download_de440 = use_extension("//projects/solar_sim:download_de440.bzl", "download_de440")

@@ -162,3 +162,5 @@ dmypy.json
 
 # github
 actions-runner
+
+*.token

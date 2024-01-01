@@ -23,3 +23,4 @@ deps:
     no_notebooks: true
   confluent-kafka:
   cbor2:
+  discord.py:

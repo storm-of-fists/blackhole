@@ -22,7 +22,7 @@ pkg_tar(
 # Step 3: Build image and add built layer to it
 oci_image(
     name = "minecraft_backup_worker_image",
-    base = "@distroless_base",
+    base = "@python_base",
     tars = [":minecraft_backup_worker_layer"],
     entrypoint = ["/minecraft_backup_worker_bin"],
 )

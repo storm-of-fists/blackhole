@@ -1,0 +1,11 @@
+services:
+  sadie_bot:
+    image: contron44/sadie_bot:latest
+    restart: unless-stopped
+    volumes:
+      - /var/sadie_bot/token.txt
+    environment:
+      - MEMORYSIZE=0.5G
+      - PUID=1000
+      - PGID=1000
+      - TZ=US
