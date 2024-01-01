@@ -1,6 +1,6 @@
 services:
   sadie_bot:
-    image: contron44/sadie_bot:latest
+    image: contron44/sadie_bot:1
     restart: unless-stopped
     volumes:
       - /var/sadie_bot/token.txt

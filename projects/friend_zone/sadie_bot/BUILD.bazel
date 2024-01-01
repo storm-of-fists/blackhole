@@ -18,30 +18,26 @@ py_binary(
     ],
 )
 
+### TODO https://github.com/bazelbuild/rules_pkg/issues/803 ###
 pkg_tar(
     name = "sadie_bot_pkg",
     srcs = [
         ":sadie_bot",
     ],
+    include_runfiles = True,
 )
 
 oci_image(
     name = "sadie_bot_image",
     base = "@python_base",
-    cmd = ["./sadie_bot"],
+    entrypoint = ["./sadie_bot"],
     tars = [":sadie_bot_pkg"],
+
 )
 
 oci_push(
-    name = "sadie_bot_push_image_latest",
+    name = "sadie_bot_release",
     image = ":sadie_bot_image",
-    remote_tags = ["latest"],
-    repository = "index.docker.io/contron44/sadie_bot",
-)
-
-oci_push(
-    name = "sadie_bot_push_image_release",
-    image = ":sadie_bot_image",
-    remote_tags = ["0.0.1"],
+    remote_tags = ["1"],
     repository = "index.docker.io/contron44/sadie_bot",
 )

@@ -55,7 +55,12 @@ git_override(
 )
 
 ### Packaging ###
-bazel_dep(name = "rules_pkg", version = "0.9.1")
+bazel_dep(name = "rules_pkg")
+git_override(
+    module_name = "rules_pkg",
+    remote = "https://github.com/bazelbuild/rules_pkg",
+    commit = "994a1f5b94f5baa4904d9487622c2908fe44d2d1",
+)
 
 ### Containers ###
 # Fix a bad dep https://github.com/bazel-contrib/rules_oci/pull/449 TODO
