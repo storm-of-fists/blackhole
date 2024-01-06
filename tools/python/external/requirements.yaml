@@ -24,3 +24,4 @@ deps:
   confluent-kafka:
   cbor2:
   discord.py:
+  sentry_sdk:

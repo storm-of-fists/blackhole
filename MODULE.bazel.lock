@@ -4851,7 +4851,7 @@
       "os:linux,arch:amd64": {
         "bzlTransitiveDigest": "ZWtBC26/TEjSAGjT+8n5tDaKyKozKfg1CJk5KX5McLw=",
         "accumulatedFileDigests": {
-          "@@//tools/python/external:requirements_lock.txt": "ebee5dc2fa51a21385a943d9017ae6debf1dbd2e98e8ec3a6fe63e7218a89dfe",
+          "@@//tools/python/external:requirements_lock.txt": "f56616b1804597bfa49a7c0996d7ab30224011b39fd890c55515e129c1ffdd06",
           "@@bazel_advanced_config~override//:requirements_lock.txt": "6e2e25c8e1722319e6f65b2d276c38acb1b58f29e052facf69f26b19a00022f2"
         },
         "envVariables": {},
@@ -4988,6 +4988,27 @@
             "attributes": {
               "name": "rules_python~0.27.1~pip~external_py_311_certifi",
               "requirement": "certifi==2023.11.17     --hash=sha256:9b469f3a900bf28dc19b8cfbf8019bf47f7fdd1a65a1d4ffb98fc14166beb4d1     --hash=sha256:e036ab49d5b79556f99cfc2d9320b34cfbe5be05c5871b51de9329f0603b0474",
+              "repo": "external_py_311",
+              "repo_prefix": "external_py_311_",
+              "whl_patches": {},
+              "python_interpreter": "",
+              "python_interpreter_target": "@@rules_python~0.27.1~python~python_3_11_x86_64-unknown-linux-gnu//:bin/python3",
+              "quiet": true,
+              "timeout": 600,
+              "isolated": true,
+              "extra_pip_args": [],
+              "download_only": false,
+              "pip_data_exclude": [],
+              "enable_implicit_namespace_pkgs": false,
+              "environment": {}
+            }
+          },
+          "external_py_311_sentry_sdk": {
+            "bzlFile": "@@rules_python~0.27.1//python/pip_install:pip_repository.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "name": "rules_python~0.27.1~pip~external_py_311_sentry_sdk",
+              "requirement": "sentry-sdk==1.39.1     --hash=sha256:320a55cdf9da9097a0bead239c35b7e61f53660ef9878861824fd6d9b2eaf3b5     --hash=sha256:81b5b9ffdd1a374e9eb0c053b5d2012155db9cbe76393a8585677b753bd5fdc1",
               "repo": "external_py_311",
               "repo_prefix": "external_py_311_",
               "whl_patches": {},
@@ -7102,6 +7123,9 @@
                   "3.11.6"
                 ],
                 "send2trash": [
+                  "3.11.6"
+                ],
+                "sentry_sdk": [
                   "3.11.6"
                 ],
                 "six": [

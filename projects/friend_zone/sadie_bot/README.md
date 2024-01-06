@@ -4,4 +4,3 @@ Links
 https://discord.com/developers/docs/intro
 
 TODO:
-1. Auto fix all twitter links to vxtwitter
