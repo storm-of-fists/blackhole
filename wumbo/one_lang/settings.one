@@ -1,0 +1,61 @@
+(# This is a settings file. It can be included with other source
+and will change how the program is compiled. This can be included
+just for specific modules or at a top level for a whole project. #)
+
+(# allow for type inference with the compiler #)
+(type_inference_settings
+    float_type Float64
+    integer_type Integer32
+    unisgned_integer_type UnsignedInteger32
+)
+
+(# settings can change how the language gets compiled #)
+(recursion_settings
+    allowed false
+    max_call_stack 10
+)
+
+(name_settings
+    Float32_alias FloatingPoint32
+    UnsignedInteger32_alias UInt32
+    SignedInteger32_alias SInt32
+)
+
+(comment_settings
+    comment_symbol ##
+)
+
+(data_settings
+    field_character_case CamelCase
+)
+
+(allocation_settings
+    (# implicitly allocate objects that need it
+    Like to keep false to see where its happening. #)
+    implicit_allocate false
+    (# always allocate structs to the heap and always pass pointers #)
+    always_allocate false
+    (# never allocate structs and dont allow allocations whatsoever)
+    never_allocate true
+)
+
+(nesting_settings
+    (# allow for one layer of struct nesting #)
+    struct_nesting 1
+    (# allow for two layers of function nesting #)
+    function_nesting 2
+    (# allow for no layers of module nesting #)
+    module_nesting 0
+    (# access spread fields and methods via the spread data type #)
+    access_spread_via_type true
+)
+
+(memory_padding_settings
+    (# should be able to control this #)
+    pad_to_word_size false
+)
+
+(function_inlining
+    (# if the thing is less than five lines, then inline it #)
+    inlining_default 5
+)

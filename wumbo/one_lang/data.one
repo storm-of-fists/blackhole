@@ -1,0 +1,24 @@
+(data_define MyData
+    field_one FloatingPoint32
+    field_two CALCULATED
+
+    (field_two
+        (return (multiply_f32 2.0 field_one))
+    )
+)
+
+(bind data MyData (MyData field_one 13.1))
+
+(# CALCULATED values can be accessed same as methods #)
+(assert (less_than (diff (data field_two) 26.2) 0.001))
+
+(data_define MyDataTwo
+    SPREAD MyData
+)
+
+(# when accessing SPREAD fields or methods, can specify whether you need
+to access via the SPREAD data type #)
+(bind data_two MyDataTwo (MyDataTwo field_one 13.1))
+(# OR #)
+(bind data_two MyDataTwo (MyDataTwo MyData field_one 13.1))
+

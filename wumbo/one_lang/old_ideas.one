@@ -1,0 +1,9 @@
+(# function arg passing strategy #)
+(function_define my_func_one
+    field_one data_strategy DataType (# DONT DO IT THIS WAY #)
+    return DataType
+    INLINE
+    (
+        (# the actual logic #)
+    )
+)

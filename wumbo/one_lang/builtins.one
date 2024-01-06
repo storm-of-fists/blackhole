@@ -1,0 +1,79 @@
+data
+
+UnsignedInteger8
+UnsignedInteger16
+UnsignedInteger32
+UnsignedInteger64
+
+SignedInteger8
+SignedInteger16
+SignedInteger32
+SignedInteger64
+
+FloatingPoint32
+FloatingPoint64
+
+Boolean
+Tuple
+Option
+Result
+StackError
+HeapError
+
+(# Array Types #)
+Array (
+    field_type UnsignedInteger64
+    number_of_fields 50
+)
+SetArray
+
+(# this would be annotated as alloc.
+Could specify alloc sets for the growable array, so
+how much should you alloc at a time when adding to it? #)
+GrowableArray
+GrowableSetArray
+Pointer (# not sure how to express inner type #)
+(#
+could maybe do something like
+Pointer InnerData
+or
+Pointer(InnerData)
+#)
+(# same dilemma here about types #)
+(# should definitely include these as the like, default way of passing this stuff #)
+(# should try to be memory safe, but not to a fault #)
+MutableReference
+Reference
+
+HashMap?
+
+functions
+
+(# define functions #)
+module_define
+template_define
+constant_define
+function_define
+data_define
+
+allocate
+bind
+mutate
+reference
+mutable_reference
+pin
+move
+copy
+match
+loop
+return
+
+other_keywords
+ALL
+SPREAD
+(# Way to specify that this thing should be cached #)
+CACHE_PRIORITY
+(# Way to inline a function #)
+CALCULATED
+MEMO_CACHE
+return

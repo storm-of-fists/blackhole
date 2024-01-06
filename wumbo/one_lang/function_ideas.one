@@ -1,0 +1,19 @@
+(function_define my_func_two
+    field_one DataType
+)
+
+(my_func_one some_data)
+(bind local_variable (copy some_data))
+
+(my_func_two field_one (move some_data)) (# more flexible to do this #)
+(my_func_two field_one (copy some_data))
+
+(function_define my_func_three
+    field_one Pointer(DataType) (# some field for input #)
+    return ReturnType (# return is a reserved keyword #)
+    INLINE (# some tag to specify this function should be inlined #)
+    (
+        code logic
+    )
+
+)

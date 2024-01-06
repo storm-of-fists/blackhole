@@ -28,7 +28,7 @@ async def on_message(message):
 
 async def fix_and_repost_twitter_links(message):
     twitter_links = re.findall(r"https://twitter.com(.*)[ ,\n]*", message.content)
-    urls = {f"https://vxtwitter.com{link}" for link in twitter_links}
+    urls = {f"rauf! https://vxtwitter.com{link}" for link in twitter_links}
     await asyncio.gather(
         *(
             message.reply(
