@@ -1,0 +1,25 @@
+(# Integrate markdown into the comments. #)
+
+(#  FEATURES
+
+The ONE language aims to be the one and only text interface you need to talk to a computer.
+Memory structs are easily serialized and transferred between programs or stored to binary files.
+A built in transmission protocol also makes it simple to transmit low latency data between binaries.
+Interfaces are automatically generated between the binaries and deployments can also be tightly controlled.
+Makes it easy to send data across the network, making it useful for microservice deployments.
+Can turn on or off type inference. Can essentially act like C, Java, or Python.
+
+#)
+
+(# STRUCTURE
+
+At the lowest level are functions, data, and macros.
+These can be combined into modules.
+These modules are then combined into applications.
+Applications can be grouped into deployments.
+
+#)
+
+(#
+
+#)

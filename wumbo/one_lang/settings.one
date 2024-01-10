@@ -16,27 +16,40 @@ just for specific modules or at a top level for a whole project. #)
 )
 
 (name_settings
-    Float32_alias FloatingPoint32
-    UnsignedInteger32_alias UInt32
-    SignedInteger32_alias SInt32
+    aliases (map (
+        'FloatingPoint32'     'FP32'
+        'UnsignedInteger32'   'UI32'
+        'SignedInteger32'     'SI32'
+    ))
+    field_character_case CamelCase
 )
 
 (comment_settings
-    comment_symbol ##
+    comment_symbol  (# #)
 )
 
 (data_settings
-    field_character_case CamelCase
+
 )
 
 (allocation_settings
     (# implicitly allocate objects that need it
     Like to keep false to see where its happening. #)
-    implicit_allocate false
     (# always allocate structs to the heap and always pass pointers #)
     always_allocate false
     (# never allocate structs and dont allow allocations whatsoever)
     never_allocate true
+    (# allocate_cycle will put a bunch of allocations together instead of doing them one at a time #)
+    allocate_cycle_time 1.0E-5
+)
+
+(bind_settings
+    implicit_bind_action='stack'
+)
+
+(# The garbage collector acts on each module #)
+(garbage_collector_settings
+
 )
 
 (nesting_settings

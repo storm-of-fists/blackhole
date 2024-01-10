@@ -1,24 +1,21 @@
-data
+(#  PRIMITIVES
 
-UnsignedInteger8
-UnsignedInteger16
-UnsignedInteger32
-UnsignedInteger64
+Low level pieces of data. 'T'
 
-SignedInteger8
-SignedInteger16
-SignedInteger32
-SignedInteger64
-
-FloatingPoint32
-FloatingPoint64
-
+UnsignedInteger8/16/32/64 (or Whole8)
+SignedInteger8/16/32/64 (or just Integer8)
+FloatingPoint32/64
+FixedPoint32/64
 Boolean
-Tuple
-Option
-Result
+Tuple(*T)
+Option(T)
+Result(T)
+Enum(T)
 StackError
 HeapError
+
+#)
+
 
 (# Array Types #)
 Array (

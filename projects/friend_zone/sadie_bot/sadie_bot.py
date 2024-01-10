@@ -2,10 +2,11 @@ import discord
 import re
 import asyncio
 import pathlib
+import random
 
 from tools.python import sentry, log
 
-LOG = log.init(name="sadie_bot")
+LOG, HANDLERS, FORMATTER = log.init(name="sadie_bot")
 sentry.init()
 
 intents = discord.Intents.default()
@@ -17,7 +18,7 @@ DISCORD_TOKEN = pathlib.Path("/var/sadie_bot/token.txt").read_text()
 
 @CLIENT.event
 async def on_ready():
-    LOG.debug(f"Logged on as {CLIENT.user}!")
+    LOG.info(f"Logged on as {CLIENT.user}!")
 
 
 @CLIENT.event
@@ -39,9 +40,24 @@ async def fix_and_repost_twitter_links(message):
             for url in urls
         )
     )
+    if random.random() > 0.8:
+        await austin_says_thanks(message)
+
+
+async def austin_says_thanks(message):
+    await message.reply(
+        "This is Austin Lindell, thanks Sadie!",
+        silent=True,
+        allowed_mentions=discord.AllowedMentions(replied_user=False),
+    )
 
 
 async def start_client():
+    # TODO, use multiple handlers here. should be possible idk why not.
+    # silly discord py lib
+    discord.utils.setup_logging(
+        handler=HANDLERS[1], formatter=FORMATTER, level=log.INFO, root=False
+    )
     await CLIENT.start(DISCORD_TOKEN)
 
 
