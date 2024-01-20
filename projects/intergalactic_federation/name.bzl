@@ -1,5 +1,7 @@
 """Different types of providers and rules for names of things."""
 
+# TODO: decoy name!
+
 CharacterNameInfo = provider(
     "A character provider",
     fields = {

@@ -1,0 +1,144 @@
+(comment
+
+There are a few layers to ONO. These layers are
+
+1. Macros
+2. Data
+3. Functions
+4. Modules
+5. Applications
+6. Deployments
+
+The most basic layer is that of macros. Macros a huge part of the ono language.
+They are expanded before compilation occurs. They figure out what data definitions they need to
+expand in order to have access to metadata. Macros can also have an explicit "layer" of
+unfolding set, so that they explicitly unfold after other macros. Outermost macros get expanded
+before inner ones. Read more about built-in macros below. Here is the list of built-in macros
+(
+    macro data field function spread match oneof enum bind
+)
+
+Remember that all macros are children of the single 'macro'. Everything is defined from that.
+
+
+Syntax Explainer
+
+Most things in the language look the same since in the end we want data.
+So macros get called like
+
+(macro
+    arg_name arg
+    kwarg_name kwarg
+)
+
+and functions get called like
+
+(function
+    arg_name arg
+    kwarg_name kwarg
+)
+
+and data gets created like
+
+(data
+    arg_name arg
+    kwarg_name kwarg
+)
+
+Defining things is hard! Let's break down how the language breaks things down.
+
+(data
+    name MyData
+
+    This is how a simple field is declared, using the field macro.
+    (field
+        name field_one
+        data_type FloatingPoint32
+        visibility (Visibility module)
+        default_value 12.0
+    )
+
+    This is essentially an example of a 'calculated' field.
+    (function
+        name field_two
+        return_type FloatingPoint32
+        logic (return (multiply_f32 2.0 field_one))
+        visibility (Visibility deployment)
+    )
+
+    (function
+        name get_num
+        return_type (oneof FloatingPoint32 FloatingPoint64)
+        logic (
+            (if (greater_than field_one 13.0) (return (cast field_one FloatingPoint32))
+            ((return (cast field_one FloatingPoint64)))
+        )
+    )
+)
+
+The above uses a 'macro' called 'data' in order to create a data struct and member functions.
+It also gives that struct a specific name that can now be used as a type for other data and
+functions.
+
+
+
+macro
+The 'macro' macro will ingest a string of code and process it into the lower representation.
+These strings are manipulated in a 'pythonic' style.
+
+(macro
+    macro_name 'data'
+    name String
+    inputs (oneof Function Field)
+)
+
+data
+The 'data' macro will let you ingest data about a data structure to be made. You can define fields,
+methods, static data, and more.
+
+enum
+The 'enum' macro lets you define any enumeration of values. Using the 'or' macro will generate
+this enum for you.
+
+(enum
+    name DataInputs
+    variants (
+        Function(Function)
+        Field(Field)
+    )
+)
+
+
+
+
+)
+
+(comment
+Data Definitions
+
+Here is an example of defining some data:
+
+(data
+    name MyDataTwo
+    Fields and methods can be shared using the built in "spread" macro.
+    (spread MyData)
+)
+
+(comment
+Data Binding
+
+Here is an example of data binding:
+(bind data MyData
+    (MyData
+        field_one 13.1
+    )
+)
+
+Here is an example of data binding with type inference turned on:
+(bind data
+    (MyData
+        field_one 13.1
+    )
+)
+
+)

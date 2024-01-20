@@ -4851,7 +4851,7 @@
       "os:linux,arch:amd64": {
         "bzlTransitiveDigest": "ZWtBC26/TEjSAGjT+8n5tDaKyKozKfg1CJk5KX5McLw=",
         "accumulatedFileDigests": {
-          "@@//tools/python/external:requirements_lock.txt": "f56616b1804597bfa49a7c0996d7ab30224011b39fd890c55515e129c1ffdd06",
+          "@@//tools/python/external:requirements_lock.txt": "b879dd38c01b9728d2bfa216f6e675183ad0a4760854a5a7398cc743e3e729a9",
           "@@bazel_advanced_config~override//:requirements_lock.txt": "6e2e25c8e1722319e6f65b2d276c38acb1b58f29e052facf69f26b19a00022f2"
         },
         "envVariables": {},
@@ -5702,6 +5702,27 @@
             "attributes": {
               "name": "rules_python~0.27.1~pip~external_py_311_rfc3339_validator",
               "requirement": "rfc3339-validator==0.1.4     --hash=sha256:138a2abdf93304ad60530167e51d2dfb9549521a836871b88d7f4695d0022f6b     --hash=sha256:24f6ec1eda14ef823da9e36ec7113124b39c04d50a4d3d3a3c2859577e7791fa",
+              "repo": "external_py_311",
+              "repo_prefix": "external_py_311_",
+              "whl_patches": {},
+              "python_interpreter": "",
+              "python_interpreter_target": "@@rules_python~0.27.1~python~python_3_11_x86_64-unknown-linux-gnu//:bin/python3",
+              "quiet": true,
+              "timeout": 600,
+              "isolated": true,
+              "extra_pip_args": [],
+              "download_only": false,
+              "pip_data_exclude": [],
+              "enable_implicit_namespace_pkgs": false,
+              "environment": {}
+            }
+          },
+          "external_py_311_zmq": {
+            "bzlFile": "@@rules_python~0.27.1//python/pip_install:pip_repository.bzl",
+            "ruleClassName": "whl_library",
+            "attributes": {
+              "name": "rules_python~0.27.1~pip~external_py_311_zmq",
+              "requirement": "zmq==0.0.0     --hash=sha256:21cfc6be254c9bc25e4dabb8a3b2006a4227966b7b39a637426084c8dc6901f7     --hash=sha256:6b1a1de53338646e8c8405803cffb659e8eb7bb02fff4c9be62a7acfac8370c9",
               "repo": "external_py_311",
               "repo_prefix": "external_py_311_",
               "whl_patches": {},
@@ -7195,6 +7216,9 @@
                   "3.11.6"
                 ],
                 "yarl": [
+                  "3.11.6"
+                ],
+                "zmq": [
                   "3.11.6"
                 ]
               },

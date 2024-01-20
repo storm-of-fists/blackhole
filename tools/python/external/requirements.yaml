@@ -25,3 +25,5 @@ deps:
   cbor2:
   discord.py:
   sentry_sdk:
+  zmq:
+    enable_drafts: true

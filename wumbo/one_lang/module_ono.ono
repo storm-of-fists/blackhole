@@ -2,10 +2,10 @@
 This adds just a bit more pain to them
 also means one shape for all comments, can have multiline ##)
 
-(## keywords are in ALL_CAPS
+(# keywords are in ALL_CAPS
 these can be things like ALL or FILE or LINE
 avoid the use of __dunders or _unders
-use explicit words for those. ##)
+use explicit words for those. #)
 
 (## Function calls are also written this way, no distinction.
 Could maybe use color to distinguish when things run. ##)
@@ -22,8 +22,8 @@ Could maybe use color to distinguish when things run. ##)
     description "These are args"
     module_func_kwarg "here is how i set some kwarg"
 
-    (# Define data structures, name in CamelCase #)
-    (# Defines typically have the name on the same line. #)
+    (# Define data structures, name in CamelCase
+    Defines typically have the name on the same line. #)
     (data_define StructOne
         (# fields are field name and then the type #)
         field_one Float32
