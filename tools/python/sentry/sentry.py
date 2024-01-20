@@ -3,6 +3,7 @@ import pathlib
 
 SENTRY_DSN = pathlib.Path("/var/sentry/dsn").read_text()
 
+
 def init(**kwargs):
     sentry_sdk.init(
         dsn=SENTRY_DSN,

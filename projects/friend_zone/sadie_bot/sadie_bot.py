@@ -4,10 +4,14 @@ import asyncio
 import pathlib
 import random
 
-from tools.python import sentry, log
-
-LOG, HANDLERS, FORMATTER = log.init(name="sadie_bot")
+# SENTRY
+from tools.python.sentry import sentry
 sentry.init()
+
+# LOGGING
+import tools.python.log.log as log
+LOG, HANDLERS, FORMATTER = log.init(name="sadie_bot")
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -27,21 +31,32 @@ async def on_message(message):
         await fix_and_repost_twitter_links(message)
 
 
+async def sadie_reply(message=None):
+    _barks = ("rauf", "arf", "roof", "*whining*")
+
+    await message.reply(random.choice(_barks))
+
+
 async def fix_and_repost_twitter_links(message):
-    twitter_links = re.findall(r"https://twitter.com(.*)[ ,\n]*", message.content)
-    urls = {f"rauf! https://vxtwitter.com{link}" for link in twitter_links}
-    await asyncio.gather(
-        *(
-            message.reply(
-                url,
-                silent=True,
-                allowed_mentions=discord.AllowedMentions(replied_user=False),
+    if not message.embeds:
+        twitter_links = re.findall(r"https://twitter.com(.*)[ ,\n]*", message.content)
+        urls = {f"rauf! https://vxtwitter.com{link}" for link in twitter_links}
+        await asyncio.gather(
+            *(
+                message.reply(
+                    url,
+                    silent=True,
+                    allowed_mentions=discord.AllowedMentions(replied_user=False),
+                )
+                for url in urls
             )
-            for url in urls
         )
-    )
-    if random.random() > 0.8:
-        await austin_says_thanks(message)
+
+        if random.random() > 0.8:
+            await austin_says_thanks(message)
+    else:
+        if random.random() > 0.8:
+            await sadie_reply(message)
 
 
 async def austin_says_thanks(message):
@@ -62,4 +77,7 @@ async def start_client():
 
 
 if __name__ == "__main__":
-    asyncio.run(start_client())
+    try:
+        asyncio.run(start_client())
+    except KeyboardInterrupt:
+        LOG.debug("Caught keyboard interrupt, shutting down.")

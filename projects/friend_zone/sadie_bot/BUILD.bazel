@@ -14,8 +14,8 @@ py_binary(
         "no-sandbox",
     ],
     deps = [
-        "//tools/python:log",
-        "//tools/python:sentry",
+        "//tools/python/log",
+        "//tools/python/sentry",
         "@external_py//discord_py",
     ],
 )
