@@ -4,13 +4,7 @@ import asyncio
 import pathlib
 import random
 
-# SENTRY
-from tools.python.sentry import sentry
-sentry.init()
-
-# LOGGING
-import tools.python.log.log as log
-LOG, HANDLERS, FORMATTER = log.init(name="sadie_bot")
+from tools.python.application.application import app
 
 
 intents = discord.Intents.default()
@@ -22,41 +16,55 @@ DISCORD_TOKEN = pathlib.Path("/var/sadie_bot/token.txt").read_text()
 
 @CLIENT.event
 async def on_ready():
-    LOG.info(f"Logged on as {CLIENT.user}!")
+    app.log.info(f"Logged on as {CLIENT.user}!")
+
+
+async def sadie_reply(message):
+    roll = random.random()
+
+    # Make sure to always go from lowest probability to highest.
+    if roll > 0.995:
+        # Sometimes Sadie learns to speak.
+        sadie_message = await message.reply(
+            "No one will ever believe you that you heard a dog talk. Fuck you."
+        )
+        # We wanna freak em.
+        await sadie_message.delete(delay=5.0)
+    elif roll > 0.97:
+        await message.reply(random.choice(("rauf", "arf", "roof", "*whining*")))
+
+
+async def check_and_handle_twitter(message):
+    if "https://twitter.com" in message.content:
+        # Need a sleep here because embeds take a second to show up for twitter.
+        await asyncio.sleep(1)
+
+        if not message.embeds:
+            await fix_and_repost_twitter_embed(message)
 
 
 @CLIENT.event
 async def on_message(message):
-    if "https://twitter.com" in message.content:
-        await fix_and_repost_twitter_links(message)
+    await check_and_handle_twitter(message)
+    await sadie_reply(message)
 
 
-async def sadie_reply(message=None):
-    _barks = ("rauf", "arf", "roof", "*whining*")
-
-    await message.reply(random.choice(_barks))
-
-
-async def fix_and_repost_twitter_links(message):
-    if not message.embeds:
-        twitter_links = re.findall(r"https://twitter.com(.*)[ ,\n]*", message.content)
-        urls = {f"rauf! https://vxtwitter.com{link}" for link in twitter_links}
-        await asyncio.gather(
-            *(
-                message.reply(
-                    url,
-                    silent=True,
-                    allowed_mentions=discord.AllowedMentions(replied_user=False),
-                )
-                for url in urls
+async def fix_and_repost_twitter_embed(message):
+    twitter_links = re.findall(r"https://twitter.com(.*)[ ,\n]*", message.content)
+    urls = {f"rauf! https://vxtwitter.com{link}" for link in twitter_links}
+    await asyncio.gather(
+        *(
+            message.reply(
+                url,
+                silent=True,
+                allowed_mentions=discord.AllowedMentions(replied_user=False),
             )
+            for url in urls
         )
+    )
 
-        if random.random() > 0.8:
-            await austin_says_thanks(message)
-    else:
-        if random.random() > 0.8:
-            await sadie_reply(message)
+    if random.random() > 0.8:
+        await austin_says_thanks(message)
 
 
 async def austin_says_thanks(message):
@@ -71,13 +79,12 @@ async def start_client():
     # TODO, use multiple handlers here. should be possible idk why not.
     # silly discord py lib
     discord.utils.setup_logging(
-        handler=HANDLERS[1], formatter=FORMATTER, level=log.INFO, root=False
+        handler=app.log_handlers[1],
+        formatter=app.log_formatter,
+        level=app.logging.INFO,
+        root=False,
     )
     await CLIENT.start(DISCORD_TOKEN)
 
 
-if __name__ == "__main__":
-    try:
-        asyncio.run(start_client())
-    except KeyboardInterrupt:
-        LOG.debug("Caught keyboard interrupt, shutting down.")
+app.set_name("sadie_bot").set_async_entry(start_client).run()

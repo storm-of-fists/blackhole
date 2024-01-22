@@ -1,0 +1,265 @@
+[comment
+
+# Welcome
+
+Welcome to ono. It's a LISP syntax. And a compiler. And an assistant/language server.
+It's really just a way for me fantasize about my perfect language.
+
+I swapped parense with square brackets because I dont like
+hitting the shift key. I liked the consisteny of prefix notation.
+
+Heres an example of calling a function in ono
+
+[function_name
+    arg_1_name arg_1
+    arg_2_name arg_2
+]
+
+Notice that spaces and newlines are essentially treated the same, but that they are separated
+here to make it easier to read arguments. See how few symbols I need? Brackets, letters and space.
+
+Ono is much more than just a style. It's also the best parts about the learnings and failings
+of so many languages. It provides modern tooling developers expect. It provides flexibility
+between compiled and interpreted code. It provides channels to make exposing state within
+programs easy.
+
+only need ono.
+
+# ono as a language + framework + tooling
+
+I don't really like modern programming languages. There's so many. And they all look
+terrible. So many symbols. And each language is made of 15 million different parts,
+each with its own name. ono tries to take what we have learned from all these languages
+over the past century+ of computing and trim the fat while making it easier to write
+a program. It aims to do that with style.
+
+ono does not have a compiler called AcceleratorG9. It does not have a linting tool
+called FeatherLite. It does not have a garbage collector called StreetSweeper. While
+all cool names, ono has the ono compiler, the ono linter, and the ono garbage collector.
+
+ono wants its tooling it ships with to be the best. The goddamned best. It should be a
+breeze to make an ono program. Like EASY.
+
+You can start ono via the binary. Yes, it's just one binary. So simple!
+The language server will connect to your IDE of choice. It will perform lint
+hinting/enforcing as you type. It will auto fill argument names
+and provide easy access to the documentation/source code.
+
+When you type [build my_program],
+it will spit out a single executable called my_program. If you type [run my_program],
+it will run that executable. You can call [run my_program] and it will compile
+for you as needed.
+
+Something highly recommended is running ono programs in debug mode. You can activate
+this by typing
+
+[run my_program
+    debug true
+]
+
+This will let you step through the program and set breakpoints. And call loaded functions
+from the command line. And inspect metadata. Think Jupyter.
+
+By default, ono programs include these debug symbols. You can remove them with no_debug_info
+
+[build my_program
+    no_debug_info true
+]
+
+# Modules
+
+The code is written in "Modules". Modules can depend on each other and export each other.
+Modules will contain definitions for Data, Functions, and Macros. Data is what Functions
+ingest. Functions transform then return Data. Macros will write code for you, creating more Data
+or Functions.
+
+This language has some powerful settings. Modules can be tuned to make the language behave
+differently within each one. There are two modes: flexible and strict.
+The flexible mode is just in time compiled, allocates non-primitives, always assumes
+something is of 64 bit size (primitives and references to the allocations) and doesn't type
+check. The strict mode disables garbage collection, has strong (static) type checking,
+and disables automatic allocation.
+
+Feel free to mix strongly type checked and non-allocating code with the just in time
+compiled and garbage collected modules. You do not need to worry about complicated
+interface settings. If any modules utilize the JIT compiler, they will run with that runtime.
+Modules that are compiled prior to runtime will stay compiled and are included with the JIT runtime
+as object files that are then turned into a single executable.
+
+The automatic allocation mode for modules also includes an additional metadata field
+describing information about the object, similar to python or javascript. This can
+be disabled if not needed.
+
+I wanted this language to be translatable. People can distribute "alias" packs that simply
+transform the data types, functions, and macros from one set of UTF-8 symbols to another.
+Users can then depend on those modules with some language setting.
+
+# Macros
+
+ono is meant to minimize the layers between the programmer and the data in the program.
+Macros are heavily utilized. Macros automatically resolve dependencies at compile time
+and know when a module relies on another.
+
+The most basic layer is that of macros. Macros are a huge part of the ono language.
+They are expanded before compilation occurs. They figure out what data definitions they need to
+expand in order to have access to metadata. Macros can also have an explicit "layer" of
+unfolding set, so that they explicitly unfold after other macros. Outermost macros get expanded
+before inner ones. Read more about built-in macros below. Here is the list of built-in macros
+[
+    macro_define data field function spread match oneof enum bind
+]
+
+Remember that all macros are children of the single 'macro'. Everything is defined from that.
+
+
+Syntax Explainer
+
+Most things in the language look the same since in the end we want data.
+So macros get called like
+
+[macro
+    arg_name arg
+    kwarg_name kwarg
+]
+
+and functions get called like
+
+[function
+    arg_name arg
+    kwarg_name kwarg
+]
+
+and data gets created like
+
+[data
+    arg_name arg
+    kwarg_name kwarg
+]
+
+Defining things is hard! Let's break down how the language breaks things down.
+
+[data
+    name MyData
+
+    [field
+        name field_one
+        shape FloatingPoint32
+        visibility [Visibility module]
+        default_value 12.0
+    ]
+
+    This is essentially an example of a 'calculated' field.
+    [function
+        name field_two
+        shape FloatingPoint32
+        visibility [Visibility deployment]
+        logic [return [multiply_f32 2.0 field_one]]
+    ]
+
+    [function
+        name get_num
+        shape [one_of FloatingPoint32 FloatingPoint64]
+        logic [
+            [if [greater_than field_one 13.0] [return [cast field_one FloatingPoint32]]
+            [[return [cast field_one FloatingPoint64]]]
+        ]
+    ]
+
+    [comment Youll be able to call this macro like [my_data ]]
+    [macro
+        name data_macro
+        shape FloatingPoint32
+        logic [
+
+        ]
+    ]
+]
+
+The above uses a 'macro' called 'data' in order to create a data struct and member functions.
+It also gives that struct a specific name that can now be used as a type for other data and
+functions.
+
+
+
+macro
+The 'macro' macro will ingest a string of code and process it into the lower representation.
+These strings are manipulated in a 'pythonic' style.
+
+[define_macro
+    name data
+    output LowLevelDataRepresentation
+    inputs [
+        input [oneof Function Field]
+    ]
+    logic [
+        [bind expanded_code [String empty 100]]]
+
+        [iterate [move inputs] input [
+            [match_shape input [
+                [Function function [
+
+                ]
+                [Field field [
+
+                ]]
+            ]]
+        ]]
+    ]
+]
+
+[expanded_code append
+    [render_template
+        config [Map create [
+            name [function name]
+            shape [function shape]
+        ]]
+        template [
+
+        ]
+    ]
+]
+
+data
+The 'data' macro will let you ingest data about a data structure to be made. You can define fields,
+methods, static data, and more.
+
+enum
+The 'enum' macro lets you define any enumeration of values. Using the 'or' macro will generate
+this enum for you.
+
+[enum
+    name DataInputs
+    variants [
+        Function[Function]
+        Field[Field]
+    ]
+]
+
+Data Definitions
+
+Here is an example of defining some data:
+
+[data
+    name MyDataTwo
+    Fields and methods can be shared using the built in "spread" macro.
+    [spread MyData]
+]
+
+[comment
+Data Binding
+
+Here is an example of data binding:
+[bind data MyData
+    [MyData
+        field_one 13.1
+    ]
+]
+
+Here is an example of data binding with type inference turned on:
+[bind data
+    [MyData
+        field_one 13.1
+    ]
+]
+
+]

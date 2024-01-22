@@ -1,10 +1,4 @@
-load(
-    "//tools:defs.bzl",
-    "oci_image",
-    "oci_push",
-    "pkg_tar",
-    "py_binary",
-)
+load("//tools/python:defs.bzl", "py_binary")
 
 py_binary(
     name = "sadie_bot",
@@ -14,31 +8,30 @@ py_binary(
         "no-sandbox",
     ],
     deps = [
-        "//tools/python/log",
-        "//tools/python/sentry",
+        "//tools/python/application",
         "@external_py//discord_py",
     ],
 )
 
-### TODO https://github.com/bazelbuild/rules_pkg/issues/803 ###
-pkg_tar(
-    name = "sadie_bot_pkg",
-    srcs = [
-        ":sadie_bot",
-    ],
-    include_runfiles = True,
-)
+# ### TODO https://github.com/bazelbuild/rules_pkg/issues/803 ###
+# pkg_tar(
+#     name = "sadie_bot_pkg",
+#     srcs = [
+#         ":sadie_bot",
+#     ],
+#     include_runfiles = True,
+# )
 
-oci_image(
-    name = "sadie_bot_image",
-    base = "@python_base",
-    entrypoint = ["./sadie_bot"],
-    tars = [":sadie_bot_pkg"],
-)
+# oci_image(
+#     name = "sadie_bot_image",
+#     base = "@python_base",
+#     entrypoint = ["./sadie_bot"],
+#     tars = [":sadie_bot_pkg"],
+# )
 
-oci_push(
-    name = "sadie_bot_release",
-    image = ":sadie_bot_image",
-    remote_tags = ["1"],
-    repository = "index.docker.io/contron44/sadie_bot",
-)
+# oci_push(
+#     name = "sadie_bot_release",
+#     image = ":sadie_bot_image",
+#     remote_tags = ["1"],
+#     repository = "index.docker.io/contron44/sadie_bot",
+# )
