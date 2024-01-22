@@ -1,7 +1,8 @@
 [comment
 
-# Welcome
 
+
+# Welcome
 Welcome to ono. It's a LISP syntax. And a compiler. And an assistant/language server.
 It's really just a way for me fantasize about my perfect language.
 
@@ -23,10 +24,16 @@ of so many languages. It provides modern tooling developers expect. It provides 
 between compiled and interpreted code. It provides channels to make exposing state within
 programs easy.
 
+Ono is meant to be able to run ANYWHERE, from micros to servers. Of course, theres some
+big differences between those environments. Thankfully, ono exposes MANY settings to adjust
+the runtime of the program. You can do bit bashing and register manipulation or high level
+distributed event based applications.
+
 only need ono.
 
-# ono as a language + framework + tooling
 
+
+# Ono as a language + framework + tooling
 I don't really like modern programming languages. There's so many. And they all look
 terrible. So many symbols. And each language is made of 15 million different parts,
 each with its own name. ono tries to take what we have learned from all these languages
@@ -66,8 +73,9 @@ By default, ono programs include these debug symbols. You can remove them with n
     no_debug_info true
 ]
 
-# Modules
 
+
+# Modules
 The code is written in "Modules". Modules can depend on each other and export each other.
 Modules will contain definitions for Data, Functions, and Macros. Data is what Functions
 ingest. Functions transform then return Data. Macros will write code for you, creating more Data
@@ -76,8 +84,8 @@ or Functions.
 This language has some powerful settings. Modules can be tuned to make the language behave
 differently within each one. There are two modes: flexible and strict.
 The flexible mode is just in time compiled, allocates non-primitives, always assumes
-something is of 64 bit size (primitives and references to the allocations) and doesn't type
-check. The strict mode disables garbage collection, has strong (static) type checking,
+something is of 64 bit size [primitives and references to the allocations] and doesn't type
+check. The strict mode disables garbage collection, has strong [static] type checking,
 and disables automatic allocation.
 
 Feel free to mix strongly type checked and non-allocating code with the just in time
@@ -94,8 +102,9 @@ I wanted this language to be translatable. People can distribute "alias" packs t
 transform the data types, functions, and macros from one set of UTF-8 symbols to another.
 Users can then depend on those modules with some language setting.
 
-# Macros
 
+
+# Macros
 ono is meant to minimize the layers between the programmer and the data in the program.
 Macros are heavily utilized. Macros automatically resolve dependencies at compile time
 and know when a module relies on another.
@@ -181,6 +190,31 @@ functions.
 
 
 
+# Functions
+TODO: old, update this
+
+[function_define my_func_two
+    field_one DataType
+]
+
+[my_func_one some_data]
+[bind local_variable [copy some_data]]
+
+[my_func_two field_one [move some_data]] [comment more flexible to do this ]
+[my_func_two field_one [copy some_data]]
+
+[function_define my_func_three
+    field_one Pointer[DataType] [comment some field for input ]
+    return ReturnType [comment return is a reserved keyword ]
+    INLINE [comment some tag to specify this function should be inlined ]
+    [
+        code logic
+    ]
+
+]
+
+
+
 macro
 The 'macro' macro will ingest a string of code and process it into the lower representation.
 These strings are manipulated in a 'pythonic' style.
@@ -219,6 +253,8 @@ These strings are manipulated in a 'pythonic' style.
     ]
 ]
 
+
+
 data
 The 'data' macro will let you ingest data about a data structure to be made. You can define fields,
 methods, static data, and more.
@@ -234,6 +270,8 @@ this enum for you.
         Field[Field]
     ]
 ]
+
+
 
 Data Definitions
 
@@ -262,4 +300,218 @@ Here is an example of data binding with type inference turned on:
     ]
 ]
 
+]
+
+
+
+TODO: trim this list of primitives and shit. simplify.
+
+Low level pieces of data. 'T'
+
+UnsignedInteger8/16/32/64 [or Whole8]
+SignedInteger8/16/32/64 [or just Integer8]
+FloatingPoint32/64
+FixedPoint32/64
+Boolean
+Tuple[*T]
+Option[T]
+Result[T]
+Enum[T]
+StackError
+HeapError
+
+[comment Array Types ]
+Array [
+    field_type UnsignedInteger64
+    number_of_fields 50
+]
+SetArray
+
+[comment this would be annotated as alloc.
+Could specify alloc sets for the growable array, so
+how much should you alloc at a time when adding to it? ]
+GrowableArray
+GrowableSetArray
+Pointer [comment not sure how to express inner type ]
+[comment
+could maybe do something like
+Pointer InnerData
+or
+Pointer[InnerData]
+]
+[comment same dilemma here about types ]
+[comment should definitely include these as the like, default way of passing this stuff ]
+[comment should try to be memory safe, but not to a fault ]
+MutableReference
+Reference
+
+HashMap?
+
+functions
+
+[comment define functions ]
+module_define
+template_define
+constant_define
+function_define
+data_define
+
+allocate
+bind
+mutate
+reference
+mutable_reference
+pin
+move
+copy
+match
+loop
+return
+
+other_keywords
+ALL
+SPREAD
+[comment Way to specify that this thing should be cached ]
+CACHE_PRIORITY
+[comment Way to inline a function ]
+CALCULATED
+MEMO_CACHE
+return
+
+
+comment TODO look thru and see if worth ot keep
+[comment another define function, this time for modules ]
+[module_define my_other_module [
+    [comment can reference a module by full namespace ]
+    [fun_module StructOne constructor_one
+        field_one 3121.21
+    ]
+
+    [comment can also import things from a module ]
+    [import fun_module StructOne]
+    [comment try not to use symbols, use keywords ]
+    [comment to import all you can do [import fun_module ALL] ]
+
+    [bind cool_variable StructOne [StructOne constructor_one
+        field_one 213.1
+    ]]
+]]
+
+[comment All comments have a start and end marker
+This adds just a bit more pain to them
+also means one shape for all comments, can have multiline ]
+
+[comment keywords are in ALL_CAPS
+these can be things like ALL or FILE or LINE
+avoid the use of __dunders or _unders
+use explicit words for those. ]
+
+[comment Function calls are also written this way, no distinction.
+Could maybe use color to distinguish when things run. ]
+[module_define name fun_module
+
+    [comment Can define constants for a module
+    can even define constants with odd shapes, these are loaded
+    at module load time and added to global const memory ]
+    [const_define fun_const
+        some_field Float32 34.1
+    ]
+
+    [comment Arguments are just white spaced between each other ]
+    description "These are args"
+    module_func_kwarg "here is how i set some kwarg"
+
+    [comment Define data structures, name in CamelCase
+    Defines typically have the name on the same line. ]
+    [data_define StructOne
+        [comment fields are field name and then the type ]
+        field_one Float32
+        field_two Float64
+
+        [comment getters are automatically defined for you but you can always ]
+        [comment add your own functions. ]
+        [function_define get_field_one
+            [
+                [return field_one]
+            ]
+        ]
+
+        [function_define constructor_one
+            field_one Float32
+            [
+                [StructOne
+                    field_one field_one
+                    field_two 3134422.3232
+                ]
+            ]
+        ]
+    ]
+
+    [data_define StructTwo
+        [comment the "strategy" function defined here will be applied to
+        the inbound data values. ]
+        [comment TODO or maybe not, maybe we require people to be explicit ]
+        field_one move Integer32
+        field_two copy UnsignedInteger32
+        field_three reference Float64
+    ]
+
+    [comment Nested data structures ]
+    [data_define MyData
+        comment use a field name to make this struct a field on the struct
+        field_one StructOne
+        [comment If you use the SPREAD keyword, it will smear the
+        other data type into this one, not counting toward nesting count
+        and giving you all the fields and methods. ]
+        SPREAD StructTwo
+    ]
+
+    [function_define function_one
+        [comment field definitions typically go on newlines, same as structs ]
+        arg_one StructOne
+        arg_two StructTwo
+        [
+            [comment explicit return function ]
+            [return [add [arg_one field_three] [arg_two field_three]]]
+        ]
+    ]
+
+    [function_define function_two
+        arg_one StructOne
+        arg_two StructTwo
+        [
+            [comment use specific words for binding variables ]
+            [comment stack will put it on the stack if possible ]
+            [comment compiler warns you if not possible ]
+            [comment cast to a type some value ]
+            [comment access fields on structs via the anonymous func ]
+            [bind local_variable[Float64] [cast Integer64 [arg_one field_one]]]
+
+            [mutate local_variable 41.123]
+
+            [comment alloc will put this object onto the heap. this is
+            completely optional for this struct, but could be
+            required for some things.
+            field_one doesnt need to be set to some default. ]
+            [bind allocated_variable Pointer StructOne
+                [allocate [StructOne
+                    constructor_one
+                    field_one 42.2133
+                ]]
+            ]
+            [bind stacked_struct StructOne [StructOne constructor_one 312.1]]
+
+            [local_variable]
+        ]
+    ]
+
+    [function_define function_two
+        [comment no default set, must supply ]
+        arg_one UnsignedInteger32
+        [comment have a default option being set after the field and type ]
+        arg_two UnsignedInteger32 1
+        [
+
+        ]
+    ]
 ]
