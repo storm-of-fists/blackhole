@@ -1,28 +1,103 @@
 [comment
 
-
-
 # Welcome
 Welcome to ono. It's a LISP syntax. And a compiler. And an assistant/language server.
-It's really just a way for me fantasize about my perfect language.
+And a CLI tool. It's really just a way for me fantasize about my perfect language.
+But I might try to make some parts of it real.
 
-I swapped parense with square brackets because I dont like
-hitting the shift key. I liked the consisteny of prefix notation.
 
-Heres an example of calling a function in ono
 
-[function_name
-    arg_1_name arg_1
-    arg_2_name arg_2
+# Reminders
+
+Code lives in LIBRARIES.
+Code runs in scopes []. Similar to rust. The last values in the scope are implicitly returned. Can also be explicit. So [true] and [[return true]] both return a value of true.
+LIBRARIES can depend on other LIBRARIES.
+LIBRARIES can be assembled into BINARIES.
+BINARIES can be grouped into DEPLOYMENTS.
+LIBRARIES contain DATA, FUNCTIONS.
+LIBRARIES and DATA "namespace" FUNCTIONS. DATA instances also namespace implicitly, so member FUNCTION calls are written in the same order as static FUNCTIONS, like [data-instance function-name arg] or [Data-Name function-name arg]
+FUNCTION calls marked with [compile-time-true] will run and create data at compile time. This is how macro functionality is created. The data returned by a compile-time true function needs to be a String of code or the more structured Code type.
+FUNCTIONS act on DATA to return other DATA.
+DATA is just a model of some real process or data. Remember that it will contain assumptions, like mathematical models. You're DATA could be perfectly fine, but your model is making bad assumptions.
+The language makes heavy use of TEMPLATING.
+Author source code in TEMPLATES. Review rendered code. That's what runs. Use the CLI to render code easily.
+Utilize test driven development.
+Use long names for things.
+Ono has two runtime modes. Relaxed mode uses Just In Time compilation, runtime typing, adds metadata to instances of DATA, and allocates non-primitive DATA types unless explicitly told not to.
+Strict mode enforces DATA typing on function calls, applies essentially no runtime overhead, and does not allocate unless explicitly told to.
+Ono can mix runtime modes. A relaxed runtime will be linked with any compiled strict LIBRARIES. This will then start and load relaxed libraries into the runtime.
+Ono, wherever possible, makes use of settings for something instead of coming up with a new term or name.
+Ono attempts to expose documentation and settings with 1 or less commands in the cli.
+Ono attempts to stay as flat as possible.
+Values "fall" out of scopes
+
+
+
+# First Examples
+
+With that out of the way lets get some more examples of what things look like. Here is a layout of a FUNCTION call.
+
+[Module-Name-Type-Name-or-instance-name-function-name arg-1-value arg-2-value kwarg-1-name-kwarg-1-value]]
+
+White space, capital and non-capital letters, underscore, and brackets. No commas. Note the "namespacing" of the function-name by its associated Type and Module
+
+Heres an example of creating some data in ono and binding it to a variable.
+
+[Std-bind my-data [My-Data-create 1.0 2.0 nice-3 wow-4]]
+
+Std is the standard library. You don't need to namespace Std unless you explicitly set
+module or project settings to do so. bind is a macro that will assign a name to an instance of data.
+my-data is the name of the instance. The [My-Data create] function call creates an instance of My-Data
+with arguments 1.0 and 2.0 and kwarguments of nice = 3 and wow = 4.
+
+Lets look at a loop
+[
+    [bind int 0]
+    [loop [
+        [mutate int [add int 1]]
+
+        [if [greater-than int 10] [
+            [break]
+        ]]
+    ]]
 ]
 
-Notice that spaces and newlines are essentially treated the same, but that they are separated
-here to make it easier to read arguments. See how few symbols I need? Brackets, letters and space.
+Loops can be named
+[
+    [bind int 0 okay-[String 12341334]]
+    [loop name outer [
+        [mutate int [add int 1]]
 
-Ono is much more than just a style. It's also the best parts about the learnings and failings
-of so many languages. It provides modern tooling developers expect. It provides flexibility
-between compiled and interpreted code. It provides channels to make exposing state within
-programs easy.
+        [if [greater-than int 10] [
+            [break outer]
+        ]]
+    ]]
+]
+
+You can make a while loop if you want
+[template
+
+
+]
+
+[render
+    [
+        [bind data-type [if [equal T Nice] Floating-Point-32 [else Floating-Point-64]]
+
+        [return
+            [data My-Data-|T|
+                [field my-field |T| |data-type|]
+            ]
+        ]
+    ]
+
+    [map [
+        []
+        [|T|] [Nice Okay Dope]
+    ]]
+
+    in-place-true
+]]
 
 Ono is meant to be able to run ANYWHERE, from micros to servers. Of course, theres some
 big differences between those environments. Thankfully, ono exposes MANY settings to adjust
@@ -52,36 +127,36 @@ The language server will connect to your IDE of choice. It will perform lint
 hinting/enforcing as you type. It will auto fill argument names
 and provide easy access to the documentation/source code.
 
-When you type [build my_program],
-it will spit out a single executable called my_program. If you type [run my_program],
-it will run that executable. You can call [run my_program] and it will compile
+When you type [build my-program],
+it will spit out a single executable called my-program. If you type [run my-program],
+it will run that executable. You can call [run my-program] and it will compile
 for you as needed.
 
 Something highly recommended is running ono programs in debug mode. You can activate
 this by typing
 
-[run my_program
-    debug true
+[run my-program
+    debug-[true]
 ]
 
 This will let you step through the program and set breakpoints. And call loaded functions
 from the command line. And inspect metadata. Think Jupyter.
 
-By default, ono programs include these debug symbols. You can remove them with no_debug_info
+By default, ono programs include these debug symbols. You can remove them with no-debug-info
 
-[build my_program
-    no_debug_info true
+[build my-program
+    no-debug-info-true
 ]
 
 
 
-# Modules
-The code is written in "Modules". Modules can depend on each other and export each other.
-Modules will contain definitions for Data, Functions, and Macros. Data is what Functions
+# libraries
+The code is written in "libraries". libraries can depend on each other and export each other.
+libraries will contain definitions for Data, Functions, and Macros. Data is what Functions
 ingest. Functions transform then return Data. Macros will write code for you, creating more Data
 or Functions.
 
-This language has some powerful settings. Modules can be tuned to make the language behave
+This language has some powerful settings. libraries can be tuned to make the language behave
 differently within each one. There are two modes: flexible and strict.
 The flexible mode is just in time compiled, allocates non-primitives, always assumes
 something is of 64 bit size [primitives and references to the allocations] and doesn't type
@@ -89,18 +164,18 @@ check. The strict mode disables garbage collection, has strong [static] type che
 and disables automatic allocation.
 
 Feel free to mix strongly type checked and non-allocating code with the just in time
-compiled and garbage collected modules. You do not need to worry about complicated
-interface settings. If any modules utilize the JIT compiler, they will run with that runtime.
-Modules that are compiled prior to runtime will stay compiled and are included with the JIT runtime
+compiled and garbage collected libraries. You do not need to worry about complicated
+interface settings. If any libraries utilize the JIT compiler, they will run with that runtime.
+libraries that are compiled prior to runtime will stay compiled and are included with the JIT runtime
 as object files that are then turned into a single executable.
 
-The automatic allocation mode for modules also includes an additional metadata field
+The automatic allocation mode for libraries also includes an additional metadata field
 describing information about the object, similar to python or javascript. This can
 be disabled if not needed.
 
 I wanted this language to be translatable. People can distribute "alias" packs that simply
 transform the data types, functions, and macros from one set of UTF-8 symbols to another.
-Users can then depend on those modules with some language setting.
+Users can then depend on those libraries with some language setting.
 
 
 
@@ -111,149 +186,47 @@ and know when a module relies on another.
 
 The most basic layer is that of macros. Macros are a huge part of the ono language.
 They are expanded before compilation occurs. They figure out what data definitions they need to
-expand in order to have access to metadata. Macros can also have an explicit "layer" of
-unfolding set, so that they explicitly unfold after other macros. Outermost macros get expanded
-before inner ones. Read more about built-in macros below. Here is the list of built-in macros
-[
-    macro_define data field function spread match oneof enum bind
-]
+expand in order to have access to metadata. By default, macros expand from the inside, out.
+Here is the list of built-in macros.
 
-Remember that all macros are children of the single 'macro'. Everything is defined from that.
+macro will let you declare a new macro.
+data will generate a shape of data that you can then create instances of
+field will let you declare a field of data
+function will let you declare a function, either as a member of Data or free
+spread will spread the data, functions, or macros of other data into your data, helping you compose/inherit
+match will let you destructure oneof enumerations
+oneof will generate enumerations automatically for you
+enum generates enumerations
+bind lets you attach data to a name.
+return lets you return from a function.
+render will expand a template for you
 
+Macros can be heavily utilized because the ono cli will automatically expand
+macros for you if you want. You can select files and view them either unexpanded or expanded.
+Macros always return sections of code. You can use functions
+
+# Template Rendering
 
 Syntax Explainer
 
-Most things in the language look the same since in the end we want data.
-So macros get called like
-
-[macro
-    arg_name arg
-    kwarg_name kwarg
-]
-
-and functions get called like
-
-[function
-    arg_name arg
-    kwarg_name kwarg
-]
-
-and data gets created like
-
-[data
-    arg_name arg
-    kwarg_name kwarg
-]
-
 Defining things is hard! Let's break down how the language breaks things down.
 
-[data
-    name MyData
-
-    [field
-        name field_one
-        shape FloatingPoint32
-        visibility [Visibility module]
-        default_value 12.0
+[data My-Data
+    [field field-one Floating-Point-32
+        visibility-[Visibility-module]
+        default-value-[12.0]
     ]
 
-    This is essentially an example of a 'calculated' field.
-    [function
-        name field_two
-        shape FloatingPoint32
-        visibility [Visibility deployment]
-        logic [return [multiply_f32 2.0 field_one]]
+    [function field-two Floating-Point-32
+        visibility-[Visibility-deployment]
+        [[multiply-f32 2.0 field-one]]
     ]
 
-    [function
-        name get_num
-        shape [one_of FloatingPoint32 FloatingPoint64]
-        logic [
-            [if [greater_than field_one 13.0] [return [cast field_one FloatingPoint32]]
-            [[return [cast field_one FloatingPoint64]]]
-        ]
-    ]
-
-    [comment Youll be able to call this macro like [my_data ]]
-    [macro
-        name data_macro
-        shape FloatingPoint32
-        logic [
-
-        ]
+    [function add-to-field-one
+        inline-[true]
+        [[increment field-one 1]]
     ]
 ]
-
-The above uses a 'macro' called 'data' in order to create a data struct and member functions.
-It also gives that struct a specific name that can now be used as a type for other data and
-functions.
-
-
-
-# Functions
-TODO: old, update this
-
-[function_define my_func_two
-    field_one DataType
-]
-
-[my_func_one some_data]
-[bind local_variable [copy some_data]]
-
-[my_func_two field_one [move some_data]] [comment more flexible to do this ]
-[my_func_two field_one [copy some_data]]
-
-[function_define my_func_three
-    field_one Pointer[DataType] [comment some field for input ]
-    return ReturnType [comment return is a reserved keyword ]
-    INLINE [comment some tag to specify this function should be inlined ]
-    [
-        code logic
-    ]
-
-]
-
-
-
-macro
-The 'macro' macro will ingest a string of code and process it into the lower representation.
-These strings are manipulated in a 'pythonic' style.
-
-[define_macro
-    name data
-    output LowLevelDataRepresentation
-    inputs [
-        input [oneof Function Field]
-    ]
-    logic [
-        [bind expanded_code [String empty 100]]]
-
-        [iterate [move inputs] input [
-            [match_shape input [
-                [Function function [
-
-                ]
-                [Field field [
-
-                ]]
-            ]]
-        ]]
-    ]
-]
-
-[expanded_code append
-    [render_template
-        config [Map create [
-            name [function name]
-            shape [function shape]
-        ]]
-        template [
-
-        ]
-    ]
-]
-
-
 
 data
 The 'data' macro will let you ingest data about a data structure to be made. You can define fields,
@@ -289,14 +262,14 @@ Data Binding
 Here is an example of data binding:
 [bind data MyData
     [MyData
-        field_one 13.1
+        field-one 13.1
     ]
 ]
 
 Here is an example of data binding with type inference turned on:
 [bind data
     [MyData
-        field_one 13.1
+        field-one 13.1
     ]
 ]
 
@@ -310,7 +283,7 @@ Low level pieces of data. 'T'
 
 UnsignedInteger8/16/32/64 [or Whole8]
 SignedInteger8/16/32/64 [or just Integer8]
-FloatingPoint32/64
+Floating-Point-32/64
 FixedPoint32/64
 Boolean
 Tuple[*T]
@@ -322,8 +295,8 @@ HeapError
 
 [comment Array Types ]
 Array [
-    field_type UnsignedInteger64
-    number_of_fields 50
+    field-type UnsignedInteger64
+    number-of-fields 50
 ]
 SetArray
 
@@ -350,17 +323,17 @@ HashMap?
 functions
 
 [comment define functions ]
-module_define
-template_define
-constant_define
-function_define
-data_define
+module-define
+template-define
+constant-define
+function-define
+data-define
 
 allocate
 bind
 mutate
 reference
-mutable_reference
+mutable-reference
 pin
 move
 copy
@@ -368,32 +341,32 @@ match
 loop
 return
 
-other_keywords
+other-keywords
 ALL
 SPREAD
 [comment Way to specify that this thing should be cached ]
-CACHE_PRIORITY
+CACHE-PRIORITY
 [comment Way to inline a function ]
 CALCULATED
-MEMO_CACHE
+MEMO-CACHE
 return
 
 
 comment TODO look thru and see if worth ot keep
-[comment another define function, this time for modules ]
-[module_define my_other_module [
+[comment another define function, this time for libraries ]
+[module-define my-other-module [
     [comment can reference a module by full namespace ]
-    [fun_module StructOne constructor_one
-        field_one 3121.21
+    [fun-module StructOne constructor-one
+        field-one 3121.21
     ]
 
     [comment can also import things from a module ]
-    [import fun_module StructOne]
+    [import fun-module StructOne]
     [comment try not to use symbols, use keywords ]
-    [comment to import all you can do [import fun_module ALL] ]
+    [comment to import all you can do [import fun-module ALL] ]
 
-    [bind cool_variable StructOne [StructOne constructor_one
-        field_one 213.1
+    [bind cool-variable StructOne [StructOne constructor-one
+        field-one 213.1
     ]]
 ]]
 
@@ -401,117 +374,205 @@ comment TODO look thru and see if worth ot keep
 This adds just a bit more pain to them
 also means one shape for all comments, can have multiline ]
 
-[comment keywords are in ALL_CAPS
+[comment keywords are in ALL-CAPS
 these can be things like ALL or FILE or LINE
-avoid the use of __dunders or _unders
+avoid the use of --dunders or -unders
 use explicit words for those. ]
 
 [comment Function calls are also written this way, no distinction.
 Could maybe use color to distinguish when things run. ]
-[module_define name fun_module
+[module-define name fun-module
 
     [comment Can define constants for a module
     can even define constants with odd shapes, these are loaded
     at module load time and added to global const memory ]
-    [const_define fun_const
-        some_field Float32 34.1
+    [const-define fun-const
+        some-field Float32 34.1
     ]
 
     [comment Arguments are just white spaced between each other ]
     description "These are args"
-    module_func_kwarg "here is how i set some kwarg"
+    module-func-kwarg "here is how i set some kwarg"
 
     [comment Define data structures, name in CamelCase
     Defines typically have the name on the same line. ]
-    [data_define StructOne
+    [data-define StructOne
         [comment fields are field name and then the type ]
-        field_one Float32
-        field_two Float64
+        field-one Float32
+        field-two Float64
 
         [comment getters are automatically defined for you but you can always ]
         [comment add your own functions. ]
-        [function_define get_field_one
+        [function-define get-field-one
             [
-                [return field_one]
+                [return field-one]
             ]
         ]
 
-        [function_define constructor_one
-            field_one Float32
+        [function-define constructor-one
+            field-one Float32
             [
                 [StructOne
-                    field_one field_one
-                    field_two 3134422.3232
+                    field-one field-one
+                    field-two 3134422.3232
                 ]
             ]
         ]
     ]
 
-    [data_define StructTwo
+    [data-define StructTwo
         [comment the "strategy" function defined here will be applied to
         the inbound data values. ]
         [comment TODO or maybe not, maybe we require people to be explicit ]
-        field_one move Integer32
-        field_two copy UnsignedInteger32
-        field_three reference Float64
+        field-one move Integer32
+        field-two copy UnsignedInteger32
+        field-three reference Float64
     ]
 
     [comment Nested data structures ]
-    [data_define MyData
+    [data-define MyData
         comment use a field name to make this struct a field on the struct
-        field_one StructOne
+        field-one StructOne
         [comment If you use the SPREAD keyword, it will smear the
         other data type into this one, not counting toward nesting count
         and giving you all the fields and methods. ]
         SPREAD StructTwo
     ]
 
-    [function_define function_one
+    [function-define function-one
         [comment field definitions typically go on newlines, same as structs ]
-        arg_one StructOne
-        arg_two StructTwo
+        arg-one StructOne
+        arg-two StructTwo
         [
             [comment explicit return function ]
-            [return [add [arg_one field_three] [arg_two field_three]]]
+            [return [add [arg-one field-three] [arg-two field-three]]]
         ]
     ]
 
-    [function_define function_two
-        arg_one StructOne
-        arg_two StructTwo
+    [function-define function-two
+        arg-one StructOne
+        arg-two StructTwo
         [
             [comment use specific words for binding variables ]
             [comment stack will put it on the stack if possible ]
             [comment compiler warns you if not possible ]
             [comment cast to a type some value ]
             [comment access fields on structs via the anonymous func ]
-            [bind local_variable[Float64] [cast Integer64 [arg_one field_one]]]
+            [bind local-variable[Float64] [cast Integer64 [arg-one field-one]]]
 
-            [mutate local_variable 41.123]
+            [mutate local-variable 41.123]
 
             [comment alloc will put this object onto the heap. this is
             completely optional for this struct, but could be
             required for some things.
-            field_one doesnt need to be set to some default. ]
-            [bind allocated_variable Pointer StructOne
+            field-one doesnt need to be set to some default. ]
+            [bind allocated-variable Pointer StructOne
                 [allocate [StructOne
-                    constructor_one
-                    field_one 42.2133
+                    constructor-one
+                    field-one 42.2133
                 ]]
             ]
-            [bind stacked_struct StructOne [StructOne constructor_one 312.1]]
+            [bind stacked-struct StructOne [StructOne constructor-one 312.1]]
 
-            [local_variable]
+            [local-variable]
         ]
     ]
 
-    [function_define function_two
+    [function-define function-two
         [comment no default set, must supply ]
-        arg_one UnsignedInteger32
+        arg-one UnsignedInteger32
         [comment have a default option being set after the field and type ]
-        arg_two UnsignedInteger32 1
+        arg-two UnsignedInteger32 1
         [
 
         ]
     ]
+
+    # Examples of Module settings.
+    This is a settings file. It can be included with other source
+    and will change how the program is compiled. There are Module level settings,
+    then program level settings.
+
+    (# allow for type inference with the compiler #)
+    (type-inference-settings
+        float-type Float64
+        integer-type Integer32
+        unisgned-integer-type UnsignedInteger32
+    )
+
+    (# settings can change how the language gets compiled #)
+    (recursion-settings
+        allowed false
+        max-call-stack 10
+    )
+
+    (name-settings
+        aliases (map (
+            'Floating-Point-32'     'FP32'
+            'UnsignedInteger32'   'UI32'
+            'SignedInteger32'     'SI32'
+        ))
+        field-character-case CamelCase
+    )
+
+    (comment-settings
+        comment-symbol  (# #)
+    )
+
+    (data-settings
+
+    )
+
+    (allocation-settings
+        (# implicitly allocate objects that need it
+        Like to keep false to see where its happening. #)
+        (# always allocate structs to the heap and always pass pointers #)
+        always-allocate false
+        (# never allocate structs and dont allow allocations whatsoever)
+        never-allocate true
+        (# allocate-cycle will put a bunch of allocations together instead of doing them one at a time #)
+        allocate-cycle-time 1.0E-5
+    )
+
+    (bind-settings
+        implicit-bind-action='stack'
+    )
+
+    (# The garbage collector acts on each module #)
+    (garbage-collector-settings
+
+    )
+
+    (nesting-settings
+        (# allow for one layer of struct nesting #)
+        struct-nesting 1
+        (# allow for two layers of function nesting #)
+        function-nesting 2
+        (# allow for no layers of module nesting #)
+        module-nesting 0
+        (# access spread fields and methods via the spread data type #)
+        access-spread-via-type true
+    )
+
+    (memory-padding-settings
+        (# should be able to control this #)
+        pad-to-word-size false
+    )
+
+    (function-inlining
+        (# if the thing is less than five lines, then inline it #)
+        inlining-default 5
+    )
 ]
+
+
+
+# Inspiration
+https://lisp-lang.org/
+
+
+
+# Random
+Why square brackets instead of parense?
+I don't like hitting shift and I think it's easier to read.
+

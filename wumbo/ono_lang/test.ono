@@ -1,0 +1,15 @@
+[comment CLI Tests]
+
+[test [cli_shows_module_settings [
+    [return]
+]]]
+
+[test [cli_renders_macros [
+    [return]
+]]]
+
+[test [cli_can_run_code_directly [
+    [return]
+]]]
+
+
