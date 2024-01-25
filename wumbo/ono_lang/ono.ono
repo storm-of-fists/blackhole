@@ -1,3 +1,221 @@
+[ comment Libraries
+    Here is the Examples library, which contains a variety of examples of the
+    Ono language. You can see the 'library' function call. The first argument
+    is a String, but you don't need to use quotes. Just type it. There can only
+    be one library per file.
+
+    You'll also see keyword arguments being passed to the module. Note these
+    are before the required argument of the code logic. You just need to ensure
+    arguments are in the right order and you can mix keyword arguments throughout.
+
+    The run-mode is set to 0. This is the default value but it's explicit here
+    to show that this module is statically typed and compiled to a shared object.
+
+    This library can be compiled into a linkable object via the cli tool:
+    'ono [ compile-library Examples ]'.
+]
+
+[ library Examples
+    run-mode-[ 0 ]
+    [
+
+    [ comment Capitalization
+        Notice how namespaces are capitalized and functions are not.
+    ]
+
+    [ comment Formatting
+        The CLI tool will do formatting for you, but best practice is to
+        have a space after the opening and before the closing brackets.
+        I just think it's easier to read.
+
+        Comments have a space after them. Function and contract definitions have
+        a space after them. Try to keep code thin. Kwargs are on a newline.
+    ]
+
+    [ comment Comments
+        Note how the code calls the comment function, and you provide a title
+        and then the text for the comment. You do not need a title.
+    ]
+
+    [ comment The Use Macro
+        The 'use' macro lets you use parts of other Modules. Ono will then do the work
+        of figuring out the dependency graph.
+    ]
+
+    [ comment Std and Core
+        We want to take over the world, so Ono tries to only ever use precisely what
+        you need.
+    ]
+
+    [ use Std [ Map Buffer ] ]
+    [ use Core [ bind function data enum ] ]
+
+    [ comment Functions
+        Ah, a good ole function just as we programmers know it. Marked with the
+        public visibility. Functions can have private (default), library, or public
+        visibilities.
+
+        Next come fields. These are the arguments to the function. The field function
+        is used in Data definitions also to simplify.
+
+        The required arguments for a function are 'name', 'return type', 'fields*', and
+        the actual logic inside of a context [].
+
+        There are also keyword arguments that specify things like visibility. There are
+        many more keyword arguments to functions and some of them are not compatible. Ono
+        will let you know when you go to compile.
+
+        This function simply takes 2 float-32's, one of them by default being 12.0, and
+        adds them. A single top level context will return by itself, but multiple contexts
+        need a [return] statement. This is so keyword arguments always return from their context.
+
+        So this requires a return statement
+        [
+            [ bind foo [ add 2 3 ] ]
+            [ bind bar [ add 4 5 ] ]
+
+            [ return [ add foo bar ] ]
+        ]
+
+        But this does not [ [ add 2 3 ] ]
+
+        [ print [ floating-point-operation 12.0 ] ] prints '24.0' to stdout
+        [ print [ floating-point-operation 12.0 argument-2-[ 10.0 ] ] ] prints '22.0' to stdout
+
+        By default the semantics for fields are move, but this can be
+        made explicit via arguments in the field function. Then when the function
+        is invoked, it is explicit what will happen to the data.
+
+        By default, arguments are immutable, but can be made mutable via the
+        argument.
+    ]
+    [ function floating-point-operation
+        returns-[ Floating-Point-32 ]
+        visibility-[ public ]
+        [ field argument-1 Floating-Point-32 semantics-[ move ] mutable-[ true ] ]
+        [ field argument-2 Floating-Point-32 default-[ 12.0 ] semantics-[ copy ] ]
+        [
+            [ add argument-1 argument-2 ]
+        ]
+    ]
+
+    [ comment Macros
+        Here is an example of a Macro. It is a function whose definition is
+        marked with a kwarg called macro. By default it is false.
+    ]
+    [ function my-fun-macro
+        returns-[ Ono-Code ]
+        macro-[ true ]
+        visibility-[ public ]
+        [
+            [ Ono-Code-from-string [ bind [ my-var 3.0 ] ] ]
+        ]
+    ]
+
+    [ comment Info On Fields
+        Field function calls allow users to specify an 'info' keyword argument.
+        This info will be displayed by the ono cli when inspecting the function.
+        The info will also be shown if the function is being called as the entry
+        point to the program, like other programs, if you say ono [ help 'function-name' ].
+    ]
+    [ function main
+        [ field create-map Boolean info-[ Whether or not to create a map. ]]
+        [ field create-buffer Boolean default-[ true ] info-[ Whether to create a buffer or not. ] ]
+        [
+            [ bind my-map [ Map-new 50 type-[ btree ] ] ]
+            [ bind my-buffer [ Buffer-new 50 allocated-[ true ] auto-grow-[ true ] ] ]
+            [ bind int 0 ]
+            [ loop
+                name-[ foo ]
+                [
+                    [ mutate int [ add int 1 ] ]
+
+                    [ if [ greater-than int 10 ] [
+                        [ comment You can specify a specific loop to break from. ]
+                        [ break name-[ foo ] ]
+                    ]
+                ]
+            ] ]
+
+
+            [ return ]
+        ]
+    ]
+
+    [ comment Binaries
+        Use the binary macro to declare a binary to be run. This can then be called
+        using the ono CLI: 'ono [ run-binary My-Example-Binary ]'.
+
+        Binaries need to be declared in the same library that the entry point lives.
+        Main functions are the typical entrypoint for a program. They do not need to be
+        called 'main', as binaries are defined explicitly (as seen below).
+
+        Main functions can have fields, same as any other function. These fields are exposed
+        as command line arguments when used as a main function. So this main function would be
+        called like ono [ My-Example-Binary false create-buffer-[ false ] ].
+
+        The second binary definition supplies some of the arguments to the program, but not all.
+        That program could be called like ono [ My-Other-Binary false ] and it'd be functionally
+        equivalent to ono [ My-Example-Binary false create-buffer-[ false ] ].
+
+        This ability to write binaries like this, as well as create macros that expand before compile
+        allows users to do configuration management inside of ono. You should not need a different
+        file format. If you do, you're not using ono like it's meant to be used.
+
+        Binaries are by default built with debug information included in the binary. These can be
+        stripped with debug-[ false ].
+    ]
+    [ binary My-Example-Binary main ]
+    [ binary My-Other-Binary main arguments-[ create-buffer-[ false ] ] debug-[ false ]]
+
+    [ comment Enumerations
+        Enumerations also use the field function in order to define their variants.
+        The enumeration is a 'union', in that the size of the enumeration will be
+        the size of the largest variant.
+
+        When the default value is left unspecified, the enum function by default
+        will specify a unique value for each variant. In this case, it would set
+        variant-0 to 0, variant-1 to 1, and variant-2 to 2. This only works for
+        values that satisfy the Default contract.
+
+        Enums can also have different types, similar to Rust.
+    ]
+    [ enum Foo-Enum
+        [ field variant-0 Unsigned-Integer-8 ]
+        [ field variant-1 Unsigned-Integer-8 ]
+        [ field variant-2 Unsigned-Integer-8 ]
+    ]
+
+    [ enum Bar-Enum
+        [ field variant-0 ]
+    ]
+
+    [ comment Data
+        TODO: see if i call this contract instead.
+    ]
+    [ data My-Data
+        [ field field-one Floating-Point-32
+            visibility-[ private ]
+            default-[ 12.0 ]
+        ]
+
+        [ function field-two Floating-Point-32
+            visibility-[ public ]
+            [
+                [ multiply-f32 2.0 field-one ]
+            ]
+        ]
+
+        [ function add-to-field-one
+            inline-[ true ]
+            [
+                [ increment field-one 1 ]
+            ]
+        ]
+    ]
+] ]
+
+
 [comment
 
 # Welcome
@@ -9,6 +227,8 @@ But I might try to make some parts of it real.
 
 # Reminders
 
+Code executes in CONTEXTS. CONTEXTS are specified by an open square bracket and a close square bracket [].
+Values 'fall' out of CONTEXTS if there is only 1 CONTEXT or VALUE within it. Otherwise, a [ return ] statement is required.
 Code lives in LIBRARIES.
 Code runs in scopes []. Similar to rust. The last values in the scope are implicitly returned. Can also be explicit. So [true] and [[return true]] both return a value of true.
 LIBRARIES can depend on other LIBRARIES.
@@ -16,9 +236,13 @@ LIBRARIES can be assembled into BINARIES.
 BINARIES can be grouped into DEPLOYMENTS.
 LIBRARIES contain DATA, FUNCTIONS.
 LIBRARIES and DATA "namespace" FUNCTIONS. DATA instances also namespace implicitly, so member FUNCTION calls are written in the same order as static FUNCTIONS, like [data-instance function-name arg] or [Data-Name function-name arg]
+FUNCTIONS use prefix notation.
 FUNCTION calls marked with [compile-time-true] will run and create data at compile time. This is how macro functionality is created. The data returned by a compile-time true function needs to be a String of code or the more structured Code type.
 FUNCTIONS act on DATA to return other DATA.
 DATA is just a model of some real process or data. Remember that it will contain assumptions, like mathematical models. You're DATA could be perfectly fine, but your model is making bad assumptions.
+Instances of DATA are named like 'my-data-instance'. Types are named like 'My-Type-Name'. These are the only two naming conventions. Nothing else is allowed. Ono will not let a program compile unless this is met.
+FUNCTIONS, DATA, ENUMERATIONS, and other functions utilize FIELDS for specifying inputs/member data.
+FIELDS have common arguments/keyword arguments. Sometimes these are filled in by FUNCTIONS.
 The language makes heavy use of TEMPLATING.
 Author source code in TEMPLATES. Review rendered code. That's what runs. Use the CLI to render code easily.
 Utilize test driven development.
@@ -29,7 +253,7 @@ Ono can mix runtime modes. A relaxed runtime will be linked with any compiled st
 Ono, wherever possible, makes use of settings for something instead of coming up with a new term or name.
 Ono attempts to expose documentation and settings with 1 or less commands in the cli.
 Ono attempts to stay as flat as possible.
-Values "fall" out of scopes
+Values "fall" out of scopes if there is only 1
 
 
 
@@ -39,46 +263,7 @@ With that out of the way lets get some more examples of what things look like. H
 
 [Module-Name-Type-Name-or-instance-name-function-name arg-1-value arg-2-value kwarg-1-name-kwarg-1-value]]
 
-White space, capital and non-capital letters, underscore, and brackets. No commas. Note the "namespacing" of the function-name by its associated Type and Module
 
-Heres an example of creating some data in ono and binding it to a variable.
-
-[Std-bind my-data [My-Data-create 1.0 2.0 nice-3 wow-4]]
-
-Std is the standard library. You don't need to namespace Std unless you explicitly set
-module or project settings to do so. bind is a macro that will assign a name to an instance of data.
-my-data is the name of the instance. The [My-Data create] function call creates an instance of My-Data
-with arguments 1.0 and 2.0 and kwarguments of nice = 3 and wow = 4.
-
-Lets look at a loop
-[
-    [bind int 0]
-    [loop [
-        [mutate int [add int 1]]
-
-        [if [greater-than int 10] [
-            [break]
-        ]]
-    ]]
-]
-
-Loops can be named
-[
-    [bind int 0 okay-[String 12341334]]
-    [loop name outer [
-        [mutate int [add int 1]]
-
-        [if [greater-than int 10] [
-            [break outer]
-        ]]
-    ]]
-]
-
-You can make a while loop if you want
-[template
-
-
-]
 
 [render
     [
@@ -99,54 +284,6 @@ You can make a while loop if you want
     in-place-true
 ]]
 
-Ono is meant to be able to run ANYWHERE, from micros to servers. Of course, theres some
-big differences between those environments. Thankfully, ono exposes MANY settings to adjust
-the runtime of the program. You can do bit bashing and register manipulation or high level
-distributed event based applications.
-
-only need ono.
-
-
-
-# Ono as a language + framework + tooling
-I don't really like modern programming languages. There's so many. And they all look
-terrible. So many symbols. And each language is made of 15 million different parts,
-each with its own name. ono tries to take what we have learned from all these languages
-over the past century+ of computing and trim the fat while making it easier to write
-a program. It aims to do that with style.
-
-ono does not have a compiler called AcceleratorG9. It does not have a linting tool
-called FeatherLite. It does not have a garbage collector called StreetSweeper. While
-all cool names, ono has the ono compiler, the ono linter, and the ono garbage collector.
-
-ono wants its tooling it ships with to be the best. The goddamned best. It should be a
-breeze to make an ono program. Like EASY.
-
-You can start ono via the binary. Yes, it's just one binary. So simple!
-The language server will connect to your IDE of choice. It will perform lint
-hinting/enforcing as you type. It will auto fill argument names
-and provide easy access to the documentation/source code.
-
-When you type [build my-program],
-it will spit out a single executable called my-program. If you type [run my-program],
-it will run that executable. You can call [run my-program] and it will compile
-for you as needed.
-
-Something highly recommended is running ono programs in debug mode. You can activate
-this by typing
-
-[run my-program
-    debug-[true]
-]
-
-This will let you step through the program and set breakpoints. And call loaded functions
-from the command line. And inspect metadata. Think Jupyter.
-
-By default, ono programs include these debug symbols. You can remove them with no-debug-info
-
-[build my-program
-    no-debug-info-true
-]
 
 
 
@@ -177,103 +314,6 @@ I wanted this language to be translatable. People can distribute "alias" packs t
 transform the data types, functions, and macros from one set of UTF-8 symbols to another.
 Users can then depend on those libraries with some language setting.
 
-
-
-# Macros
-ono is meant to minimize the layers between the programmer and the data in the program.
-Macros are heavily utilized. Macros automatically resolve dependencies at compile time
-and know when a module relies on another.
-
-The most basic layer is that of macros. Macros are a huge part of the ono language.
-They are expanded before compilation occurs. They figure out what data definitions they need to
-expand in order to have access to metadata. By default, macros expand from the inside, out.
-Here is the list of built-in macros.
-
-macro will let you declare a new macro.
-data will generate a shape of data that you can then create instances of
-field will let you declare a field of data
-function will let you declare a function, either as a member of Data or free
-spread will spread the data, functions, or macros of other data into your data, helping you compose/inherit
-match will let you destructure oneof enumerations
-oneof will generate enumerations automatically for you
-enum generates enumerations
-bind lets you attach data to a name.
-return lets you return from a function.
-render will expand a template for you
-
-Macros can be heavily utilized because the ono cli will automatically expand
-macros for you if you want. You can select files and view them either unexpanded or expanded.
-Macros always return sections of code. You can use functions
-
-# Template Rendering
-
-Syntax Explainer
-
-Defining things is hard! Let's break down how the language breaks things down.
-
-[data My-Data
-    [field field-one Floating-Point-32
-        visibility-[Visibility-module]
-        default-value-[12.0]
-    ]
-
-    [function field-two Floating-Point-32
-        visibility-[Visibility-deployment]
-        [[multiply-f32 2.0 field-one]]
-    ]
-
-    [function add-to-field-one
-        inline-[true]
-        [[increment field-one 1]]
-    ]
-]
-
-data
-The 'data' macro will let you ingest data about a data structure to be made. You can define fields,
-methods, static data, and more.
-
-enum
-The 'enum' macro lets you define any enumeration of values. Using the 'or' macro will generate
-this enum for you.
-
-[enum
-    name DataInputs
-    variants [
-        Function[Function]
-        Field[Field]
-    ]
-]
-
-
-
-Data Definitions
-
-Here is an example of defining some data:
-
-[data
-    name MyDataTwo
-    Fields and methods can be shared using the built in "spread" macro.
-    [spread MyData]
-]
-
-[comment
-Data Binding
-
-Here is an example of data binding:
-[bind data MyData
-    [MyData
-        field-one 13.1
-    ]
-]
-
-Here is an example of data binding with type inference turned on:
-[bind data
-    [MyData
-        field-one 13.1
-    ]
-]
-
-]
 
 
 
@@ -322,12 +362,6 @@ HashMap?
 
 functions
 
-[comment define functions ]
-module-define
-template-define
-constant-define
-function-define
-data-define
 
 allocate
 bind
@@ -341,93 +375,9 @@ match
 loop
 return
 
-other-keywords
-ALL
-SPREAD
-[comment Way to specify that this thing should be cached ]
-CACHE-PRIORITY
-[comment Way to inline a function ]
-CALCULATED
-MEMO-CACHE
-return
 
 
-comment TODO look thru and see if worth ot keep
-[comment another define function, this time for libraries ]
-[module-define my-other-module [
-    [comment can reference a module by full namespace ]
-    [fun-module StructOne constructor-one
-        field-one 3121.21
-    ]
 
-    [comment can also import things from a module ]
-    [import fun-module StructOne]
-    [comment try not to use symbols, use keywords ]
-    [comment to import all you can do [import fun-module ALL] ]
-
-    [bind cool-variable StructOne [StructOne constructor-one
-        field-one 213.1
-    ]]
-]]
-
-[comment All comments have a start and end marker
-This adds just a bit more pain to them
-also means one shape for all comments, can have multiline ]
-
-[comment keywords are in ALL-CAPS
-these can be things like ALL or FILE or LINE
-avoid the use of --dunders or -unders
-use explicit words for those. ]
-
-[comment Function calls are also written this way, no distinction.
-Could maybe use color to distinguish when things run. ]
-[module-define name fun-module
-
-    [comment Can define constants for a module
-    can even define constants with odd shapes, these are loaded
-    at module load time and added to global const memory ]
-    [const-define fun-const
-        some-field Float32 34.1
-    ]
-
-    [comment Arguments are just white spaced between each other ]
-    description "These are args"
-    module-func-kwarg "here is how i set some kwarg"
-
-    [comment Define data structures, name in CamelCase
-    Defines typically have the name on the same line. ]
-    [data-define StructOne
-        [comment fields are field name and then the type ]
-        field-one Float32
-        field-two Float64
-
-        [comment getters are automatically defined for you but you can always ]
-        [comment add your own functions. ]
-        [function-define get-field-one
-            [
-                [return field-one]
-            ]
-        ]
-
-        [function-define constructor-one
-            field-one Float32
-            [
-                [StructOne
-                    field-one field-one
-                    field-two 3134422.3232
-                ]
-            ]
-        ]
-    ]
-
-    [data-define StructTwo
-        [comment the "strategy" function defined here will be applied to
-        the inbound data values. ]
-        [comment TODO or maybe not, maybe we require people to be explicit ]
-        field-one move Integer32
-        field-two copy UnsignedInteger32
-        field-three reference Float64
-    ]
 
     [comment Nested data structures ]
     [data-define MyData
@@ -446,45 +396,6 @@ Could maybe use color to distinguish when things run. ]
         [
             [comment explicit return function ]
             [return [add [arg-one field-three] [arg-two field-three]]]
-        ]
-    ]
-
-    [function-define function-two
-        arg-one StructOne
-        arg-two StructTwo
-        [
-            [comment use specific words for binding variables ]
-            [comment stack will put it on the stack if possible ]
-            [comment compiler warns you if not possible ]
-            [comment cast to a type some value ]
-            [comment access fields on structs via the anonymous func ]
-            [bind local-variable[Float64] [cast Integer64 [arg-one field-one]]]
-
-            [mutate local-variable 41.123]
-
-            [comment alloc will put this object onto the heap. this is
-            completely optional for this struct, but could be
-            required for some things.
-            field-one doesnt need to be set to some default. ]
-            [bind allocated-variable Pointer StructOne
-                [allocate [StructOne
-                    constructor-one
-                    field-one 42.2133
-                ]]
-            ]
-            [bind stacked-struct StructOne [StructOne constructor-one 312.1]]
-
-            [local-variable]
-        ]
-    ]
-
-    [function-define function-two
-        [comment no default set, must supply ]
-        arg-one UnsignedInteger32
-        [comment have a default option being set after the field and type ]
-        arg-two UnsignedInteger32 1
-        [
-
         ]
     ]
 
@@ -570,9 +481,4 @@ Could maybe use color to distinguish when things run. ]
 # Inspiration
 https://lisp-lang.org/
 
-
-
-# Random
-Why square brackets instead of parense?
-I don't like hitting shift and I think it's easier to read.
 
