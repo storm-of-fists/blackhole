@@ -12,4 +12,36 @@
     [return]
 ]]]
 
+[ iterate mutable-[ true ] semantics-[ move ] ]
+
+[ function only-namespaces-are-capitalized
+    test-[ true ]
+    [ field code Ono-Code ]
+    [
+        [ render-template
+            [
+            [ all code]
+            [ iterate
+                semantics-[ move ]
+            ]
+            [ all code-[[ type ]] namespace [
+                [ iter [ split namespace-name [ - ] ] segment [
+                    [ is-capitalized [ index segment 0 ] ]
+                ] ]
+            ] ]
+        ] ]
+    ]
+]
+
+[ function can-test-objects-be-used-in-non-test-objects
+    visibility-[ test ]
+    [ field code Ono-Code ]
+    [
+
+    ]
+]
+
+
+
+
 
