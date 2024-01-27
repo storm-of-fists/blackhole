@@ -488,6 +488,39 @@
                     only used with smaller functions.
                 ]
             ]
+
+            [ field macro Boolean
+                default-[ false ]
+                info-[
+                    If this function is going to be evaluated as part of the
+                    compilation process.
+                ]
+            ]
+
+            [ field expansion-order Option-[ Signed-Integer-32 ]
+                default-[ true ]
+                info-[
+                    If this is a macro, whether or not this macro should expand before
+                    or after its parent macro context.
+
+                    This allows for macros that can inspect and make 'decisions' based
+                    on the context of code around them.
+
+                    TODO: is this real? do we need this? Need to inspect macro expansion
+                    flow better. Maybe we just do it with relative numbers.
+                ]
+            ]
+
+            [ field static Boolean
+                default-[ false ]
+                info-[
+                    If this is a static function whose output value will be known at
+                    compile time.
+
+                    TODO: could maybe use like compile-time/macro for this?
+                    TODO: lets use a more clear term for this.
+                ]
+            ]
         ]
     ]
 ]
@@ -531,6 +564,7 @@
                 Here is a purely virtual function that must be implemented by
                 a contract in order to satisfy this contract.
             ]
+            static-[ true ]
             virtual-[ true ]
         ]
     ]
