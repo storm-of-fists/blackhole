@@ -4,6 +4,8 @@
     - What does template rendering look like? Preferably like jinja in some way.
     - Should namespaces always required accessing interior objects like Namespace-[ Interior ]
         - Then lets us call objects with interior types 'Namespaces' and access them like Option-[ Interior ]
+    - Use UCUM for units, include those in the library https://ucum.org/ucum
+    - update to use actual quotations for strings, not more brackets
 ]
 
 [ comment Philosophizing
@@ -158,7 +160,7 @@
             macro-[ true ]
             visibility-[ public ]
             [
-                [ Ono-Code-from-string [ bind [ my-var 3.0 ] ] ]
+                [ Ono-Code-[ from-string ] '[ bind [ my-var 3.0 ] ]' ]
             ]
         ]
 
@@ -169,7 +171,7 @@
             point to the program, like other programs, if you say ono [ help 'function-name' ].
         ]
         [ function main
-            [ field create-map Boolean info-[ Whether or not to create a map. ]]
+            [ field create-map Boolean info-[ Whether or not to create a map. ] ]
             [ field create-buffer Boolean default-[ true ] info-[ Whether to create a buffer or not. ] ]
             [
                 [ bind my-map [ Map-new 50 type-[ btree ] ] ]
@@ -181,7 +183,11 @@
                         [ mutate int [ add int 1 ] ]
 
                         [ if [ greater-than int 10 ] [
-                            [ comment You can specify a specific loop to break from. ]
+                            [ comment Loop Breaks
+                                You can specify a specific loop to break from.
+
+                                You can also use [ continue name-[ foo ] ]
+                            ]
                             [ break name-[ foo ] ]
                         ]
                     ]
@@ -254,7 +260,7 @@
         [ comment Contracts
 
         ]
-        [ data My-Contract
+        [ contract My-Contract
             [ field field-one Floating-Point-32
                 visibility-[ private ]
                 default-[ 12.0 ]
@@ -273,6 +279,18 @@
                     [ increment field-one 1 ]
                 ]
             ]
+        ]
+
+        [ comment Cache
+            Functions can automatically create caches. Users can set the size of
+            the cache and the retrieval function. By default it just compares byte
+            values.
+
+            If you use Function-Cache-default, you can specify a size. If there is no
+            size specified, the cache will just continue to grow.
+        ]
+        [ function cached-function
+            cache-[ Function-Cache-[ default ] size-[ 10 ] ]
         ]
     ]
 ]
@@ -452,7 +470,9 @@
                     [ data-type-size ]
                 ]
             ]
-
+            [ comment TODO: cant use field here, since this what we are describing.
+                We will need to use primitives some other way.
+            ]
             [ field data-type Option-[ Ono-Data-Type ]
                 default-[ none ]
                 info-[
