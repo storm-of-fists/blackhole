@@ -1,18 +1,68 @@
-[comment CLI Tests]
+[ library Test
+    usable-[ test ]
 
-[test [cli_shows_module_settings [
-    [return]
-]]]
+    [ function test
+        returns-[ Ono-Code ]
+        macro-[ true ]
 
-[test [cli_renders_macros [
-    [return]
-]]]
+        [ compose function
+            name-[ function-fields ]
 
-[test [cli_can_run_code_directly [
-    [return]
-]]]
+            [ field usable default-[ test ] ]
+        ]
 
-[ iterate mutable-[ true ] semantics-[ move ] ]
+        [ Ono-Code-[ from-string ]
+            [ template
+                '
+                [ function { [ spread function-fields ] } ] [ # write the function definition. ]
+                [ { name } ] [ # Call the function. ]
+                '
+            ]
+        ]
+    ]
+]
+
+[ library Cli-Tests
+    usable-[ test ]
+
+    [ use Test-[ test ] ]
+
+    [ function cli-shows-module-settings
+        usable-[ test ]
+        [ return ]
+    ]
+
+    [ function cli-renders-macros
+        usable-[ test ]
+        [ return ]
+    ]
+
+    [ function cli-runs-expressions
+        usable-[ test ]
+        [ return ]
+    ]
+
+    [ function cli-shows-module-settings
+        usable-[ test ]
+        [ return ]
+    ]
+
+    [ function cli-shows-module-settings
+        [ return ]
+    ]
+
+    [ function cli-shows-module-settings
+        [ return ]
+    ]
+]
+
+[ library Name-Tests
+    usable-[ test ]
+
+    [ function namespace-name-is-capitalized
+        usable-[ test ]
+    ]
+]
 
 [ function only-namespaces-are-capitalized
     test-[ true ]
@@ -34,17 +84,6 @@
 ]
 
 
-[ function string
-    returns-[ [ one-of SizedString AllocatedString ] ] [ # keyword arguments first. ]
-
-    [ field string Option-[ String ] default-[ none ] ]
-    [ field size Option-[ Unsigned-Integer-64 ] default-[ none ] ]
-
-    [
-        [ if size-[ is-some ] SizedString-[ '' ]]
-    ]
-]
-
 [ contract Ono-Non-Namespace-Name
     [ compose String
         [ function to-string
@@ -60,12 +99,12 @@
 ]
 
 [ function non-namespace-name-is-proper
-    visibility-[ test ]
+    usable-[ test ]
     [ field name Ono-Non-Namespace-Name ]
 ]
 
 [ function can-test-objects-be-used-in-non-test-objects
-    visibility-[ test ]
+    usable-[ test ]
     [ field code Ono-Code ]
     [
 

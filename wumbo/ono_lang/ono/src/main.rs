@@ -13,11 +13,22 @@ use std::collections::HashMap;
 struct Args {
     /// Name of the person to greet.
     #[arg()]
-    pattern: String,
+    statement: String,
 
     /// Number of times to greet
     #[arg()]
     file_to_read_path: PathBuf,
+}
+
+struct OnoStatement {
+    function_call: String,
+    docstring: String,
+    required_fields: Vec<String>,
+    keyword_fields: Vec<(String, String)>
+}
+
+impl OnoStatement {
+    pub fn from_string(string_statement: String) ->
 }
 
 fn main() {

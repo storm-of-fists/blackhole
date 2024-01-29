@@ -38,42 +38,53 @@
     Values "fall" out of scopes if there is only 1
 ]
 
-[ # Libraries
-    Here is the Examples library, which contains a variety of examples of the
-    Ono language. You can see the 'library' function call. The first argument
-    is a String, but you don't need to use quotes. Just type it. There can only
-    be one library per file.
-
-    You'll also see keyword arguments being passed to the module. Note these
-    are before the required argument of the code logic. You just need to ensure
-    arguments are in the right order and you can mix keyword arguments throughout.
-
-    This library can be compiled into a linkable object via the cli tool:
-    'ono [ compile-library Examples ]'.
-
-    There are two runtime modes: relaxed and strict.
-    The relaxed mode is just in time compiled, defaults to allocating non-primitives, always assumes
-    something is of 64 bit size [primitives and references to the allocations] and doesn't type
-    check. The strict mode disables garbage collection, has strong [static] type checking,
-    and disables automatic allocation.
-
-    Feel free to mix strongly type checked and non-allocating code with the just in time
-    compiled and garbage collected libraries. You do not need to worry about complicated
-    interface settings. If any libraries utilize the JIT compiler, they will run with that runtime.
-    libraries that are compiled prior to runtime will stay compiled and are included with the JIT runtime
-    as object files that are then turned into a single executable.
-
-    The automatic allocation mode for libraries also includes an additional metadata field
-    describing information about the object, similar to python or javascript. This can
-    be disabled if not needed.
-
-    I wanted this language to be translatable. People can distribute "alias" packs that simply
-    transform the data types, functions, and macros from one set of UTF-8 symbols to another.
-    Users can then depend on those libraries with some language setting.
-]
 [ library Examples
-    visibility-[ test ]
+    #-[
+        Here is the Examples library, which contains a variety of examples of the
+        Ono language. You can see the 'library' function call. The first argument
+        is a String, but you don't need to use quotes. Just type it. There can only
+        be one library per file.
+
+        You'll also see keyword arguments being passed to the module. Note these
+        are before the required argument of the code logic. You just need to ensure
+        arguments are in the right order and you can mix keyword arguments throughout.
+
+        This library can be compiled into a linkable object via the cli tool:
+        'ono [ compile-library Examples ]'.
+
+        There are two runtime modes: relaxed and strict.
+        The relaxed mode is just in time compiled, defaults to allocating non-primitives, always assumes
+        something is of 64 bit size [primitives and references to the allocations] and doesn't type
+        check. The strict mode disables garbage collection, has strong [static] type checking,
+        and disables automatic allocation.
+
+        Feel free to mix strongly type checked and non-allocating code with the just in time
+        compiled and garbage collected libraries. You do not need to worry about complicated
+        interface settings. If any libraries utilize the JIT compiler, they will run with that runtime.
+        libraries that are compiled prior to runtime will stay compiled and are included with the JIT runtime
+        as object files that are then turned into a single executable.
+
+        The automatic allocation mode for libraries also includes an additional metadata field
+        describing information about the object, similar to python or javascript. This can
+        be disabled if not needed.
+
+        I wanted this language to be translatable. People can distribute "alias" packs that simply
+        transform the data types, functions, and macros from one set of UTF-8 symbols to another.
+        Users can then depend on those libraries with some language setting.
+
+        The init field will initialize variables that live the full life of the library.
+        Typically all libraries are loaded into the runtime at the start of the program.
+        Dynamic library load calls
+    ]
+
+    usable-[ test ]
     run-mode-[ relaxed ]
+
+    [ # The init]
+    init-[
+        [ bind mutable-[ true ] name [ Contract-[ new ] ] ]
+    ]
+
     [ # Formatting
         The CLI tool will do formatting for you, but best practice is to
         have a space after the opening and before the closing brackets.
@@ -98,7 +109,7 @@
 
     [ # Functions
         Ah, a good ole function just as we programmers know it. Marked with the
-        public visibility. Functions can have private (default), library, or public
+        public usable. Functions can have private (default), library, or public
         visibilities.
 
         Next come fields. These are the arguments to the function. The field function
@@ -107,7 +118,7 @@
         The required arguments for a function are 'name', 'return type', 'fields*', and
         the actual logic inside of a context [].
 
-        There are also keyword arguments that specify things like visibility. There are
+        There are also keyword arguments that specify things like usable. There are
         many more keyword arguments to functions and some of them are not compatible. Ono
         will let you know when you go to compile.
 
@@ -137,7 +148,7 @@
     ]
     [ function floating-point-operation
         returns-[ Floating-Point-32 ]
-        visibility-[ public ]
+        usable-[ public ]
         [ field argument-1 Floating-Point-32 semantics-[ move ] mutable-[ true ] ]
         [ field argument-2 Floating-Point-32 default-[ 12.0 ] semantics-[ copy ] ]
         [
@@ -152,7 +163,7 @@
     [ function my-fun-macro
         returns-[ Ono-Code ]
         macro-[ true ]
-        visibility-[ public ]
+        usable-[ public ]
         [
             [ Ono-Code-[ from-string ] '[ bind [ my-var 3.0 ] ]' ]
         ]
@@ -256,12 +267,12 @@
     ]
     [ contract My-Contract
         [ field field-one Floating-Point-32
-            visibility-[ private ]
+            usable-[ private ]
             default-[ 12.0 ]
         ]
 
         [ function field-two Floating-Point-32
-            visibility-[ public ]
+            usable-[ public ]
             [
                 [ multiply-f32 2.0 field-one ]
             ]
@@ -289,7 +300,7 @@
 ]
 
 [ library Primitives
-    visibility-[ external ]
+    usable-[ external ]
     [
         [ # Primitives ]
         Unsigned-Integer-[ 8 16 32 64 128 ]
@@ -311,8 +322,17 @@
         Reference-[ inner-[ T ] mutable-[ Boolean ] ]
         Map[ key-[ T ] value-[ T ] ]
 
-        [ # The Big Three Macros
-            The Big Three Macros you see the most of are function, contract, and field.
+        [ contract DocString
+            [ function #
+                return-[ Ono-Code ]
+                default-[]
+            ]
+        ]
+
+        [ # Common Macros
+            # Is the comment macro. It allows you to create comments inline with the code.
+            The same symbol is used for docstrings, but those are kwargs to the field, function,
+            contract, library macros.
 
             Field is a singular piece of data of some shape. It can contain more information
             such as unit (a sort of type constriction), info for context about why it exists,
@@ -320,13 +340,23 @@
             at build time that is one of any of the types found in the Library or imported from
             other libraries.
 
-            Function is something that acts on data.
+            Function is something that acts on data. It takes arguments (defined using the fields
+            macro above) and can optionally return some data.
+
+            Contract is a
         ]
+        [ function #
+            macro-[ true ]
+            [ field name String no-quotes-[ true ] ]
+        ]
+
         [ function field
             macro-[ true ]
             [ field name String-[ size-[ 50 ] ] ]
             [ field data-type Ono-Data-Type ]
         ]
+
+        [ function contract ]
 
         [ function function
             [ field name String-[ size-[ 50 ] ] ]
@@ -334,6 +364,8 @@
             [ field cache Option-[ FunctionCache ] default-[ none ] ]
             rest-of-fields-bind-to-[ [ field fields Vector-[ Ono-Field ] ]
         ]
+
+
 
 
         [ function bind
@@ -369,14 +401,16 @@
         ]
 
         [ function break
+            #-[ TODO ]
             macro-[ true ]
             [ field name Option-[ String ] default-[ none ] ]
             [
-                TBD
+                [ return ]
             ]
         ]
 
         [ function continue
+            #-[ TODO ]
             macro-[ true ]
             [ field name Option-[ String ] default-[ none ] ]
             [
@@ -384,30 +418,42 @@
             ]
         ]
 
-        return
+        [ # Return
+            The return statement is necessary when a code context has more than
+            one line. It will dictate when the context is exited and the type of
+            data that is returned.
+        ]
+        [ function return
+            #-[ TODO ]
+            macro-[ true ]
+            [ field return Optional-[ Ono-Contract ] default-[ none ] ]
+        ]
 
+        [ # Compose
+            The compose statement will compose either Contracts or Functions.
+            It will take fields of one Contract or Function and use them in
+            whatever is being composed.
+        ]
         compose
     ]
 ]
 
 [ library Ono-Types
-    info-[
-        These types are what actually make up blocks of code.
-    ]
+    #-[ These types are what actually make up blocks of code. ]
     [ contract Ono-Common-Fields
         [ field name String
             max-len-[ 50 ] [ # TBD on this kwarg or how we specify it for a string. ]
             info-[ The name of the item. Keep it short! ]
         ]
 
-        [ field visibility Visibility
+        [ field usable Usable
             default-[ private ]
             info-[
-                At what level this item is visible. Does not apply to visibility-[ test ]
+                At what level this item is visible. Does not apply to usable-[ test ]
                 items that depend on it.
 
-                An item with test visibility can only be depended on by other
-                items marked test visibility. So a test library can be used by
+                An item with test usable can only be depended on by other
+                items marked test usable. So a test library can be used by
                 another test library, but a binary cannot use a test library.
             ]
         ]
@@ -652,8 +698,8 @@
 [ library Core
     [ use Enum-[ enum ] ]
 
-    [ enum Visibility
-        visibility-[ external ]
+    [ enum usable
+        usable-[ external ]
 
         [ field test ]
         [ field private ]
@@ -727,6 +773,17 @@
                 returns-[ AllocatedString ]
 
             ]
+        ]
+    ]
+
+    [ function string
+        returns-[ [ one-of SizedString AllocatedString ] ] [ # keyword arguments first. ]
+
+        [ field string Option-[ String ] default-[ none ] ]
+        [ field size Option-[ Unsigned-Integer-64 ] default-[ none ] ]
+
+        [
+            [ if size-[ is-some ] SizedString-[ '' ]]
         ]
     ]
 ]
