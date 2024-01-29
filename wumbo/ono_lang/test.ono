@@ -33,6 +33,37 @@
     ]
 ]
 
+
+[ function string
+    returns-[ [ one-of SizedString AllocatedString ] ] [ # keyword arguments first. ]
+
+    [ field string Option-[ String ] default-[ none ] ]
+    [ field size Option-[ Unsigned-Integer-64 ] default-[ none ] ]
+
+    [
+        [ if size-[ is-some ] SizedString-[ '' ]]
+    ]
+]
+
+[ contract Ono-Non-Namespace-Name
+    [ compose String
+        [ function to-string
+    ]
+    [ field ]
+
+    [ function new
+        returns-[ Ono-Non-Namespace-Name ]
+        [
+
+        ]
+    ]
+]
+
+[ function non-namespace-name-is-proper
+    visibility-[ test ]
+    [ field name Ono-Non-Namespace-Name ]
+]
+
 [ function can-test-objects-be-used-in-non-test-objects
     visibility-[ test ]
     [ field code Ono-Code ]
