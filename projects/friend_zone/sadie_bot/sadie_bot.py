@@ -23,21 +23,32 @@ async def sadie_reply(message):
     roll = random.random()
 
     # Make sure to always go from lowest probability to highest.
-    if roll > 0.995:
+    if roll > 0.9995:
         # Sometimes Sadie learns to speak.
         sadie_message = await message.reply(
             "No one will ever believe you that you heard a dog talk. Fuck you."
         )
         # We wanna freak em.
-        await sadie_message.delete(delay=5.0)
-    elif roll > 0.97:
-        await message.reply(random.choice(("rauf", "arf", "roof", "*whining*")))
+        await sadie_message.delete(delay=2.0)
+        return
+
+    if roll > 0.98:
+        await message.reply(random.choice(
+            ("rauf", "arf", "roof", "*whining*")
+        ))
+        return
+
+    if " cat" in message.content:
+        await message.reply(
+            "RAWRAWRAWRAWRAWRAWRAWRAWRAWRARWARWAR"
+        )
+        return
 
 
 async def check_and_handle_twitter(message):
     if "https://twitter.com" in message.content:
         # Need a sleep here because embeds take a second to show up for twitter.
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
 
         if not message.embeds:
             await fix_and_repost_twitter_embed(message)

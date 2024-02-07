@@ -1,4 +1,5 @@
-use python gui/scripting for a lot of things, at least visualization
+use go with htmx, simple!
+https://youtu.be/Qi9A6-xoOkA
 
 have a table of contents
 have a section for vocab, highlight vocab, use sources
@@ -10,3 +11,4 @@ personal bazel monorepo, experience so far
 using jinja and templating in general
 intergalactic federation dialogue system
 control framework
+
