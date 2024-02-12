@@ -6,4 +6,5 @@ graphics project https://fgiesen.wordpress.com/2011/07/09/a-trip-through-the-gra
 WEB GL plot https://webgl-plot.vercel.app/
 A basic UI for interacting with bazel, a GUI bazel like github https://code.visualstudio.com/api/get-started/your-first-extension
 Makeself https://makeself.io/
+Massive homelab https://youtu.be/Hz5k5WgTkcc
 """
