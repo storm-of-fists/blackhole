@@ -1,6 +1,6 @@
 <html lang="en">
     <head>
-        <script src=""https://unpkg.com/htmx.org@1.9.6"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.6"></script>
         <link rel="stylesheet" href="/static/index.css"/>
     </head>
 
@@ -10,12 +10,26 @@
                 <ul id="stock-list"></ul>
             </header>
             <section>
-                <input type="search" name="key" placeholder="Search..."
-                    hx-get="/search"
-                    hx-trigger="keyup changed delay:500ms"
-                    hx-target="#search-results"
-                />
-                <div id="search-results"></div>
+                <div id="counter"
+                    hx-trigger="load, counterChange from:body"
+                    hx-get="/counter"
+                >
+                        0
+                </div>
+                <button
+                    hx-post="/decrease"
+                    hx-swap="none"
+                    id="decrease"
+                >
+                    Decrease -
+                </button>
+                <button
+                    hx-swap="none"
+                    hx-post="/increase"
+                    id="increase"
+                >
+                    Increase +
+                </button>
             </section>
         </main>
     </body>
