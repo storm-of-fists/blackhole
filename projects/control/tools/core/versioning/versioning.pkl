@@ -1,0 +1,10 @@
+module versioning
+
+class Sha256 {
+    innerString: String(length = 32)
+}
+
+class VersionHash {
+    controlHash: Sha256
+    metadataHash: Sha256
+}

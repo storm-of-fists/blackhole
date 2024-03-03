@@ -1,0 +1,7 @@
+import "../../../tools/core/application/application.pkl"
+
+class BufferApplication extends application.Application {
+    channelsToBuffer: Set
+    lookbackDuration: Duration = 10
+    // reservedMemory: channelsToBuffer.map((channel) -> channel.dataSize).fold(0, (initialValue, nextValue) -> initialValue + nextValue) * lookbackDuration
+}

@@ -1,0 +1,30 @@
+module core.channel
+
+import "../naming/naming.pkl"
+import "../versioning/versioning.pkl"
+
+typealias ChannelTransportType = ControlTransport|EventTransport
+typealias ChannelDescription = String
+
+class ControlTransport {
+    rate: Int
+    shape: Any
+}
+
+class EventTransport {
+    shape: Any
+}
+
+
+class Channel {
+    name: naming.NameSegment
+    description: ChannelDescription
+    transportType: ChannelTransportType
+    // versionHash: versioning.VersionHash = calculateVersionHash()
+
+    function calculateVersionHash(): versioning.VersionHash = new {
+        controlHash: "123"
+        metadataHash: "123"
+    }
+}
+

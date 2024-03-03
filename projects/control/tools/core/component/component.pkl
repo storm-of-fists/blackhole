@@ -1,0 +1,5 @@
+bufferToNode (the infra node to buffer to)
+
+component {
+    bufferToNode = none
+}

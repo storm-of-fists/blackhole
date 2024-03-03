@@ -1,0 +1,15 @@
+import "../node.pkl"
+import "../../application/application.pkl"
+import "../../../../shared/applications/infrastructure/infraApplication.pkl"
+
+testNode = new node.Node {
+    buffer = null
+    infra = new infraApplication.InfraApplication {
+        name = "infra"
+    }
+    applications = Set(new application.Application {
+        name = "custom"
+    })
+}
+
+allApps = testNode.allApplications()
