@@ -1,6 +1,0 @@
-import "../naming/naming.pkl"
-import "../versioning/versioning.pkl"
-
-open class Application {
-    name: naming.NameSegment
-}

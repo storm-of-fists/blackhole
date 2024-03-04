@@ -1,6 +1,0 @@
-import "../hashing/hashing.pkl"
-
-class VersionHash {
-    controlHash: hashing.Sha256
-    metadataHash: hashing.Sha256
-}

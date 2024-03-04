@@ -1,3 +1,0 @@
-import "../../../tools/core/application/application.pkl"
-
-class InfraApplication extends application.Application {}
