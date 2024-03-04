@@ -1,0 +1,4 @@
+typealias LittleEndian = "little"|"network"|"small"
+typealias BigEndian = "big"
+
+typealias Endianness = LittleEndian|BigEndian

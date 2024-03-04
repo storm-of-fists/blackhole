@@ -1,0 +1,7 @@
+SHA256_REGEX = #"^[a-fA-F0-9]{64}$"#
+
+typealias Sha256String = String(matches(Regex(SHA256_REGEX)))
+
+class Sha256 {
+    innerString: Sha256String
+}

@@ -1,10 +1,6 @@
-module versioning
-
-class Sha256 {
-    innerString: String(length = 32)
-}
+import "../hashing/hashing.pkl"
 
 class VersionHash {
-    controlHash: Sha256
-    metadataHash: Sha256
+    controlHash: hashing.Sha256
+    metadataHash: hashing.Sha256
 }
