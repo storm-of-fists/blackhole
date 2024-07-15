@@ -13,29 +13,39 @@ use std::{
 
 use anyhow::{Result, anyhow}; // 1.0.86
 
+#[derive(Clone)]
 pub struct MoverComponent {}
 impl Component for MoverComponent {}
+
+#[derive(Clone)]
 pub struct PositionComponent {}
 impl Component for PositionComponent {}
+
+#[derive(Clone)]
 pub struct VelocityComponent {}
 impl Component for VelocityComponent {}
+
+#[derive(Clone)]
 pub struct AccelerationComponent {}
 impl Component for AccelerationComponent {}
 
-pub trait Component: Sized + 'static {}
+pub trait Component: Clone + Sized + 'static {}
 
-
+#[derive(Clone)]
 pub struct ComponentSet<T: Component> {
     components: Arc<Mutex<BTreeMap<usize, T>>>,
 }
 
-impl<T> ComponentSet<T> where T: Component + Sized + 'static {
+impl<T> ComponentSet<T> where T: Component {
     pub fn new() -> Self {
         Self {
             components: Arc::new(Mutex::new(BTreeMap::new())),
         }
     }
 }
+
+unsafe impl<T> Send for ComponentSet<T> where T: Component {}
+unsafe impl<T> Sync for ComponentSet<T> where T: Component {}
 
 pub trait ComponentSetAsAny {
     fn as_any(&self) -> &dyn Any;
@@ -54,23 +64,51 @@ pub struct MovementSystem {
     accelerations: ComponentSet<AccelerationComponent>,
 }
 
-pub trait System {
+// pub struct System<T> where T: SystemTrait {
+//     inner: T
+// }
+
+// pub trait PrivateSystemTrait {
+//     fn update(&self);
+// }
+
+// impl<T> PrivateSystemTrait for System<T> where T: SystemTrait {
+//     fn update(&self) {
+//         self.inner.update();
+//     }
+// }
+
+pub trait SystemTrait {
     fn new(tree: &mut Tree) -> Self where Self: Sized;
     fn update(&self);
 }
 
-impl System for MovementSystem {
+impl SystemTrait for MovementSystem {
     fn new(tree: &mut Tree) -> Self where Self: Sized {
-        MovementSystem {
+        Self {
             movers: tree.get_component_set::<MoverComponent>(),
             positions: tree.get_component_set::<PositionComponent>(),
             velocities: tree.get_component_set::<VelocityComponent>(),
             accelerations: tree.get_component_set::<AccelerationComponent>(),
         }
     }
-
-    fn update(&self) {}
+    
+    fn update(&self) {
+    }
 }
+
+// impl SystemTrait for MovementSystem {
+//     fn new(tree: &mut Tree) -> Self where Self: Sized {
+//         MovementSystem {
+//             movers: tree.get_component_set::<MoverComponent>(),
+//             positions: tree.get_component_set::<PositionComponent>(),
+//             velocities: tree.get_component_set::<VelocityComponent>(),
+//             accelerations: tree.get_component_set::<AccelerationComponent>(),
+//         }
+//     }
+
+//     fn update(&self) {}
+// }
 
 pub struct RootData {
     name: String,
@@ -82,8 +120,39 @@ pub struct Root {
 }
 
 impl Root {
+    pub fn new(name: impl Into<String>) -> Self {
+        let root_data = Arc::new(Mutex::new(RootData {
+            name: name.into(),
+        }));
+        
+        Self {
+            data: root_data.clone(),
+            tree: Tree::new("root", root_data),
+        }
+    }
+    
+    pub fn get_component_set<T: Component>(&mut self) -> ComponentSet<T> {
+        self.tree.get_component_set::<T>()
+    }
+    
+    pub fn add_system<T: SystemTrait + 'static>(&mut self, system: T) {
+        self.tree.add_system(system);
+    }
+    
     pub fn add_sub_tree(&mut self, _tree: Tree) {
         // self.tree.
+    }
+    
+    pub fn tree_mut(&mut self) -> &mut Tree {
+        &mut self.tree
+    }
+    
+    pub fn run(&self) {
+        loop {
+            self.tree.update();
+            std::thread::sleep(Duration::from_secs(1));
+            println!("ran loop");
+        }
     }
 }
 
@@ -98,30 +167,56 @@ pub struct Tree {
     
     component_sets: HashMap<TypeId, Box<dyn ComponentSetAsAny>>,
     
-    systems: Vec<Box<dyn System>>,
+    systems: Vec<Box<dyn SystemTrait>>,
     
     sub_tree_thread_handles: HashMap<&'static str, JoinHandle<()>>,
 }
 
 impl Tree {
+    pub fn new(name: impl Into<String>, root: Arc<Mutex<RootData>>) -> Self {
+        Self {
+            root,
+            data: Arc::new(Mutex::new(TreeData {
+                name: name.into()
+            })),
+            component_sets: HashMap::new(),
+            systems: Vec::new(),
+            sub_tree_thread_handles: HashMap::new()
+        }
+    }
+    
     pub fn update(&self) {
         for system in self.systems.iter() {
             system.update();
         }
     }
     
+    pub fn add_system<T: SystemTrait + 'static>(&mut self, system: T) {
+        self.systems.push(Box::new(system));
+    }
+    
     pub fn get_component_set<T: Component>(&mut self) -> ComponentSet<T> {
         let component_type_id = TypeId::of::<T>();
         
-        if !self.component_sets.has(component_type_id) {
-            self.component_sets.insert(component_type_id, Box::new(ComponentSet::<T>::new()));    
+        if !self.component_sets.contains_key(&component_type_id) {
+            self.component_sets.insert(component_type_id.clone(), Box::new(ComponentSet::<T>::new()));    
         }
         
+        let box_ref = self.component_sets.get(&component_type_id).unwrap();
         
-        
+        (*box_ref.as_any().downcast_ref::<ComponentSet<T>>().unwrap()).clone()
     }
 }
 
+fn main() {
+    let mut root = Root::new("root");
+    
+    let movement_system = MovementSystem::new(root.tree_mut());
+    
+    root.add_system(movement_system);
+    
+    root.run();
+}
 
 // pub trait ComponentTraitPrivate {
 //     fn entity_id(&self) -> usize;
