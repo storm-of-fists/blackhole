@@ -2,35 +2,27 @@ use std::{
     time::{Duration, Instant, SystemTime, UNIX_EPOCH}, 
     collections::{HashMap, BTreeMap},
     rc::Rc,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, MutexGuard},
     cell::{RefMut, Ref, RefCell},
     thread::{spawn, JoinHandle},
     any::{Any, TypeId},
     ops::{Deref, DerefMut},
+    fmt::Debug,
 };
 
 // https://www.reddit.com/r/rust/comments/kkap4e/how_to_cast_a_boxdyn_mytrait_to_an_actual_struct/
 // https://www.reddit.com/r/learnrust/comments/uj68qn/how_do_i_use_downcast_ref_correctly/
 
+// 0. all data should be a component, components are updated in systems, systems are stored in trees, trees can contain handles to other trees
+// 1. do not compose components, simple add a new component for that specific state
+// 2. all components are stored in btrees or as singletons
+// 3. systems should declare all their existing and future component set types at the start, even if empty for a while
+// 4. only manipulate the tree when changing the structure of the program, not anything to do with data
+// 5. tree manipulations should be fallible since those fail at the start
+
 use anyhow::{Result, anyhow}; // 1.0.86
 
-#[derive(Clone)]
-pub struct MoverComponent {}
-impl ComponentTrait for MoverComponent {}
-
-#[derive(Clone)]
-pub struct PositionComponent {}
-impl ComponentTrait for PositionComponent {}
-
-#[derive(Clone)]
-pub struct VelocityComponent {}
-impl ComponentTrait for VelocityComponent {}
-
-#[derive(Clone)]
-pub struct AccelerationComponent {}
-impl ComponentTrait for AccelerationComponent {}
-
-pub trait ComponentTrait: Clone + Sized + 'static {}
+pub trait ComponentTrait: Debug + Clone + Sized + 'static {}
 
 #[derive(Clone)]
 pub struct ComponentSet<T: ComponentTrait> {
@@ -43,73 +35,56 @@ impl<T> ComponentSet<T> where T: ComponentTrait {
             components: Arc::new(Mutex::new(BTreeMap::new())),
         }
     }
+    
+    pub fn get(&self) -> MutexGuard<BTreeMap<usize, T>> {
+        self.components.lock().unwrap()
+    }
 }
 
 unsafe impl<T> Send for ComponentSet<T> where T: ComponentTrait {}
 unsafe impl<T> Sync for ComponentSet<T> where T: ComponentTrait {}
 
-pub trait ComponentSetAsAny {
+pub trait AsAny {
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T> ComponentSetAsAny for ComponentSet<T> where T: ComponentTrait + Sized {
+impl<T> AsAny for ComponentSet<T> where T: ComponentTrait {
     fn as_any(&self) -> &dyn Any {
         self
     }
 }
 
-pub struct MovementSystem {
-    movers: ComponentSet<MoverComponent>,
-    positions: ComponentSet<PositionComponent>,
-    velocities: ComponentSet<VelocityComponent>,
-    accelerations: ComponentSet<AccelerationComponent>,
+
+#[derive(Clone)]
+pub struct SingletonComponent<T> where T: ComponentTrait {
+    component: Arc<Mutex<T>>,
 }
 
-// pub struct System<T> where T: SystemTrait {
-//     inner: T
-// }
+impl<T> SingletonComponent<T> where T: ComponentTrait {
+    pub fn new(data: T) -> Self {
+        Self {
+            component: Arc::new(Mutex::new(data)),
+        }
+    }
+    
+    pub fn get(&self) -> MutexGuard<T> {
+        self.component.lock().unwrap()
+    }
+}
 
-// pub trait PrivateSystemTrait {
-//     fn update(&self);
-// }
+unsafe impl<T> Send for SingletonComponent<T> where T: ComponentTrait {}
+unsafe impl<T> Sync for SingletonComponent<T> where T: ComponentTrait {}
 
-// impl<T> PrivateSystemTrait for System<T> where T: SystemTrait {
-//     fn update(&self) {
-//         self.inner.update();
-//     }
-// }
+impl <T> AsAny for SingletonComponent<T> where T: ComponentTrait {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
 
 pub trait SystemTrait {
     fn new(tree: &mut Tree) -> Self where Self: Sized;
     fn update(&self);
 }
-
-impl SystemTrait for MovementSystem {
-    fn new(tree: &mut Tree) -> Self where Self: Sized {
-        Self {
-            movers: tree.get_component_set::<MoverComponent>(),
-            positions: tree.get_component_set::<PositionComponent>(),
-            velocities: tree.get_component_set::<VelocityComponent>(),
-            accelerations: tree.get_component_set::<AccelerationComponent>(),
-        }
-    }
-    
-    fn update(&self) {
-    }
-}
-
-// impl SystemTrait for MovementSystem {
-//     fn new(tree: &mut Tree) -> Self where Self: Sized {
-//         MovementSystem {
-//             movers: tree.get_component_set::<MoverComponent>(),
-//             positions: tree.get_component_set::<PositionComponent>(),
-//             velocities: tree.get_component_set::<VelocityComponent>(),
-//             accelerations: tree.get_component_set::<AccelerationComponent>(),
-//         }
-//     }
-
-//     fn update(&self) {}
-// }
 
 pub struct RootData {
     name: String,
@@ -124,8 +99,8 @@ pub struct Tree {
     parent_tree: Option<Arc<Mutex<TreeData>>>,
     data: Arc<Mutex<TreeData>>,
     
-    component_sets: HashMap<TypeId, Box<dyn ComponentSetAsAny>>,
-    // components: HashMap<TypeId, Box<dyn ComponentTrait>>,
+    component_sets: HashMap<TypeId, Box<dyn AsAny>>,
+    singleton_components: HashMap<TypeId, Box<dyn AsAny>>,
     
     systems: Vec<Box<dyn SystemTrait>>,
     
@@ -141,6 +116,7 @@ impl Tree {
             })),
             parent_tree,
             component_sets: HashMap::new(),
+            singleton_components: HashMap::new(),
             systems: Vec::new(),
             sub_tree_thread_handles: HashMap::new()
         }
@@ -165,6 +141,19 @@ impl Tree {
         self.systems.push(new_system);
     }
     
+    pub fn add_singleton_component<T: ComponentTrait + 'static>(&mut self, data: T) -> SingletonComponent<T> {
+        let singleton_component = SingletonComponent::new(data);
+        self.singleton_components.insert(TypeId::of::<T>(), Box::new(singleton_component.clone()));
+        
+        singleton_component
+    }
+    
+    pub fn get_singleton_component<T: ComponentTrait + 'static>(&mut self) -> SingletonComponent<T> {
+        let box_ref = self.singleton_components.get(&TypeId::of::<T>()).unwrap();
+        
+        (*box_ref.as_any().downcast_ref::<SingletonComponent<T>>().unwrap()).clone()
+    }
+    
     pub fn get_component_set<T: ComponentTrait>(&mut self) -> ComponentSet<T> {
         let component_type_id = TypeId::of::<T>();
         
@@ -175,6 +164,65 @@ impl Tree {
         let box_ref = self.component_sets.get(&component_type_id).unwrap();
         
         (*box_ref.as_any().downcast_ref::<ComponentSet<T>>().unwrap()).clone()
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct MoverComponent {
+    x: f32,
+    y: f32,
+    z: f32,
+    vx: f32,
+    vy: f32,
+    vz: f32,
+    ax: f32,
+    ay: f32,
+    az: f32,
+}
+impl ComponentTrait for MoverComponent {}
+
+#[derive(Clone, Debug)]
+pub struct MovementSystemData {
+    update_count: u32,
+}
+
+impl ComponentTrait for MovementSystemData {}
+
+pub struct MovementSystem {
+    data: SingletonComponent<MovementSystemData>,
+    movers: ComponentSet<MoverComponent>,
+}
+
+impl SystemTrait for MovementSystem {
+    fn new(tree: &mut Tree) -> Self where Self: Sized {
+        Self {
+            data: tree.add_singleton_component(MovementSystemData {
+                update_count: 0,
+            }),
+            movers: tree.get_component_set::<MoverComponent>(),
+        }
+    }
+    
+    fn update(&self) {
+        let mut data = self.data.get();
+        let mut movers = self.movers.get();
+        
+        println!("{:?}", data);
+        println!("{:?}", movers);
+        
+        movers.insert(data.update_count as usize, MoverComponent {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            vx: 0.0,
+            vy: 0.0,
+            vz: 0.0,
+            ax: 0.0,
+            ay: 0.0,
+            az: 0.0
+        });
+        
+        data.update_count += 1;
     }
 }
 
