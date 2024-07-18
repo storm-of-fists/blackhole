@@ -1,0 +1,18 @@
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "connors_ecs",
+    srcs = [
+        "lib.rs",
+    ],
+    deps = [
+        "//projects/ecs/src/function",
+        "//projects/ecs/src/runner",
+        "//projects/ecs/src/nucleus",
+        "//projects/ecs/src/data_trait",
+        "//projects/ecs/src/data_singleton",
+        "//projects/ecs/src/data_set",
+    ],
+)

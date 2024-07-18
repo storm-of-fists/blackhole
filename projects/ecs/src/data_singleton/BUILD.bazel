@@ -1,0 +1,14 @@
+load("@rules_rust//rust:defs.bzl", "rust_library")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "data_singleton",
+    srcs = [
+        "data_singleton.rs",
+    ],
+    deps = [
+        "//tools/rust/as_any",
+        "//projects/ecs/src/data_trait",
+    ],
+)

@@ -1,0 +1,48 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library")
+
+package(default_visibility = ["//visibility:public"])
+
+rust_library(
+    name = "user_input",
+    srcs = [
+        "user_input.rs",
+    ],
+    deps = [
+        "//projects/ecs/src:connors_ecs",
+    ],
+)
+
+rust_library(
+    name = "movement",
+    srcs = [
+        "movement.rs",
+    ],
+    deps = [
+        "//projects/ecs/src:connors_ecs",
+        "//projects/ecs/demonstration:user_input",
+    ],
+)
+
+rust_library(
+    name = "hog_spawner",
+    srcs = [
+        "hog_spawner.rs",
+    ],
+    deps = [
+        "//projects/ecs/demonstration:movement",
+        "//projects/ecs/src:connors_ecs",
+    ],
+)
+
+rust_binary(
+    name = "demonstration",
+    srcs = [
+        "main.rs",
+    ],
+    deps = [
+        ":user_input",
+        ":movement",
+        ":hog_spawner",
+        "//projects/ecs/src:connors_ecs",
+    ],
+)

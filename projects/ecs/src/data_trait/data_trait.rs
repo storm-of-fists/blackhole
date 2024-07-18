@@ -1,0 +1,1 @@
+pub trait DataTrait: Sized + 'static {}
