@@ -1,0 +1,12 @@
+[package]
+name = "message_streamer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prost = "0.13.3"
+websocket = "0.27.1"
+
+[[bin]]
+name = "message_streamer"
+path = "main.rs"

@@ -34,7 +34,7 @@ impl Runner {
     }
 
     pub fn register_updater<T: UpdaterTrait>(&mut self) {
-        T::register_data(self.nucleus.clone());
+        T::register(self.nucleus.clone());
     }
 
     pub fn add_updater<T: UpdaterTrait>(&mut self) {

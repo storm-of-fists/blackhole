@@ -8,6 +8,7 @@ fn main() {
     let mut main = Runner::new("main", nucleus.clone());
 
 
+
     main.register_updater::<MovementUpdater>();
     main.register_updater::<HogSpawnUpdater>();
     main.register_updater::<UserInputUpdater>();

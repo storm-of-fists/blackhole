@@ -27,7 +27,7 @@ impl UpdaterTrait for UserInputUpdater {
     }
 
     fn update(&self) {
-        println!("getting user input");
+        // println!("getting user input");
         std::thread::sleep(Duration::from_millis(10));
     }
 }
