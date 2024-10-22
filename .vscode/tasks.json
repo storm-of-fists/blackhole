@@ -4,7 +4,10 @@
     {
       "label": "Generate rust-project.json",
       "command": "bazel",
-      "args": ["run", "@rules_rust//tools/rust_analyzer:gen_rust_project"],
+      "args": [
+        "run",
+        "@rules_rust//tools/rust_analyzer:gen_rust_project"
+      ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -14,9 +17,16 @@
         "reveal": "never",
         "panel": "dedicated"
       },
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
+      "runOptions": {}
+    },
+    {
+      "type": "cargo",
+      "command": "build",
+      "problemMatcher": [
+        "$rustc"
+      ],
+      "group": "build",
+      "label": "rust: cargo build"
     }
   ]
 }
