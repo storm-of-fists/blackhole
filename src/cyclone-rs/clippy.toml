@@ -1,0 +1,6 @@
+disallowed-methods = [
+    # "cyclone_rs::Vector3::new",
+]
+disallowed-macros = [
+    "panic"
+]

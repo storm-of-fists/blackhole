@@ -1,6 +1,9 @@
-/// More info on build scripts: https://doc.rust-lang.org/cargo/reference/build-scripts.html
-/// More examples: https://doc.rust-lang.org/cargo/reference/build-script-examples.html
+// More info on build scripts: https://doc.rust-lang.org/cargo/reference/build-scripts.html
+// More examples: https://doc.rust-lang.org/cargo/reference/build-script-examples.html
 
+// TODO(ban unwrap and expect or panic, https://github.com/rust-lang/rust-clippy/issues/6636).
+
+/// A macro for exiting.
 macro_rules! exit_build {
     ($code:expr, $explanation:expr) => {
         println!("cargo::error={}", $explanation);
@@ -18,6 +21,8 @@ fn main() {
     //     println!("cargo:warning=Cargo binary path: {}", cargo_binary_path);
     //     println!("cargo:warning=Cargo manifest directory: {}", cargo_manifest_dir);
     // }
+
+    // println!("cargo::clippy");
 
     let exit_code = 0;
 

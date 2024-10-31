@@ -1,0 +1,17 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "nucleus"
+version = "0.1.0"
+edition = "2024"
+
+# [meta_updaters]
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "main"
+harness = false

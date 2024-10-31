@@ -167,3 +167,7 @@ dmypy.json
 actions-runner
 
 *.token
+
+# Added by cargo
+
+/target

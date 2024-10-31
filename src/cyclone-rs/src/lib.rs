@@ -1,83 +1,83 @@
-/// The mass of the Earth, in kilograms.
-const MASS_OF_EARTH: f64 = 5.97219E24; // kg
-/// The fundamental gravitational constant.
-const GRAVITATIONAL_CONSTANT: f64 = 6.67430E-11; // Nm^2kg^-2
+// /// The mass of the Earth, in kilograms.
+// const MASS_OF_EARTH: f64 = 5.97219E24; // kg
+// /// The fundamental gravitational constant.
+// const GRAVITATIONAL_CONSTANT: f64 = 6.67430E-11; // Nm^2kg^-2
 
 use std::{fmt::Debug, time::Duration};
-/// TODO(use std::simd)
+// /// TODO(use std::simd)
 
 #[derive(Default, Clone, Copy, Debug)]
 pub struct Vector3 {
-    x: f64,
-    y: f64,
-    z: f64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
 }
 
-#[derive(Default, Clone, Copy, Debug)]
-pub struct Basis3 {
-    x: Vector3,
-    y: Vector3,
-    z: Vector3,
-}
+// #[derive(Default, Clone, Copy, Debug)]
+// pub struct Basis3 {
+//     x: Vector3,
+//     y: Vector3,
+//     z: Vector3,
+// }
 
 
 
 /// A particle that has vectors for different locations. Not sure this object
 /// oriented is the right approach for lots of particles.
 /// TODO(do we need some kind of "fixed" parameter in here?)
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Particle {
-    id: u64,
-    position: Vector3,
-    velocity: Vector3,
-    acceleration: Vector3,
+    pub id: u64,
+    pub position: Vector3,
+    pub velocity: Vector3,
+    pub acceleration: Vector3,
     /// We store an inverse mass since we use that most and it avoids divide by zero
     /// issues.
-    inverse_mass: f64,
+    pub inverse_mass: f64,
 }
 
-pub struct Gravity {
-    gravity: Vector3,
-    rules: Vec<Box<dyn Fn(&Particle) -> bool>>,
-}
-
-// pub struct DampingForceGenerator {
+// pub struct Gravity {
+//     gravity: Vector3,
 //     rules: Vec<Box<dyn Fn(&Particle) -> bool>>,
 // }
 
-/// TODO(make a bungee type where it allows any compression past some point)
-pub struct Spring {
-    particle_a_id: u64,
-    particle_b_id: u64,
-    spring_constant: f64,
-    damping: f64,
-    minimum_length: f64,
-    maximum_length: f64,
-    equilibrium_length: f64,
-    rules: Vec<Box<dyn Fn(&Particle) -> bool>>,
-}
+// // pub struct DampingForceGenerator {
+// //     rules: Vec<Box<dyn Fn(&Particle) -> bool>>,
+// // }
 
-/// Special spring case where there is no force applied at some minimum length.
-/// This can be used for bouyancy as well.
-pub struct Bungee {
-    spring: Spring,
-}
+// /// TODO(make a bungee type where it allows any compression past some point)
+// pub struct Spring {
+//     particle_a_id: u64,
+//     particle_b_id: u64,
+//     spring_constant: f64,
+//     damping: f64,
+//     minimum_length: f64,
+//     maximum_length: f64,
+//     equilibrium_length: f64,
+//     rules: Vec<Box<dyn Fn(&Particle) -> bool>>,
+// }
 
-pub struct Rope {
-    spring: Spring,
-}
+// /// Special spring case where there is no force applied at some minimum length.
+// /// This can be used for bouyancy as well.
+// pub struct Bungee {
+//     spring: Spring,
+// }
 
-pub struct Rod {
-    spring: Spring,
-}
+// pub struct Rope {
+//     spring: Spring,
+// }
 
-pub trait Constraint: {
-    fn apply_constraint(&self, particle: &mut Particle);
-}
+// pub struct Rod {
+//     spring: Spring,
+// }
 
-pub struct ConstraintsRegistry {
-    constraints: Vec<Box<dyn Constraint>>,
-}
+// pub trait Constraint: {
+//     fn apply_constraint(&self, particle: &mut Particle);
+// }
+
+// pub struct ConstraintsRegistry {
+//     constraints: Vec<Box<dyn Constraint>>,
+// }
 
 /// TODO(need a orthornormal basis creator method?)
 impl Vector3 {
@@ -139,6 +139,7 @@ impl Vector3 {
         self
     }
 
+    #[allow(clippy::should_implement_trait)]
     #[inline]
     pub fn add(mut self, add: &Vector3) -> Self {
         self.x += *add.x();
@@ -148,23 +149,23 @@ impl Vector3 {
         self
     }
 
-    #[inline]
-    pub fn sub(mut self, sub: &Vector3) -> Self {
-        self.x -= *sub.x();
-        self.y -= *sub.y();
-        self.z -= *sub.z();
+    // #[inline]
+    // pub fn sub(mut self, sub: &Vector3) -> Self {
+    //     self.x -= *sub.x();
+    //     self.y -= *sub.y();
+    //     self.z -= *sub.z();
 
-        self
-    }
+    //     self
+    // }
 
-    #[inline]
-    pub fn neg(mut self) -> Self {
-        self.x = -self.x();
-        self.y = -self.y();
-        self.z = -self.z();
+    // #[inline]
+    // pub fn neg(mut self) -> Self {
+    //     self.x = -self.x();
+    //     self.y = -self.y();
+    //     self.z = -self.z();
 
-        self
-    }
+    //     self
+    // }
 
     #[inline]
     pub fn component_multiply(mut self, multiply: &Vector3) -> Self {
