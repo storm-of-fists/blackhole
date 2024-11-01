@@ -15,7 +15,7 @@ use std::{
 };
 
 pub struct Nucleus {
-    pub join_handles: Vec<JoinHandle<()>>,
+    pub join_handles: Vec<JoinHandle<Result<(), RunnerStartError>>>,
     pub shared_state_registry: HashMap<TypeId, Arc<Mutex<dyn State>>>,
 }
 
@@ -55,24 +55,30 @@ impl Deref for NucleusPtr {
 impl NucleusPtr {
     pub fn add_runner(
         &self,
-        setup_fn: impl FnOnce(NucleusPtr) -> JoinHandle<()> + Send + 'static,
+        runner_fn: impl FnOnce(NucleusPtr) -> Result<(), RunnerStartError> + Send + 'static,
     ) -> &Self {
         let nucleus_ptr = self.clone();
 
         if let Ok(mut nucleus) = nucleus_ptr.clone().lock() {
-            nucleus.join_handles.push(setup_fn(nucleus_ptr))
+            nucleus
+                .join_handles
+                .push(std::thread::spawn(|| runner_fn(nucleus_ptr)));
         }
 
         self
     }
 
-    pub fn join(&self) {
+    pub fn go(&self) {
         if let Ok(mut nucleus) = self.clone().lock() {
             for handle in std::mem::replace(&mut nucleus.join_handles, Vec::new()) {
                 handle.join().unwrap();
             }
         }
     }
+}
+
+pub enum RunnerStartError {
+    FailedToStart,
 }
 
 pub struct Runner {
@@ -109,15 +115,22 @@ impl Deref for RunnerPtr {
 
 impl RunnerPtr {
     pub fn register_updater<T: UpdaterTrait>(&self) -> Result<&Self, UpdaterRegistryError> {
-        let updater = T::register(self.clone());
+        let updater = T::new(self.clone());
         if let Ok(mut runner) = self.clone().try_borrow_mut() {
-            runner
-                .updater_registry
-                .register_updater(updater);
+            runner.updater_registry.register_updater(updater);
 
             return Ok(self);
         } else {
             return Err(UpdaterRegistryError::UpdaterExistsAlready);
+        }
+    }
+
+    pub fn get_read_state<T: State>(&self) -> Result<ReadState<T>, StateRegistryError> {
+        if let Ok(runner) = self.clone().try_borrow_mut() {
+            // runner.state_registry.register_state(state).unwrap();
+            Ok(runner.state_registry.get_read_state::<T>().unwrap())
+        } else {
+            Err(StateRegistryError::StateExists)
         }
     }
 
@@ -166,7 +179,7 @@ pub trait MetaUpdaterTrait: UpdaterTrait {
 }
 
 pub trait UpdaterTrait: Debug + Any {
-    fn register(_runner_ptr: RunnerPtr) -> Self
+    fn new(_runner_ptr: RunnerPtr) -> Self
     where
         Self: Sized;
     /// An updater sometimes only registers state, so default the
@@ -279,6 +292,12 @@ where
         unsafe { self.state.as_mut().unwrap() }
     }
 }
+
+// Need a way for users to access something mutably. This is for extending
+// program functionality.
+// pub struct MultiWriteState<T> where T: State {
+//     state: RefCell<>
+// }
 
 pub struct StateRegistry {
     state: HashMap<TypeId, Pin<Box<UnsafeCell<dyn State>>>>,

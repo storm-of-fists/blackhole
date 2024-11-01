@@ -15,3 +15,9 @@ criterion = "0.5.1"
 [[bench]]
 name = "main"
 harness = false
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
