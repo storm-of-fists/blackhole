@@ -1,103 +1,166 @@
-#![feature(mpmc_channel)]
-
-mod common_shared_state;
-
 use std::{
     any::{Any, TypeId},
-    cell::{RefCell, UnsafeCell},
-    collections::{HashMap, HashSet},
-    fmt::Debug,
+    cell::{BorrowError, BorrowMutError, Ref, RefCell, RefMut},
+    collections::{BTreeMap, HashMap},
     ops::{Deref, DerefMut},
     pin::Pin,
     rc::Rc,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, MutexGuard, TryLockError, TryLockResult, atomic::AtomicUsize},
     thread::JoinHandle,
 };
 
-pub struct Nucleus {
-    pub join_handles: Vec<JoinHandle<Result<(), RunnerStartError>>>,
-    pub shared_state_registry: HashMap<TypeId, Arc<Mutex<dyn State>>>,
-}
-
-impl Nucleus {
-    pub fn new() -> NucleusPtr {
-        NucleusPtr {
-            nucleus: Arc::new(Mutex::new(Self {
-                join_handles: Vec::new(),
-                shared_state_registry: HashMap::new(),
-            })),
-        }
-    }
-}
-
-pub enum NucleusError {
-    NoControlMessageDestination,
-}
-
 #[derive(Clone)]
-pub struct NucleusPtr {
-    nucleus: Arc<Mutex<Nucleus>>,
+pub struct SharedState<T>
+where
+    T: Any,
+{
+    state: Arc<Mutex<T>>,
 }
 
-// SAFETY: Guarded by Arc and Mutex.
-unsafe impl Sync for NucleusPtr {}
-// SAFETY: Guarded by Arc and Mutex.
-unsafe impl Send for NucleusPtr {}
+impl<T> SharedState<T>
+where
+    T: Any,
+{
+    pub fn new(state: T) -> Self {
+        Self {
+            state: Arc::new(Mutex::new(state)),
+        }
+    }
 
-impl Deref for NucleusPtr {
-    type Target = Arc<Mutex<Nucleus>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.nucleus
+    /// Accessor to get to the internal state. Non-blocking since we don't
+    /// want to block the updater loop.
+    pub fn try_lock(&self) -> TryLockResult<MutexGuard<'_, T>> {
+        self.state.try_lock()
     }
 }
 
-impl NucleusPtr {
-    pub fn add_runner(
-        &self,
-        runner_fn: impl FnOnce(NucleusPtr) -> Result<(), RunnerStartError> + Send + 'static,
-    ) -> &Self {
-        let nucleus_ptr = self.clone();
-
-        if let Ok(mut nucleus) = nucleus_ptr.clone().lock() {
-            nucleus
-                .join_handles
-                .push(std::thread::spawn(|| runner_fn(nucleus_ptr)));
-        }
-
+pub trait SharedStateTrait: Sized + Any {
+    fn as_any(&self) -> &dyn Any {
         self
     }
+}
 
-    pub fn go(&self) {
-        if let Ok(mut nucleus) = self.clone().lock() {
-            for handle in std::mem::replace(&mut nucleus.join_handles, Vec::new()) {
-                handle.join().unwrap();
-            }
+pub struct State<T>
+where
+    T: StateTrait,
+{
+    /// TODO(): some option for additional/customizable state metadata.
+    // data: Rc<RefCell<dyn StateDataTrait>>,
+    state: Rc<RefCell<T>>,
+}
+
+impl<T> State<T>
+where
+    T: StateTrait,
+{
+    pub fn new(state: T) -> Self {
+        Self {
+            state: Rc::new(RefCell::new(state)),
+        }
+    }
+
+    /// Accessor to get a reference to the state. Non-blocking since we don't
+    /// want to block the updater loop.
+    pub fn try_get(&self) -> Result<Ref<'_, T>, BorrowError> {
+        self.state.try_borrow()
+    }
+
+    /// Accessor to get a mutable reference to the state. Non-blocking since we don't
+    /// want to block the updater loop.
+    ///
+    /// Keeping track of write access per cycle let's us see if we are accidentally
+    /// overwriting any data. We could have split State into ReadState and WriteState,
+    /// and only ever give out a singular WriteState. However, actual use patterns
+    /// such as extension updaters blur the lines about how state may be manipulated
+    /// and it's simpler to just make all state mutably accessible.
+    pub fn try_get_mut(&self) -> Result<RefMut<'_, T>, BorrowMutError> {
+        // self.current_write_accesses_in_this_cycle -= 1;
+        self.state.try_borrow_mut()
+    }
+}
+
+impl<T> Clone for State<T>
+where
+    T: StateTrait,
+{
+    fn clone(&self) -> Self {
+        Self {
+            state: self.state.clone(),
         }
     }
 }
 
-pub enum RunnerStartError {
-    FailedToStart,
+pub trait StateTrait: Sized + Any {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }
 
+pub trait UpdaterTrait: Any {
+    /// Create a new updater, given the global and thread runner context
+    /// pointers. Be careful to avoid recursive access to the nucleus or
+    /// runner due to the potential for lockups.
+    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
+    where
+        Self: Sized;
+
+    /// Don't pass in any context pointers because we want to only focus
+    /// on manipulating the state.
+    fn update(&self) {}
+}
+pub trait MetaUpdaterTrait: UpdaterTrait {}
+
 pub struct Runner {
-    pub nucleus_ptr: NucleusPtr,
-    pub state_registry: StateRegistry,
-    pub updater_registry: UpdaterRegistry,
+    nucleus: NucleusPtr,
+    state: HashMap<TypeId, State<dyn StateTrait>>,
+    active_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
+    inactive_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
+    active_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
+    inactive_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
+}
+
+pub enum StateError {
+    One,
+    Two,
+    Three
 }
 
 impl Runner {
-    pub fn new(nucleus_ptr: NucleusPtr) -> RunnerPtr {
-        RunnerPtr {
-            runner: Rc::new(RefCell::new(Self {
-                nucleus_ptr,
-                state_registry: StateRegistry::new(),
-                updater_registry: UpdaterRegistry::new(),
-            })),
+    pub fn new(nucleus: NucleusPtr) -> Self {
+        Self {
+            nucleus,
+            state: HashMap::new(),
+            active_updaters: BTreeMap::new(),
+            inactive_updaters: BTreeMap::new(),
+            active_meta_updaters: BTreeMap::new(),
+            inactive_meta_updaters: BTreeMap::new(),
         }
     }
-    // pub fn add_shared_state() {}
+
+    /// Add an updater to this runner. Pass the runner as a &mut to avoid circular
+    /// locks one would encounter passing the RunnerPtr.
+    pub fn add_updater(&mut self, updater_fn: impl FnOnce(NucleusPtr, &mut Runner)) {
+        updater_fn(self.nucleus.clone(), self)
+    }
+
+    pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<State<T>, StateError> {
+        let type_id = state.type_id();
+        
+        if self.state.contains_key(&type_id) {
+            return Err(StateError::One);
+        }
+
+        let wrapped_state = State::new(state);
+        self.state.insert(type_id, Box::new(wrapped_state.clone()));
+        
+        Ok(wrapped_state)
+    }
+
+    pub fn get_state<T: Any>(&self) -> Result<State<T>, StateError> {
+        let type_id = TypeId::of::<T>();
+
+        *self.state.get(&type_id).unwrap().
+    }
 }
 
 #[derive(Clone)]
@@ -113,241 +176,32 @@ impl Deref for RunnerPtr {
     }
 }
 
-impl RunnerPtr {
-    pub fn register_updater<T: UpdaterTrait>(&self) -> Result<&Self, UpdaterRegistryError> {
-        let updater = T::new(self.clone());
-        if let Ok(mut runner) = self.clone().try_borrow_mut() {
-            runner.updater_registry.register_updater(updater);
-
-            return Ok(self);
-        } else {
-            return Err(UpdaterRegistryError::UpdaterExistsAlready);
-        }
-    }
-
-    pub fn get_read_state<T: State>(&self) -> Result<ReadState<T>, StateRegistryError> {
-        if let Ok(runner) = self.clone().try_borrow_mut() {
-            // runner.state_registry.register_state(state).unwrap();
-            Ok(runner.state_registry.get_read_state::<T>().unwrap())
-        } else {
-            Err(StateRegistryError::StateExists)
-        }
-    }
-
-    pub fn register_read_state<T: State>(
-        &self,
-        state: T,
-    ) -> Result<ReadState<T>, StateRegistryError> {
-        if let Ok(mut runner) = self.clone().try_borrow_mut() {
-            runner.state_registry.register_state(state).unwrap();
-            Ok(runner.state_registry.get_read_state::<T>().unwrap())
-        } else {
-            Err(StateRegistryError::StateExists)
-        }
-    }
-
-    pub fn register_write_state<T: State>(
-        &self,
-        state: T,
-    ) -> Result<WriteState<T>, StateRegistryError> {
-        if let Ok(mut runner) = self.clone().try_borrow_mut() {
-            runner.state_registry.register_state(state).unwrap();
-            Ok(runner.state_registry.get_write_state::<T>().unwrap())
-        } else {
-            // TODO: fix
-            Err(StateRegistryError::StateExists)
-        }
-    }
-
-    pub fn run(&self) {
-        if let Ok(mut runner) = self.clone().try_borrow_mut() {
-            loop {
-                for updater in runner.updater_registry.active_updaters.iter_mut() {
-                    updater.update();
-                }
-            }
-        }
-    }
+pub enum RunnerError {
+    One,
+    Two,
+    Three,
 }
 
-/// A special kind of updater that can recursively access its own runner
-/// and updater registry. Use these when you need to modify
-/// the program itself.
-// #[cfg(meta_updaters)]
-pub trait MetaUpdaterTrait: UpdaterTrait {
-    fn update(&mut self, _runner_ptr: RunnerPtr) {}
+pub struct Nucleus {
+    pub join_handles: Vec<JoinHandle<Result<(), RunnerError>>>,
+    pub pending_updater_functions: Vec<Box<dyn FnOnce(NucleusPtr)>>,
+    pub shared_state: HashMap<TypeId, Box<dyn SharedStateTrait>>,
 }
 
-pub trait UpdaterTrait: Debug + Any {
-    fn new(_runner_ptr: RunnerPtr) -> Self
-    where
-        Self: Sized;
-    /// An updater sometimes only registers state, so default the
-    /// update to be empty. A updater doing this should immediately go
-    /// inactive.
-    fn update(&mut self) {}
+#[derive(Clone)]
+pub struct NucleusPtr {
+    nucleus: Arc<Mutex<Nucleus>>,
 }
 
-#[derive(Debug)]
-pub enum UpdaterRegistryError {
-    UpdaterExistsAlready,
-}
-
-pub struct UpdaterRegistry {
-    /// TODO: meta updaters are going to get tangled in the Runner Refcell.
-    /// Need to either be okay with multiple mutability or find some way
-    /// to avoid it with these.
-    pub meta_updaters: Vec<Box<dyn MetaUpdaterTrait>>,
-    pub active_updaters: Vec<Box<dyn UpdaterTrait>>,
-    pub inactive_updaters: Vec<Box<dyn UpdaterTrait>>,
-}
-
-impl UpdaterRegistry {
-    pub fn new() -> Self {
-        Self {
-            meta_updaters: Vec::new(),
-            active_updaters: Vec::new(),
-            inactive_updaters: Vec::new(),
-        }
-    }
-
-    pub fn register_updater(&mut self, updater: impl UpdaterTrait) {
-        self.active_updaters.push(Box::new(updater));
-    }
-
-    pub fn toggle_updater<T: UpdaterTrait>(&mut self, activate_updater: bool) {
-        if activate_updater {
-            let mut maybe_index = None;
-            for (index, updater) in self.inactive_updaters.iter().enumerate() {
-                if updater.type_id() == TypeId::of::<T>() {
-                    maybe_index = Some(index);
-                }
-            }
-
-            if let Some(index) = maybe_index {
-                self.active_updaters
-                    .push(self.inactive_updaters.remove(index));
-            }
-        } else {
-            let mut maybe_index = None;
-            for (index, updater) in self.active_updaters.iter().enumerate() {
-                if updater.type_id() == TypeId::of::<T>() {
-                    maybe_index = Some(index);
-                }
-            }
-
-            if let Some(index) = maybe_index {
-                self.inactive_updaters
-                    .push(self.active_updaters.remove(index));
-            }
-        }
-    }
-}
-
-pub trait State: Debug + Any {}
-
-#[derive(Debug)]
-pub struct ReadState<T>
-where
-    T: State,
-{
-    state: *const T,
-}
-
-impl<T> Deref for ReadState<T>
-where
-    T: State,
-{
-    type Target = T;
+impl Deref for NucleusPtr {
+    type Target = Arc<Mutex<Nucleus>>;
 
     fn deref(&self) -> &Self::Target {
-        unsafe { self.state.as_ref().unwrap() }
+        &self.nucleus
     }
 }
 
-#[derive(Debug)]
-pub struct WriteState<T>
-where
-    T: State,
-{
-    state: *mut T,
-}
-
-impl<T> Deref for WriteState<T>
-where
-    T: State,
-{
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { self.state.as_ref().unwrap() }
-    }
-}
-
-impl<T> DerefMut for WriteState<T>
-where
-    T: State,
-{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe { self.state.as_mut().unwrap() }
-    }
-}
-
-// Need a way for users to access something mutably. This is for extending
-// program functionality.
-// pub struct MultiWriteState<T> where T: State {
-//     state: RefCell<>
-// }
-
-pub struct StateRegistry {
-    state: HashMap<TypeId, Pin<Box<UnsafeCell<dyn State>>>>,
-    write_states_given: HashSet<TypeId>,
-}
-
-#[derive(Debug)]
-pub enum StateRegistryError {
-    SingleWriteState,
-    StateExists,
-}
-
-impl StateRegistry {
-    pub fn new() -> Self {
-        Self {
-            state: HashMap::new(),
-            write_states_given: HashSet::new(),
-        }
-    }
-
-    pub fn register_state<T: State>(&mut self, state: T) -> Result<(), StateRegistryError> {
-        if self.state.contains_key(&state.type_id()) {
-            return Err(StateRegistryError::StateExists);
-        }
-
-        self.state
-            .insert(state.type_id(), Box::pin(UnsafeCell::new(state)));
-
-        Ok(())
-    }
-
-    pub fn get_read_state<T: State>(&self) -> Result<ReadState<T>, StateRegistryError> {
-        let type_id = TypeId::of::<T>();
-
-        Ok(ReadState {
-            state: self.state.get(&type_id).unwrap().get().cast(),
-        })
-    }
-
-    pub fn get_write_state<T: State>(&mut self) -> Result<WriteState<T>, StateRegistryError> {
-        let type_id = TypeId::of::<T>();
-
-        if self.write_states_given.contains(&type_id) {
-            return Err(StateRegistryError::SingleWriteState);
-        }
-
-        self.write_states_given.insert(type_id);
-
-        Ok(WriteState {
-            state: self.state.get(&type_id).unwrap().get().cast(),
-        })
-    }
-}
+// SAFETY: Guarded by Arc and Mutex.
+unsafe impl Sync for NucleusPtr {}
+// SAFETY: Guarded by Arc and Mutex.
+unsafe impl Send for NucleusPtr {}

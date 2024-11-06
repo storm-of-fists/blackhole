@@ -8,33 +8,29 @@ use std::{
 
 use nucleus::*;
 
-#[derive(Debug)]
 pub struct Position {
     pub positions: [Simd<f64, 4>; 1000],
 }
 
-impl State for Position {}
-
-#[derive(Debug)]
 pub struct Velocity {
     pub velocities: [Simd<f64, 4>; 1000],
 }
 
-impl State for Velocity {}
-
-#[derive(Debug)]
 pub struct PositionUpdater {
-    timing: ReadState<Timing>,
-    positions: WriteState<Position>,
-    velocities: ReadState<Velocity>,
+    timing: State<Timing>,
+    positions: State<Position>,
+    velocities: State<Velocity>,
 }
 
 impl UpdaterTrait for PositionUpdater {
-    fn new(runner_ptr: RunnerPtr) -> Self {
+    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
+    where
+        Self: Sized,
+    {
         PositionUpdater {
-            timing: runner_ptr.get_read_state::<Timing>().unwrap(),
-            positions: runner_ptr
-                .register_write_state(Position {
+            timing: runner.add_state::<Timing>().unwrap(),
+            positions: runner
+                .add_state(Position {
                     positions: [Simd::from_array([0.0, 0.0, 0.0, 0.0]); 1000],
                 })
                 .unwrap(),
@@ -58,32 +54,26 @@ impl UpdaterTrait for PositionUpdater {
     }
 }
 
-#[derive(Debug)]
 pub struct Timing {
     pub start_of_loop: Instant,
     pub desired_loop_duration: Duration,
 }
 
-impl State for Timing {}
-
-#[derive(Debug)]
 pub struct LoopTimingUpdater {
-    timing_data: WriteState<Timing>,
+    timing_data: State<Timing>,
 }
 
 impl UpdaterTrait for LoopTimingUpdater {
     /// What if I only wanted to adjust the order of an updater?
-    fn new(runner_ptr: RunnerPtr) -> Self
+    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
     where
         Self: Sized,
     {
         Self {
-            timing_data: runner_ptr
-                .register_write_state::<Timing>(Timing {
-                    start_of_loop: Instant::now(),
-                    desired_loop_duration: Duration::from_millis(100),
-                })
-                .unwrap(),
+            timing_data: runner.add_state(Timing {
+                start_of_loop: Instant::now(),
+                desired_loop_duration: Duration::from_millis(100),
+            }),
         }
     }
 
@@ -100,15 +90,6 @@ impl UpdaterTrait for LoopTimingUpdater {
     }
 }
 
-
-
-fn main_runner(nucleus_ptr: NucleusPtr) -> Result<(), RunnerStartError> {
-    Runner::new(nucleus_ptr)
-        .register_updater::<PositionUpdater>()?
-        .register_updater::<LoopTimingUpdater>()?
-        .run()?;
-}
-
 fn main() {
-    Nucleus::new().add_runner(main_runner).go();
+    // Nucleus::new().add_runner(main_runner).go();
 }
