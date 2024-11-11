@@ -16,47 +16,53 @@ pub struct Velocity {
     pub velocities: [Simd<f64, 4>; 1000],
 }
 
-pub struct PositionUpdater {
-    timing: State<Timing>,
-    positions: State<Position>,
-    velocities: State<Velocity>,
-}
+// pub struct PositionUpdater {
+//     timing: State<Timing>,
+//     positions: State<Position>,
+//     velocities: State<Velocity>,
+// }
 
-impl UpdaterTrait for PositionUpdater {
-    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
-    where
-        Self: Sized,
-    {
-        PositionUpdater {
-            timing: runner.add_state::<Timing>().unwrap(),
-            positions: runner
-                .add_state(Position {
-                    positions: [Simd::from_array([0.0, 0.0, 0.0, 0.0]); 1000],
-                })
-                .unwrap(),
-            velocities: runner_ptr
-                .register_read_state::<Velocity>(Velocity {
-                    velocities: [Simd::from_array([1.0, 1.0, 1.0, 1.0]); 1000],
-                })
-                .unwrap(),
-        }
-    }
+// impl UpdaterTrait for PositionUpdater {
+//     fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
+//     where
+//         Self: Sized,
+//     {
+//         PositionUpdater {
+//             timing: runner.get_state::<Timing>().unwrap(),
+//             positions: runner
+//                 .add_state(Position {
+//                     positions: [Simd::from_array([0.0, 0.0, 0.0, 0.0]); 1000],
+//                 })
+//                 .unwrap(),
+//             velocities: runner_ptr
+//                 .register_read_state::<Velocity>(Velocity {
+//                     velocities: [Simd::from_array([1.0, 1.0, 1.0, 1.0]); 1000],
+//                 })
+//                 .unwrap(),
+//         }
+//     }
 
-    fn update(&mut self) {
-        for (index, position) in self.positions.positions.iter_mut().enumerate() {
-            let loop_duration = self.timing.desired_loop_duration.as_secs_f64();
-            if let Some(velocity) = self.velocities.velocities.get(index) {
-                *position += *velocity * Simd::from_array([loop_duration; 4]);
-            }
-        }
+//     fn update(&mut self) {
+//         for (index, position) in self.positions.positions.iter_mut().enumerate() {
+//             let loop_duration = self.timing.desired_loop_duration.as_secs_f64();
+//             if let Some(velocity) = self.velocities.velocities.get(index) {
+//                 *position += *velocity * Simd::from_array([loop_duration; 4]);
+//             }
+//         }
 
-        // println!("{:?}", *self.positions);
-    }
-}
+//         // println!("{:?}", *self.positions);
+//     }
+// }
 
 pub struct Timing {
     pub start_of_loop: Instant,
     pub desired_loop_duration: Duration,
+}
+
+impl StateTrait for Timing {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 pub struct LoopTimingUpdater {
@@ -73,15 +79,16 @@ impl UpdaterTrait for LoopTimingUpdater {
             timing_data: runner.add_state(Timing {
                 start_of_loop: Instant::now(),
                 desired_loop_duration: Duration::from_millis(100),
-            }),
+            }).unwrap(),
         }
     }
 
-    fn update(&mut self) {
+    fn update(&self) {
+        let mut timing_data = self.timing_data.try_get_mut().unwrap();
         let start_of_previous_loop =
-            std::mem::replace(&mut self.timing_data.start_of_loop, Instant::now());
+            std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
 
-        let sleep_time = self.timing_data.desired_loop_duration - start_of_previous_loop.elapsed();
+        let sleep_time = timing_data.desired_loop_duration - start_of_previous_loop.elapsed();
 
         println!("sleeping for {:?}", sleep_time);
 
