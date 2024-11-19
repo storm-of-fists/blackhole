@@ -1,62 +1,18 @@
 #![feature(portable_simd)]
 
 use std::{
+    any::Any,
     simd::Simd,
-    thread::JoinHandle,
     time::{Duration, Instant},
 };
 
 use nucleus::*;
 
-pub struct Position {
-    pub positions: [Simd<f64, 4>; 1000],
-}
-
-pub struct Velocity {
-    pub velocities: [Simd<f64, 4>; 1000],
-}
-
-// pub struct PositionUpdater {
-//     timing: State<Timing>,
-//     positions: State<Position>,
-//     velocities: State<Velocity>,
-// }
-
-// impl UpdaterTrait for PositionUpdater {
-//     fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
-//     where
-//         Self: Sized,
-//     {
-//         PositionUpdater {
-//             timing: runner.get_state::<Timing>().unwrap(),
-//             positions: runner
-//                 .add_state(Position {
-//                     positions: [Simd::from_array([0.0, 0.0, 0.0, 0.0]); 1000],
-//                 })
-//                 .unwrap(),
-//             velocities: runner_ptr
-//                 .register_read_state::<Velocity>(Velocity {
-//                     velocities: [Simd::from_array([1.0, 1.0, 1.0, 1.0]); 1000],
-//                 })
-//                 .unwrap(),
-//         }
-//     }
-
-//     fn update(&mut self) {
-//         for (index, position) in self.positions.positions.iter_mut().enumerate() {
-//             let loop_duration = self.timing.desired_loop_duration.as_secs_f64();
-//             if let Some(velocity) = self.velocities.velocities.get(index) {
-//                 *position += *velocity * Simd::from_array([loop_duration; 4]);
-//             }
-//         }
-
-//         // println!("{:?}", *self.positions);
-//     }
-// }
-
+#[derive(Debug)]
 pub struct Timing {
     pub start_of_loop: Instant,
     pub desired_loop_duration: Duration,
+    pub loop_sleep_duration: Duration,
 }
 
 impl StateTrait for Timing {
@@ -70,33 +26,81 @@ pub struct LoopTimingUpdater {
 }
 
 impl UpdaterTrait for LoopTimingUpdater {
-    /// What if I only wanted to adjust the order of an updater?
-    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
+    fn add_new_state(nucleus: NucleusPtr, runner: &mut Runner)
     where
         Self: Sized,
     {
-        Self {
-            timing_data: runner.add_state(Timing {
-                start_of_loop: Instant::now(),
-                desired_loop_duration: Duration::from_millis(100),
-            }).unwrap(),
-        }
+        runner.add_state(Timing {
+            start_of_loop: Instant::now(),
+            desired_loop_duration: Duration::from_millis(100),
+            loop_sleep_duration: Duration::from_millis(100),
+        });
     }
+
+    fn register(nucleus: NucleusPtr, runner: &mut Runner)
+    where
+        Self: Sized,
+    {
+        let updater = Self {
+            timing_data: runner.get_state::<Timing>().unwrap(),
+        };
+
+        runner
+            .active_updaters
+            .insert(updater.type_id(), Box::new(updater));
+    }
+
+    fn first(&self, _nucleus: NucleusPtr, _runner: &mut Runner) {}
 
     fn update(&self) {
         let mut timing_data = self.timing_data.try_get_mut().unwrap();
+
         let start_of_previous_loop =
             std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
 
-        let sleep_time = timing_data.desired_loop_duration - start_of_previous_loop.elapsed();
+        let elapsed_since_last_loop = start_of_previous_loop.elapsed();
+        println!("elapsed: {:?}", elapsed_since_last_loop);
+        let desired_loop_duration = timing_data.desired_loop_duration;
 
-        println!("sleeping for {:?}", sleep_time);
+        if elapsed_since_last_loop > desired_loop_duration {
+            let adjustment = elapsed_since_last_loop - desired_loop_duration;
+            timing_data.loop_sleep_duration -= adjustment;
+        } else {
+            let adjustment = desired_loop_duration - elapsed_since_last_loop;
+            timing_data.loop_sleep_duration += adjustment;
+        }
 
-        // std::thread::sleep This is THE timing control mechanism for the thread.
-        std::thread::sleep(sleep_time);
+        println!("actual loop sleep dur: {:?}", timing_data.loop_sleep_duration);
+
+        std::thread::sleep(timing_data.loop_sleep_duration);
     }
 }
 
+pub struct OtherUpdater {}
+
+impl UpdaterTrait for OtherUpdater {
+    fn register(nucleus: NucleusPtr, runner: &mut Runner)
+        where
+            Self: Sized {
+        let updater = OtherUpdater {};
+
+        runner.active_updaters.insert(updater.type_id(), Box::new(updater));
+    }
+
+    fn update(&self) {
+        std::thread::sleep(Duration::from_millis(50));
+    }
+}
+
+pub fn main_runner(nucleus: NucleusPtr) -> Result<(), RunnerError> {
+    let mut runner = Runner::new(nucleus);
+    runner.add_updater::<LoopTimingUpdater>();
+    runner.add_updater::<OtherUpdater>();
+    runner.run();
+
+    Ok(())
+}
+
 fn main() {
-    // Nucleus::new().add_runner(main_runner).go();
+    Nucleus::new().add_runner(main_runner).go();
 }

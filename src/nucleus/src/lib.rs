@@ -7,6 +7,7 @@ use std::{
     rc::Rc,
     sync::{Arc, Mutex, MutexGuard, TryLockError, TryLockResult, atomic::AtomicUsize},
     thread::JoinHandle,
+    time::Duration,
 };
 
 // #[derive(Clone)]
@@ -40,7 +41,13 @@ use std::{
 //     }
 // }
 
-#[derive(Clone)]
+/// This struct helps us see how often some state is being accessed.
+// pub struct InnerState<T> {
+//     mut_access_count: usize,
+//     state: T,
+// }
+
+#[derive(Clone, Debug)]
 pub struct State<T>
 where
     T: StateTrait,
@@ -84,11 +91,12 @@ where
     }
 }
 
-pub trait StateTrait: Any {
+pub trait StateTrait: std::fmt::Debug + Any {
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T> StateTrait for RefCell<T>
+
+impl<T> StateTrait for Rc<RefCell<T>>
 where
     T: StateTrait,
 {
@@ -98,15 +106,29 @@ where
 }
 
 pub trait UpdaterTrait: Any {
-    /// Create a new updater, given the global and thread runner context
-    /// pointers. Be careful to avoid recursive access to the nucleus or
-    /// runner due to the potential for lockups.
-    fn new(nucleus: NucleusPtr, runner: &mut Runner) -> Self
+    /// Add any new state the updater may require in here. This function
+    /// will be called for all updaters.
+    #[allow(clippy::unused_variable)]
+    fn add_new_state(_nucleus: NucleusPtr, _runner: &mut Runner)
+    where
+        Self: Sized,
+    {
+    }
+
+    /// Register your updater. Feel free to
+    fn register(nucleus: NucleusPtr, runner: &mut Runner)
     where
         Self: Sized;
 
+    /// A one time function called after all updaters have been added to
+    /// the runner. This may block. All updaters will have their "first"
+    /// function called before entering the update loop.
+    fn first(&self, _nucleus: NucleusPtr, _runner: &mut Runner) {}
+
     /// Don't pass in any context pointers because we want to only focus
-    /// on manipulating the state.
+    /// on manipulating the state. Be careful blocking this function as it
+    /// will block the thread. Only special timing control updaters should
+    /// do any kind of sleeping.
     fn update(&self) {}
 }
 
@@ -114,8 +136,9 @@ pub trait MetaUpdaterTrait: UpdaterTrait {}
 
 pub struct Runner {
     nucleus: NucleusPtr,
-    state: HashMap<TypeId, Rc<dyn StateTrait>>,
-    active_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
+    piss: Vec<Box<dyn FnOnce(NucleusPtr, &mut Runner)>>,
+    state: HashMap<TypeId, Box<dyn StateTrait>>,
+    pub active_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
     inactive_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
     active_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
     inactive_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
@@ -132,6 +155,7 @@ impl Runner {
     pub fn new(nucleus: NucleusPtr) -> Self {
         Self {
             nucleus,
+            piss: Vec::new(),
             state: HashMap::new(),
             active_updaters: BTreeMap::new(),
             inactive_updaters: BTreeMap::new(),
@@ -140,13 +164,14 @@ impl Runner {
         }
     }
 
-    /// Add an updater to this runner. Pass the runner as a &mut to avoid circular
-    /// locks one would encounter passing the RunnerPtr.
-    pub fn add_updater(&mut self, updater_fn: impl FnOnce(NucleusPtr, &mut Runner)) {
-        updater_fn(self.nucleus.clone(), self)
+    /// Add an updater to this runner.
+    pub fn add_updater<T: UpdaterTrait>(&mut self) {
+        // Add new state, but delay the registration until later to reduce annoyingness.
+        T::add_new_state(self.nucleus.clone(), self);
+        self.piss.push(Box::new(T::register));
     }
 
-    pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<State<T>, StateError> {
+    pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<(), StateError> {
         let type_id = state.type_id();
 
         if self.state.contains_key(&type_id) {
@@ -155,19 +180,17 @@ impl Runner {
 
         let state = State::new(state);
 
-        self.state.insert(type_id, state.state.clone());
+        self.state.insert(type_id, Box::new(state.state.clone()));
 
-        Ok(state)
+        Ok(())
     }
 
     pub fn get_state<T: StateTrait>(&self) -> Result<State<T>, StateError> {
         let type_id = TypeId::of::<T>();
 
         Ok(State::from_rc(
-            self
-                .state
+            self.state
                 .get(&type_id)
-                .cloned()
                 .unwrap()
                 .as_any()
                 .downcast_ref::<Rc<RefCell<T>>>()
@@ -175,18 +198,30 @@ impl Runner {
                 .unwrap(),
         ))
     }
-}
 
-#[derive(Clone)]
-pub struct RunnerPtr {
-    runner: Rc<RefCell<Runner>>,
-}
+    fn first(&mut self) {
+        let register_updaters = std::mem::replace(&mut self.piss, Vec::new());
 
-impl Deref for RunnerPtr {
-    type Target = Rc<RefCell<Runner>>;
+        for register_updater in register_updaters.into_iter() {
+            register_updater(self.nucleus.clone(), self);
+        }
 
-    fn deref(&self) -> &Self::Target {
-        &self.runner
+        let active_updaters = std::mem::replace(&mut self.active_updaters, BTreeMap::new());
+
+        for (type_id, updater) in active_updaters.into_iter() {
+            updater.first(self.nucleus.clone(), self);
+            self.active_updaters.insert(type_id, updater);
+        }
+    }
+
+    pub fn run(&mut self) {
+        self.first();
+
+        loop {
+            for active_updater in self.active_updaters.values_mut() {
+                active_updater.update();
+            }
+        }
     }
 }
 
@@ -200,6 +235,17 @@ pub struct Nucleus {
     pub join_handles: Vec<JoinHandle<Result<(), RunnerError>>>,
     pub pending_updater_functions: Vec<Box<dyn FnOnce(NucleusPtr)>>,
     // pub shared_state: HashMap<TypeId, Box<dyn SharedStateTrait>>,
+}
+
+impl Nucleus {
+    pub fn new() -> NucleusPtr {
+        NucleusPtr {
+            nucleus: Arc::new(Mutex::new(Self {
+                join_handles: Vec::new(),
+                pending_updater_functions: Vec::new(),
+            })),
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -219,3 +265,50 @@ impl Deref for NucleusPtr {
 unsafe impl Sync for NucleusPtr {}
 // SAFETY: Guarded by Arc and Mutex.
 unsafe impl Send for NucleusPtr {}
+
+impl NucleusPtr {
+    pub fn add_runner(
+        &self,
+        // name: impl Into<String>,
+        runner_fn: impl FnOnce(NucleusPtr) -> Result<(), RunnerError> + Send + 'static,
+    ) -> &Self {
+        let nucleus_ptr = self.clone();
+
+        if let Ok(mut nucleus) = nucleus_ptr.clone().lock() {
+            nucleus
+                .join_handles
+                .push(std::thread::spawn(|| runner_fn(nucleus_ptr)));
+        }
+
+        self
+    }
+
+    pub fn go(&self) {
+        loop {
+            // probably want a try lock here
+            if let Ok(mut nucleus) = self.nucleus.lock() {
+                let join_handles = std::mem::replace(&mut nucleus.join_handles, Vec::new());
+                let mut complete_handles = Vec::new();
+
+                for handle in join_handles.into_iter() {
+                    if handle.is_finished() {
+                        complete_handles.push(handle);
+                    } else {
+                        nucleus.join_handles.push(handle);
+                    }
+                }
+
+                // Exit if any of the threads have errored.
+                for complete_handle in complete_handles.into_iter() {
+                    if complete_handle.join().is_err() {
+                        return;
+                    }
+                }
+            }
+
+            // TODO: do something with pending updaters?
+
+            std::thread::sleep(Duration::from_secs(1));
+        }
+    }
+}
