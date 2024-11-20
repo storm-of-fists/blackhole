@@ -1,10 +1,6 @@
 #![feature(portable_simd)]
 
-use std::{
-    any::Any,
-    simd::Simd,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 use nucleus::*;
 
@@ -27,11 +23,14 @@ pub struct LoopTimingUpdater {
 }
 
 impl UpdaterTrait for LoopTimingUpdater {
-    fn add_new_state(nucleus: NucleusPtr, state: State<StateRegistry>) -> Result<(), NucleusError>
+    fn add_new_state(
+        shared_state_registry: SharedState<SharedStateRegistry>,
+        thread_state_registry: State<StateRegistry>,
+    ) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        let mut state_registry = state.try_get_mut().unwrap();
+        let mut state_registry = thread_state_registry.try_get_mut()?;
 
         state_registry.add_state(Timing {
             start_of_loop: Instant::now(),
@@ -42,12 +41,14 @@ impl UpdaterTrait for LoopTimingUpdater {
         Ok(())
     }
 
-    fn new(nucleus: NucleusPtr, thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized,
     {
+        let thread_state_registry = thread.state_registry.try_get_mut()?;
+
         Ok(Box::new(Self {
-            timing_data: thread.get_state::<Timing>().unwrap(),
+            timing_data: thread_state_registry.get_state::<Timing>().unwrap(),
         }))
     }
 
@@ -58,6 +59,8 @@ impl UpdaterTrait for LoopTimingUpdater {
             std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
 
         let elapsed_since_last_loop = start_of_previous_loop.elapsed();
+
+        println!("elapsed {:?}", elapsed_since_last_loop);
 
         let desired_loop_duration = timing_data.desired_loop_duration;
 
@@ -79,7 +82,7 @@ impl UpdaterTrait for LoopTimingUpdater {
 pub struct OtherUpdater2 {}
 
 impl UpdaterTrait for OtherUpdater2 {
-    fn new(nucleus: NucleusPtr, thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized,
     {
@@ -94,14 +97,25 @@ impl UpdaterTrait for OtherUpdater2 {
 }
 
 pub fn main_thread(nucleus: NucleusPtr) -> Result<(), NucleusError> {
-    let mut thread = Thread::new(nucleus);
+    let mut thread = Thread::new(nucleus)?;
     thread.register_updater::<LoopTimingUpdater>()?;
     thread.register_updater::<OtherUpdater2>()?;
-    thread.run()?;
 
-    Ok(())
+    thread.run()
+}
+
+pub fn secondary_thread(nucleus: NucleusPtr) -> Result<(), NucleusError> {
+    let mut thread = Thread::new(nucleus)?;
+    thread.register_updater::<LoopTimingUpdater>()?;
+    thread.register_updater::<OtherUpdater2>()?;
+
+    thread.run()
 }
 
 fn main() {
-    Nucleus::new().add_thread(main_thread).go();
+    let nucleus = Nucleus::new();
+    nucleus.add_thread(main_thread);
+    nucleus.add_thread(secondary_thread);
+
+    nucleus.go();
 }
