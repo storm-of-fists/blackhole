@@ -26,40 +26,38 @@ pub struct LoopTimingUpdater {
 }
 
 impl UpdaterTrait for LoopTimingUpdater {
-    fn add_new_state(nucleus: NucleusPtr, runner: &mut Runner)
+    fn add_new_state(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        runner.add_state(Timing {
+        thread.add_state(Timing {
             start_of_loop: Instant::now(),
             desired_loop_duration: Duration::from_millis(100),
             loop_sleep_duration: Duration::from_millis(100),
-        });
+        })?;
+
+        Ok(())
     }
 
-    fn register(nucleus: NucleusPtr, runner: &mut Runner)
+    fn register(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        let updater = Self {
-            timing_data: runner.get_state::<Timing>().unwrap(),
-        };
+        thread.add_updater(Self {
+            timing_data: thread.get_state::<Timing>().unwrap(),
+        })?;
 
-        runner
-            .active_updaters
-            .insert(updater.type_id(), Box::new(updater));
+        Ok(())
     }
 
-    fn first(&self, _nucleus: NucleusPtr, _runner: &mut Runner) {}
-
-    fn update(&self) {
+    fn update(&self) -> Result<(), NucleusError> {
         let mut timing_data = self.timing_data.try_get_mut().unwrap();
 
         let start_of_previous_loop =
             std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
 
         let elapsed_since_last_loop = start_of_previous_loop.elapsed();
-        println!("elapsed: {:?}", elapsed_since_last_loop);
+
         let desired_loop_duration = timing_data.desired_loop_duration;
 
         if elapsed_since_last_loop > desired_loop_duration {
@@ -70,37 +68,40 @@ impl UpdaterTrait for LoopTimingUpdater {
             timing_data.loop_sleep_duration += adjustment;
         }
 
-        println!("actual loop sleep dur: {:?}", timing_data.loop_sleep_duration);
-
         std::thread::sleep(timing_data.loop_sleep_duration);
+
+        Ok(())
     }
 }
 
-pub struct OtherUpdater {}
+pub struct OtherUpdater2 {}
 
-impl UpdaterTrait for OtherUpdater {
-    fn register(nucleus: NucleusPtr, runner: &mut Runner)
-        where
-            Self: Sized {
-        let updater = OtherUpdater {};
+impl UpdaterTrait for OtherUpdater2 {
+    fn register(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
+    where
+        Self: Sized,
+    {
+        thread.add_updater(OtherUpdater2 {})?;
 
-        runner.active_updaters.insert(updater.type_id(), Box::new(updater));
+        Ok(())
     }
 
-    fn update(&self) {
+    fn update(&self) -> Result<(), NucleusError> {
         std::thread::sleep(Duration::from_millis(50));
+
+        Ok(())
     }
 }
 
-pub fn main_runner(nucleus: NucleusPtr) -> Result<(), RunnerError> {
-    let mut runner = Runner::new(nucleus);
-    runner.add_updater::<LoopTimingUpdater>();
-    runner.add_updater::<OtherUpdater>();
-    runner.run();
+pub fn main_thread(nucleus: NucleusPtr) -> Result<(), NucleusError> {
+    let mut thread = Thread::new(nucleus);
+    thread.register_updater::<LoopTimingUpdater>()?;
+    thread.register_updater::<OtherUpdater2>()?;
+    thread.run()?;
 
     Ok(())
 }
 
 fn main() {
-    Nucleus::new().add_runner(main_runner).go();
+    Nucleus::new().add_thread(main_thread).go();
 }

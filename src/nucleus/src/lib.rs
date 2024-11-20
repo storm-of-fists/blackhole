@@ -1,51 +1,58 @@
 use std::{
     any::{Any, TypeId},
     cell::{BorrowError, BorrowMutError, Ref, RefCell, RefMut},
-    collections::{BTreeMap, HashMap},
-    ops::{Deref, DerefMut},
-    pin::Pin,
+    collections::HashMap,
+    ops::Deref,
     rc::Rc,
-    sync::{Arc, Mutex, MutexGuard, TryLockError, TryLockResult, atomic::AtomicUsize},
+    sync::{Arc, Mutex, MutexGuard, TryLockResult},
     thread::JoinHandle,
     time::Duration,
 };
 
-// #[derive(Clone)]
-// pub struct SharedState<T>
-// where
-//     T: Any,
-// {
-//     state: Arc<Mutex<T>>,
-// }
+#[derive(Debug)]
+pub enum NucleusError {
+    One,
+    Two,
+    Three,
+}
 
-// impl<T> SharedState<T>
-// where
-//     T: Any,
-// {
-//     pub fn new(state: T) -> Self {
-//         Self {
-//             state: Arc::new(Mutex::new(state)),
-//         }
-//     }
+#[derive(Clone)]
+pub struct SharedState<T>
+where
+    T: Any,
+{
+    state: Arc<Mutex<T>>,
+}
 
-//     /// Accessor to get to the internal state. Non-blocking since we don't
-//     /// want to block the updater loop.
-//     pub fn try_lock(&self) -> TryLockResult<MutexGuard<'_, T>> {
-//         self.state.try_lock()
-//     }
-// }
+impl<T> SharedState<T>
+where
+    T: Any,
+{
+    pub fn new(state: T) -> Self {
+        Self {
+            state: Arc::new(Mutex::new(state)),
+        }
+    }
 
-// pub trait SharedStateTrait: Sized + Any {
-//     fn as_any(&self) -> &dyn Any {
-//         self
-//     }
-// }
+    /// Accessor to get to the internal state. Non-blocking since we don't
+    /// want to block the updater loop.
+    pub fn try_lock(&self) -> TryLockResult<MutexGuard<'_, T>> {
+        self.state.try_lock()
+    }
+}
 
-/// This struct helps us see how often some state is being accessed.
-// pub struct InnerState<T> {
-//     mut_access_count: usize,
-//     state: T,
-// }
+pub trait SharedStateTrait: Any {
+    fn as_any(&self) -> &dyn Any;
+}
+
+impl<T> SharedStateTrait for Arc<Mutex<T>>
+where
+    T: SharedStateTrait,
+{
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct State<T>
@@ -91,10 +98,12 @@ where
     }
 }
 
+/// TODO: Write a proc macro for this. May want to disallow the use of
+/// State<T> or SharedState<T> members in the struct we are impling on
+/// to avoid nested state.
 pub trait StateTrait: std::fmt::Debug + Any {
     fn as_any(&self) -> &dyn Any;
 }
-
 
 impl<T> StateTrait for Rc<RefCell<T>>
 where
@@ -105,77 +114,244 @@ where
     }
 }
 
+#[derive(Default)]
+pub enum UpdaterOrdering {
+    AddToFront,
+    #[default]
+    AddToEnd,
+    Before(TypeId),
+    After(TypeId),
+}
+
 pub trait UpdaterTrait: Any {
     /// Add any new state the updater may require in here. This function
     /// will be called for all updaters.
     #[allow(clippy::unused_variable)]
-    fn add_new_state(_nucleus: NucleusPtr, _runner: &mut Runner)
+    fn add_new_state(_nucleus: NucleusPtr, _thread: &mut Thread) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
+        Ok(())
     }
 
     /// Register your updater. Feel free to
-    fn register(nucleus: NucleusPtr, runner: &mut Runner)
+    fn register(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
     where
         Self: Sized;
 
     /// A one time function called after all updaters have been added to
-    /// the runner. This may block. All updaters will have their "first"
+    /// the thread. This may block. All updaters will have their "first"
     /// function called before entering the update loop.
-    fn first(&self, _nucleus: NucleusPtr, _runner: &mut Runner) {}
+    fn first(&self, _nucleus: NucleusPtr, _thread: &mut Thread) -> Result<(), NucleusError> {
+        Ok(())
+    }
 
     /// Don't pass in any context pointers because we want to only focus
     /// on manipulating the state. Be careful blocking this function as it
     /// will block the thread. Only special timing control updaters should
     /// do any kind of sleeping.
-    fn update(&self) {}
+    fn update(&self) -> Result<(), NucleusError> {
+        Ok(())
+    }
+
+    /// This is a method and not just associated so that it can change at runtime.
+    /// A meta updater will still need to perform the order change.
+    fn ordering(&self) -> UpdaterOrdering {
+        UpdaterOrdering::default()
+    }
+
+    // fn is_meta_updater(&self) -> bool {
+    //     false
+    // }
 }
 
-pub trait MetaUpdaterTrait: UpdaterTrait {}
+pub trait MetaUpdaterTrait: UpdaterTrait {
+    fn update(&self, _nucleus: NucleusPtr, _thread: &mut Thread) -> Result<(), NucleusError> {
+        Ok(())
+    }
 
-pub struct Runner {
+    // fn is_meta_updater(&self) -> bool {
+    //     true
+    // }
+}
+
+pub struct Thread {
     nucleus: NucleusPtr,
-    piss: Vec<Box<dyn FnOnce(NucleusPtr, &mut Runner)>>,
+    /// TODO: come up with a way to combine the meta and regular updaters? perhaps part of the trait?
+    pending_updaters: Vec<Box<dyn FnOnce(NucleusPtr, &mut Thread) -> Result<(), NucleusError>>>,
+    pending_meta_updaters:
+        Vec<Box<dyn FnOnce(NucleusPtr, &mut Thread) -> Result<(), NucleusError>>>,
     state: HashMap<TypeId, Box<dyn StateTrait>>,
-    pub active_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
-    inactive_updaters: BTreeMap<TypeId, Box<dyn UpdaterTrait>>,
-    active_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
-    inactive_meta_updaters: BTreeMap<TypeId, Box<dyn MetaUpdaterTrait>>,
+    active_updaters: Vec<Box<dyn UpdaterTrait>>,
+    inactive_updaters: Vec<Box<dyn UpdaterTrait>>,
+    active_meta_updaters: Vec<Box<dyn MetaUpdaterTrait>>,
+    inactive_meta_updaters: Vec<Box<dyn MetaUpdaterTrait>>,
 }
 
-#[derive(Debug)]
-pub enum StateError {
-    One,
-    Two,
-    Three,
-}
-
-impl Runner {
+impl Thread {
     pub fn new(nucleus: NucleusPtr) -> Self {
         Self {
             nucleus,
-            piss: Vec::new(),
+            pending_updaters: Vec::new(),
+            pending_meta_updaters: Vec::new(),
             state: HashMap::new(),
-            active_updaters: BTreeMap::new(),
-            inactive_updaters: BTreeMap::new(),
-            active_meta_updaters: BTreeMap::new(),
-            inactive_meta_updaters: BTreeMap::new(),
+            active_updaters: Vec::new(),
+            inactive_updaters: Vec::new(),
+            active_meta_updaters: Vec::new(),
+            inactive_meta_updaters: Vec::new(),
         }
     }
 
-    /// Add an updater to this runner.
-    pub fn add_updater<T: UpdaterTrait>(&mut self) {
+    /// Informs the thread that this updater will be part of the thread. Delays creation of
+    /// the updater to avoid "State does not exist!" errors.
+    pub fn register_updater<T: UpdaterTrait>(&mut self) -> Result<(), NucleusError> {
         // Add new state, but delay the registration until later to reduce annoyingness.
-        T::add_new_state(self.nucleus.clone(), self);
-        self.piss.push(Box::new(T::register));
+        T::add_new_state(self.nucleus.clone(), self)?;
+        self.pending_updaters.push(Box::new(T::register));
+
+        Ok(())
     }
 
-    pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<(), StateError> {
+    /// Add an updater to this thread's active_updaters list.
+    pub fn add_updater<T: UpdaterTrait>(&mut self, updater: T) -> Result<(), NucleusError> {
+        // Check if updater exists already.
+        self.add_updater_with_ordering(Box::new(updater))?;
+
+        Ok(())
+    }
+
+    /// Enable or disable an updater. Moves it from the active/inactive list to the other.
+    pub fn toggle_updater<T: UpdaterTrait>(&mut self, enabled: bool) -> Result<(), NucleusError> {
+        let mut maybe_index = None;
+
+        if enabled {
+            for (index, updater) in self.inactive_updaters.iter().enumerate() {
+                if updater.type_id() == TypeId::of::<T>() {
+                    maybe_index = Some(index);
+                }
+            }
+
+            if let Some(index) = maybe_index {
+                let updater = self.inactive_updaters.remove(index);
+
+                self.add_updater_with_ordering(updater)?;
+            }
+        } else {
+            for (index, updater) in self.active_updaters.iter().enumerate() {
+                if updater.type_id() == TypeId::of::<T>() {
+                    maybe_index = Some(index);
+                }
+            }
+
+            if let Some(index) = maybe_index {
+                let updater = self.active_updaters.remove(index);
+
+                // Don't care about the order inactive updaters are in.
+                self.inactive_updaters.push(updater);
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Add an updater back into the active updater list with its preferred ordering.
+    fn add_updater_with_ordering(
+        &mut self,
+        updater: Box<dyn UpdaterTrait>,
+    ) -> Result<(), NucleusError> {
+        match updater.ordering() {
+            UpdaterOrdering::AddToFront => {
+                unimplemented!("TODO not impl");
+            }
+            UpdaterOrdering::AddToEnd => {
+                // TODO: need logic in here to detect existing updaters.
+                self.active_updaters.push(updater);
+            }
+            UpdaterOrdering::Before(_type_id) => {
+                unimplemented!("TODO not impl");
+            }
+            UpdaterOrdering::After(_type_id) => {
+                unimplemented!("TODO not impl");
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn register_meta_updater<T: MetaUpdaterTrait>(&mut self) -> Result<(), NucleusError> {
+        // Add new state, but delay the registration until later to reduce annoyingness.
+        T::add_new_state(self.nucleus.clone(), self)?;
+        self.pending_meta_updaters.push(Box::new(T::register));
+
+        Ok(())
+    }
+
+    /// Enable or disable an updater. Moves it from the active/inactive list to the other.
+    pub fn toggle_meta_updater<T: MetaUpdaterTrait>(
+        &mut self,
+        enabled: bool,
+    ) -> Result<(), NucleusError> {
+        let mut maybe_index = None;
+
+        if enabled {
+            for (index, updater) in self.inactive_meta_updaters.iter().enumerate() {
+                if updater.type_id() == TypeId::of::<T>() {
+                    maybe_index = Some(index);
+                }
+            }
+
+            if let Some(index) = maybe_index {
+                let updater = self.inactive_meta_updaters.remove(index);
+
+                self.add_meta_updater_with_ordering(updater)?;
+            }
+        } else {
+            for (index, updater) in self.active_meta_updaters.iter().enumerate() {
+                if updater.type_id() == TypeId::of::<T>() {
+                    maybe_index = Some(index);
+                }
+            }
+
+            if let Some(index) = maybe_index {
+                let updater = self.active_meta_updaters.remove(index);
+
+                // Don't care about the order inactive updaters are in.
+                self.inactive_meta_updaters.push(updater);
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Add an updater back into the active updater list with its preferred ordering.
+    fn add_meta_updater_with_ordering(
+        &mut self,
+        updater: Box<dyn MetaUpdaterTrait>,
+    ) -> Result<(), NucleusError> {
+        match updater.ordering() {
+            UpdaterOrdering::AddToFront => {
+                unimplemented!("TODO not impl");
+            }
+            UpdaterOrdering::AddToEnd => {
+                self.active_meta_updaters.push(updater);
+            }
+            UpdaterOrdering::Before(_type_id) => {
+                unimplemented!("TODO not impl");
+            }
+            UpdaterOrdering::After(_type_id) => {
+                unimplemented!("TODO not impl");
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<(), NucleusError> {
+        // TODO: this changes per version of rust and the code itself.
         let type_id = state.type_id();
 
         if self.state.contains_key(&type_id) {
-            return Err(StateError::One);
+            return Err(NucleusError::One);
         }
 
         let state = State::new(state);
@@ -185,56 +361,91 @@ impl Runner {
         Ok(())
     }
 
-    pub fn get_state<T: StateTrait>(&self) -> Result<State<T>, StateError> {
+    pub fn get_state<T: StateTrait>(&self) -> Result<State<T>, NucleusError> {
         let type_id = TypeId::of::<T>();
 
-        Ok(State::from_rc(
-            self.state
-                .get(&type_id)
-                .unwrap()
-                .as_any()
-                .downcast_ref::<Rc<RefCell<T>>>()
-                .cloned()
-                .unwrap(),
-        ))
+        let Some(boxed_state) = self.state.get(&type_id) else {
+            return Err(NucleusError::One);
+        };
+
+        let Some(cloned_rc) = boxed_state
+            .as_any()
+            .downcast_ref::<Rc<RefCell<T>>>()
+            .cloned()
+        else {
+            return Err(NucleusError::Two);
+        };
+
+        Ok(State::from_rc(cloned_rc))
     }
 
-    fn first(&mut self) {
-        let register_updaters = std::mem::replace(&mut self.piss, Vec::new());
+    /// remove some state to disallow other updaters from acquiring it.
+    pub fn remove_state<T: StateTrait>(&mut self) -> Result<State<T>, NucleusError> {
+        let type_id = TypeId::of::<T>();
+
+        let Some(boxed_state) = self.state.remove(&type_id) else {
+            return Err(NucleusError::One);
+        };
+
+        let Some(cloned_rc) = boxed_state
+            .as_any()
+            .downcast_ref::<Rc<RefCell<T>>>()
+            .cloned()
+        else {
+            return Err(NucleusError::Two);
+        };
+
+        Ok(State::from_rc(cloned_rc))
+    }
+
+    fn first(&mut self) -> Result<(), NucleusError> {
+        let register_meta_updaters = std::mem::replace(&mut self.pending_meta_updaters, Vec::new());
+
+        for register_meta_updater in register_meta_updaters.into_iter() {
+            register_meta_updater(self.nucleus.clone(), self)?;
+        }
+
+        let active_meta_updaters = std::mem::replace(&mut self.active_meta_updaters, Vec::new());
+
+        for updater in active_meta_updaters.into_iter() {
+            updater.first(self.nucleus.clone(), self)?;
+            self.add_meta_updater_with_ordering(updater)?;
+        }
+
+        let register_updaters = std::mem::replace(&mut self.pending_updaters, Vec::new());
 
         for register_updater in register_updaters.into_iter() {
-            register_updater(self.nucleus.clone(), self);
+            register_updater(self.nucleus.clone(), self)?;
         }
 
-        let active_updaters = std::mem::replace(&mut self.active_updaters, BTreeMap::new());
+        let active_updaters = std::mem::replace(&mut self.active_updaters, Vec::new());
 
-        for (type_id, updater) in active_updaters.into_iter() {
-            updater.first(self.nucleus.clone(), self);
-            self.active_updaters.insert(type_id, updater);
+        for updater in active_updaters.into_iter() {
+            updater.first(self.nucleus.clone(), self)?;
+            self.add_updater_with_ordering(updater)?;
         }
+
+        Ok(())
     }
 
-    pub fn run(&mut self) {
-        self.first();
+    pub fn run(&mut self) -> Result<(), NucleusError> {
+        self.first()?;
 
         loop {
-            for active_updater in self.active_updaters.values_mut() {
-                active_updater.update();
+            // TODO: decide how to handle this double mutable borrow.
+            // for active_meta_updater in self.active_meta_updaters.iter_mut() {
+            //     active_meta_updater.update(self.nucleus.clone(), self);
+            // }
+            for active_updater in self.active_updaters.iter_mut() {
+                active_updater.update()?;
             }
         }
     }
 }
 
-pub enum RunnerError {
-    One,
-    Two,
-    Three,
-}
-
 pub struct Nucleus {
-    pub join_handles: Vec<JoinHandle<Result<(), RunnerError>>>,
-    pub pending_updater_functions: Vec<Box<dyn FnOnce(NucleusPtr)>>,
-    // pub shared_state: HashMap<TypeId, Box<dyn SharedStateTrait>>,
+    pub join_handles: Vec<JoinHandle<Result<(), NucleusError>>>,
+    pub shared_state: HashMap<TypeId, Box<dyn SharedStateTrait>>,
 }
 
 impl Nucleus {
@@ -242,7 +453,7 @@ impl Nucleus {
         NucleusPtr {
             nucleus: Arc::new(Mutex::new(Self {
                 join_handles: Vec::new(),
-                pending_updater_functions: Vec::new(),
+                shared_state: HashMap::new(),
             })),
         }
     }
@@ -267,17 +478,17 @@ unsafe impl Sync for NucleusPtr {}
 unsafe impl Send for NucleusPtr {}
 
 impl NucleusPtr {
-    pub fn add_runner(
+    pub fn add_thread(
         &self,
         // name: impl Into<String>,
-        runner_fn: impl FnOnce(NucleusPtr) -> Result<(), RunnerError> + Send + 'static,
+        thread_fn: impl FnOnce(NucleusPtr) -> Result<(), NucleusError> + Send + 'static,
     ) -> &Self {
         let nucleus_ptr = self.clone();
 
         if let Ok(mut nucleus) = nucleus_ptr.clone().lock() {
             nucleus
                 .join_handles
-                .push(std::thread::spawn(|| runner_fn(nucleus_ptr)));
+                .push(std::thread::spawn(|| thread_fn(nucleus_ptr)));
         }
 
         self
@@ -305,8 +516,6 @@ impl NucleusPtr {
                     }
                 }
             }
-
-            // TODO: do something with pending updaters?
 
             std::thread::sleep(Duration::from_secs(1));
         }

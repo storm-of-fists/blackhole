@@ -1,0 +1,57 @@
+# README
+
+Nucleus is a small, opinionated, Rust program framework.
+
+## Components
+
+Nucleus only has a few main parts
+
+### Nucleus
+
+The nucleus is a hub for all the other parts of the program. It contains the "shared" (multi-thread safe) state and JoinHandles to each thread. It monitors these threads and bails if any of them throws an error. A "NucleusPtr" is passed to each thread so they may access shared state and communicate. This is the only kind of "context" pointer in the framework.
+
+### Thread
+
+Each thread contains "state" and "updaters". State can be added, retrieved, or removed from the thread by updaters. The thread runs by looping over updaters until any of the updaters throws an error.
+
+### Updater/MetaUpdater
+
+Updaters manipulate state and "live" in a specific thread. They run in a deterministic order. They may be deactivated, activated, removed, and have their order changed. They have 4 "stages":
+
+1. Adding new state.
+1. Registering the updater into the framework.
+1. A "first" method with access to the updater state, nucleus, mutable access to the thread.
+1. A "update" method that can only access the state inside the updater.
+
+MetaUpdaters are very similar to Updaters, but allow access to the nucleus and thread during the "update" method. These allow for changing program "structure", such as adding/removing state and activating/deactivating/changing order of other updaters. Use these sparingly. If you do, test their behavior extensively.
+
+### State/SharedState
+
+This is any kind of data within a thread. It is stored as a map with the key being the TypeId of the state. The actual state struct State<T\> is a Rc<RefCell\<T>\>, but we only provide non-blocking access methods so users don't block the thread unintentionally.
+
+SharedState is stored in a map directly inside the nucleus. It also uses the TypeId as the key, but the struct SharedState<T\> is really a Arc<Mutex\<T>\>, so it can be used in multiple threads. Once again, struct SharedState only exposes non-blocking APIs. It is preferable to keep SharedState to a minimum to avoid performance penalties.
+
+## Philosophy
+
+I was inspired to make it because I want to do more projects in Rust, but frameworks in it were usually annoying or complex. I wanted something simpler. Here's what I was trying to avoid.
+
+- Async. After having used it, I just think it get's messy. If and match statements running in a loop can get similar functionality and I think it's easier to reason about.
+- Many lifecycle transitions. You can decide what states to add to your components, but
+"first" and "update" are all we use as "lifecycle" methods. Anything more and it get's very confusing and requires a lot of framework infrastructure.
+- Lots of use of "context" pointers. I think they're just ugly and confusing. All we ever want to do is access some state, so just be explicit about it.
+- Deeply nested or deeply composed state. I really dislike inheritance and I think composition can get annoying quickly. Keeping state nice and flat can make it easier to reason about the program.
+- Lot's and lot's of threads. Having many threads means needing to have lots and lots of shared state across those threads. That can be bad for cache performance and is generally annoying to reason about.
+- Built-in message passing. I think message passing can be fine, but if deep down it's going to require some shared state, might as well just work with it directly.
+
+### Chosen Unimplemented
+
+- Advanced scheduler for updaters
+- "Modding" system for runtime loading of new threads/updaters/state. I figured this is going to be very user dependent. I also didn't want to burden the central framework with it.
+
+## Benchmarks and Tests
+
+I also wanted the framework to be easily testable. Updaters can be enabled/disabled as needed. A user that wants to test a certain plugin can load it, then replace any updaters with their own test updaters.
+
+## Big Questions TODO
+
+- Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
