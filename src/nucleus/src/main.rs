@@ -21,16 +21,19 @@ impl StateTrait for Timing {
     }
 }
 
+#[derive(Debug)]
 pub struct LoopTimingUpdater {
     timing_data: State<Timing>,
 }
 
 impl UpdaterTrait for LoopTimingUpdater {
-    fn add_new_state(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
+    fn add_new_state(nucleus: NucleusPtr, state: State<StateRegistry>) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        thread.add_state(Timing {
+        let mut state_registry = state.try_get_mut().unwrap();
+
+        state_registry.add_state(Timing {
             start_of_loop: Instant::now(),
             desired_loop_duration: Duration::from_millis(100),
             loop_sleep_duration: Duration::from_millis(100),
@@ -39,15 +42,13 @@ impl UpdaterTrait for LoopTimingUpdater {
         Ok(())
     }
 
-    fn register(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
+    fn new(nucleus: NucleusPtr, thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized,
     {
-        thread.add_updater(Self {
+        Ok(Box::new(Self {
             timing_data: thread.get_state::<Timing>().unwrap(),
-        })?;
-
-        Ok(())
+        }))
     }
 
     fn update(&self) -> Result<(), NucleusError> {
@@ -74,16 +75,15 @@ impl UpdaterTrait for LoopTimingUpdater {
     }
 }
 
+#[derive(Debug)]
 pub struct OtherUpdater2 {}
 
 impl UpdaterTrait for OtherUpdater2 {
-    fn register(nucleus: NucleusPtr, thread: &mut Thread) -> Result<(), NucleusError>
+    fn new(nucleus: NucleusPtr, thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized,
     {
-        thread.add_updater(OtherUpdater2 {})?;
-
-        Ok(())
+        Ok(Box::new(OtherUpdater2 {}))
     }
 
     fn update(&self) -> Result<(), NucleusError> {

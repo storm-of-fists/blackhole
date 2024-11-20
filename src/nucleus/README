@@ -4,7 +4,7 @@ Nucleus is a small, opinionated, Rust program framework.
 
 ## Components
 
-Nucleus only has a few main parts
+Nucleus only has a few main parts.
 
 ### Nucleus
 
@@ -14,16 +14,18 @@ The nucleus is a hub for all the other parts of the program. It contains the "sh
 
 Each thread contains "state" and "updaters". State can be added, retrieved, or removed from the thread by updaters. The thread runs by looping over updaters until any of the updaters throws an error.
 
-### Updater/MetaUpdater
+### Updater
 
 Updaters manipulate state and "live" in a specific thread. They run in a deterministic order. They may be deactivated, activated, removed, and have their order changed. They have 4 "stages":
 
 1. Adding new state.
 1. Registering the updater into the framework.
 1. A "first" method with access to the updater state, nucleus, mutable access to the thread.
-1. A "update" method that can only access the state inside the updater.
+1. A "update" method that can only access the member variables inside the updater. These can be a mix of private data and program state.
 
-MetaUpdaters are very similar to Updaters, but allow access to the nucleus and thread during the "update" method. These allow for changing program "structure", such as adding/removing state and activating/deactivating/changing order of other updaters. Use these sparingly. If you do, test their behavior extensively.
+Each stage is fallible, and if any fails, the error is what is returned from the thread to nucleus and stops execution.
+
+In order to affect program structure at runtime, the updater can store a NucleusPtr and any of the shared access registries as member variables. During update, they can then add shared state or edit updater ordering. Use this pattern sparingly! Most of these so-called "Meta Updaters" should be inactive most of the program lifetime.
 
 ### State/SharedState
 
@@ -55,3 +57,4 @@ I also wanted the framework to be easily testable. Updaters can be enabled/disab
 ## Big Questions TODO
 
 - Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
+- How can I get ergonomic access to the thread and its internals? I don't want to pass it during update. Maybe I just do RcRefCellT like state. 
