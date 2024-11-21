@@ -29,7 +29,7 @@ In order to affect program structure at runtime, the updater can store a Nucleus
 
 ### State/SharedState
 
-This is any kind of data within a thread. It is stored as a map with the key being the TypeId of the state. The actual state struct State<T\> is a Rc<RefCell\<T>\>, but we only provide non-blocking access methods so users don't block the thread unintentionally.
+State is any kind of data within a thread. It is stored as a map with the key being the TypeId of the state. The actual state struct State<T\> is a Rc<RefCell\<T>\>, but we only provide non-blocking access methods so users don't block the thread unintentionally.
 
 SharedState is stored in a map directly inside the nucleus. It also uses the TypeId as the key, but the struct SharedState<T\> is really a Arc<Mutex\<T>\>, so it can be used in multiple threads. Once again, struct SharedState only exposes non-blocking APIs. It is preferable to keep SharedState to a minimum to avoid performance penalties.
 
@@ -57,4 +57,3 @@ I also wanted the framework to be easily testable. Updaters can be enabled/disab
 ## Big Questions TODO
 
 - Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
-- How can I get ergonomic access to the thread and its internals? I don't want to pass it during update. Maybe I just do RcRefCellT like state. 

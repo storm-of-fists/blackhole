@@ -1,0 +1,14 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "nucleus-macros"
+version = "0.1.0"
+edition = "2024"
+
+
+[dependencies]
+quote = "1.0.37"
+syn = "2.0.88"
+
+[lib]
+proc-macro = true

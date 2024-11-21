@@ -2,15 +2,18 @@
 #![feature(mpmc_channel)]
 
 use std::{
-    simd::Simd,
-    sync::{mpmc::{channel, Sender}, Mutex, RwLock},
-    cell::RefCell,
+    cell::{RefCell, UnsafeCell},
     rc::Rc,
+    simd::Simd,
+    sync::{
+        Mutex, RwLock,
+        mpmc::{Sender, channel},
+    },
     time::{Duration, Instant},
 };
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use nucleus::{State};
+use nucleus::State;
 use std::hint::black_box;
 
 // #[derive(Debug)]
@@ -154,15 +157,21 @@ impl SomeStruct {
     }
 }
 
+/// Based on this test with 100000 items, using refcell is maybe ~15 us slower than boxes.
+/// RefCell is 120 us slower than a raw pointer (gross!). Lets say, worst case, we had
+/// a game that was 120Hz. Thats about 8ms per frame. That 120us is 1.5% of the 8ms cycle we get.
+/// I dont think the overhead of refcell is all that high, but ill keep doing testing.
 fn refcell_item(c: &mut Criterion) {
     let mut non_refcell_items = Vec::new();
     let mut refcell_items = Vec::new();
+    let mut raw_ptr_items = Vec::new();
 
     for _ in 0..100000 {
         let data = SomeStruct::new();
 
         non_refcell_items.push(Box::new(data));
         refcell_items.push(Rc::new(RefCell::new(data)));
+        raw_ptr_items.push(UnsafeCell::new(data));
     }
 
     c.bench_function("non_refcell_items", |b| {
@@ -183,7 +192,16 @@ fn refcell_item(c: &mut Criterion) {
                         data.incr();
                     }
                 }
-                
+            });
+        })
+    });
+
+    c.bench_function("raw_ptr_items", |b| {
+        b.iter(|| {
+            black_box({
+                for data in raw_ptr_items.iter() {
+                    unsafe { data.get().as_mut().unwrap().incr(); }
+                }
             });
         })
     });
