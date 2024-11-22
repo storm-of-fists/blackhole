@@ -4,16 +4,10 @@
 use std::{
     cell::{RefCell, UnsafeCell},
     rc::Rc,
-    simd::Simd,
-    sync::{
-        Mutex, RwLock,
-        mpmc::{Sender, channel},
-    },
-    time::{Duration, Instant},
 };
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use nucleus::State;
+use nucleus::*;
 use std::hint::black_box;
 
 // #[derive(Debug)]
@@ -155,6 +149,13 @@ impl SomeStruct {
         self.two += 1;
         self.three += 1.0;
     }
+
+    #[inline(always)]
+    pub fn incr_inline(&mut self) {
+        self.one += 1.0;
+        self.two += 1;
+        self.three += 1.0;
+    }
 }
 
 /// Based on this test with 100000 items, using refcell is maybe ~15 us slower than boxes.
@@ -200,7 +201,74 @@ fn refcell_item(c: &mut Criterion) {
         b.iter(|| {
             black_box({
                 for data in raw_ptr_items.iter() {
-                    unsafe { data.get().as_mut().unwrap().incr(); }
+                    unsafe {
+                        data.get().as_mut().unwrap().incr();
+                    }
+                }
+            });
+        })
+    });
+}
+
+pub trait MyTrait {
+    fn some_function_call(&mut self);
+    fn some_function_call1(&mut self) {
+        ()
+    }
+    fn some_function_call2(&mut self) {
+        ()
+    }
+    fn some_function_call3(&mut self) {
+        ()
+    }
+}
+
+impl MyTrait for SomeStruct {
+    fn some_function_call(&mut self) {
+        self.one += 1.0;
+        self.two += 1;
+        self.three += 1.0;
+    }
+}
+
+fn dynamic_func_calls(c: &mut Criterion) {
+    let mut inline_calls = Vec::new();
+    let mut regular_calls = Vec::new();
+    let mut virtual_calls = Vec::new();
+
+    for _ in 0..1024 {
+        let data = SomeStruct::new();
+
+        inline_calls.push(data);
+        regular_calls.push(data);
+        virtual_calls.push(Box::new(data));
+    }
+
+    c.bench_function("inline_calls", |b| {
+        b.iter(|| {
+            black_box({
+                for data in inline_calls.iter_mut() {
+                    data.incr_inline();
+                }
+            });
+        })
+    });
+
+    c.bench_function("regular_calls", |b| {
+        b.iter(|| {
+            black_box({
+                for data in regular_calls.iter_mut() {
+                    data.incr();
+                }
+            });
+        })
+    });
+
+    c.bench_function("virtual_calls", |b| {
+        b.iter(|| {
+            black_box({
+                for data in virtual_calls.iter_mut() {
+                    data.some_function_call();
                 }
             });
         })
@@ -208,6 +276,6 @@ fn refcell_item(c: &mut Criterion) {
 }
 
 // criterion_group!(benches, getter_simd, direct_index_simd, no_simd_iterators);
-criterion_group!(benches, refcell_item);
+criterion_group!(benches, dynamic_func_calls);
 
 criterion_main!(benches);

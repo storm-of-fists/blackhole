@@ -178,66 +178,11 @@ macro_rules! wait_for_shared_state {
     };
 }
 
-pub trait UpdaterTrait: Any {
-    /// Add any new state the updater may require in here. This function
-    /// will be called for all updaters.
-    #[allow(clippy::unused_variable)]
-    fn add_new_state(
-        _shared_state: SharedState<SharedStateStore>,
-        _thread_state: State<StateStore>,
-    ) -> Result<(), NucleusError>
-    where
-        Self: Sized,
-    {
-        Ok(())
-    }
-
-    /// This function tells the system whether the updater should or should
-    /// not be used. You can do this based on state that exists.
-    /// TODO: delete
-    fn should_create(_thread: &Thread) -> bool
-    where
-        Self: Sized,
-    {
-        true
-    }
-
-    /// Register your updater. Feel free to
-    fn new(_thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
-    where
-        Self: Sized;
-
-    /// A one time function called after all updaters have been added to
-    /// the thread. This may block. All updaters will have their "first"
-    /// function called before entering the update loop.
-    fn first(&self, _thread: &Thread) -> Result<(), NucleusError> {
-        Ok(())
-    }
-
-    /// Don't pass in any context pointers because we want to only focus
-    /// on manipulating the state. Be careful blocking this function as it
-    /// will block the thread. Only special timing control updaters should
-    /// do any kind of sleeping.
-    fn update(&self) -> Result<(), NucleusError> {
-        Ok(())
-    }
-
-    /// Function called when updater is removed.
-    fn remove(&self) -> Result<(), NucleusError> {
-        Ok(())
-    }
-
-    /// what to run on app error and exit.
-    fn on_exit(&self) -> Result<(), NucleusError> {
-        Ok(())
-    }
-}
-
-pub struct StateStore {
+pub struct LocalStore {
     store: HashMap<TypeId, Box<dyn StateTrait>>,
 }
 
-impl StateStore {
+impl LocalStore {
     pub fn new() -> Self {
         Self {
             store: HashMap::new(),
@@ -305,11 +250,11 @@ impl StateStore {
     }
 }
 
-pub struct SharedStateStore {
+pub struct SharedStore {
     store: HashMap<TypeId, Box<dyn SharedStateTrait>>,
 }
 
-impl SharedStateStore {
+impl SharedStore {
     pub fn new() -> Self {
         Self {
             store: HashMap::new(),
@@ -373,6 +318,71 @@ impl SharedStateStore {
     }
 }
 
+pub struct StateStore {
+    pub shared: SharedState<SharedStore>,
+    pub local: State<LocalStore>,
+}
+
+impl StateStore {
+    pub fn new(shared_state: SharedState<SharedStore>) -> Self {
+        Self {
+            shared: shared_state,
+            local: State::new(LocalStore::new()),
+        }
+    }
+}
+
+pub trait UpdaterTrait: Any {
+    /// Add any new state the updater may require in here. This function
+    /// will be called for all updaters.
+    fn add_new_state(_state: &StateStore) -> Result<(), NucleusError>
+    where
+        Self: Sized,
+    {
+        Ok(())
+    }
+
+    /// This function tells the system whether the updater should or should
+    /// not be used. You can do this based on state that exists.
+    /// TODO: delete
+    fn should_create(_thread: &Thread) -> bool
+    where
+        Self: Sized,
+    {
+        true
+    }
+
+    /// Register your updater. Feel free to
+    fn new(_thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    where
+        Self: Sized;
+
+    /// A one time function called after all updaters have been added to
+    /// the thread. This may block. All updaters will have their "first"
+    /// function called before entering the update loop.
+    fn first(&self, _thread: &Thread) -> Result<(), NucleusError> {
+        Ok(())
+    }
+
+    /// Don't pass in any context pointers because we want to only focus
+    /// on manipulating the state. Be careful blocking this function as it
+    /// will block the thread. Only special timing control updaters should
+    /// do any kind of sleeping.
+    fn update(&self) -> Result<(), NucleusError> {
+        Ok(())
+    }
+
+    /// Function called when updater is removed.
+    fn remove(&self) -> Result<(), NucleusError> {
+        Ok(())
+    }
+
+    /// what to run on app error and exit.
+    fn on_exit(&self) -> Result<(), NucleusError> {
+        Ok(())
+    }
+}
+
 type UpdaterNewFn = Box<dyn FnOnce(&Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>>;
 
 pub enum UpdaterControlMessage {
@@ -396,133 +406,70 @@ impl UpdaterControl {
     }
 }
 
-pub struct Thread {
-    pub shared_state: SharedState<SharedStateStore>,
-    pub local_state: State<StateStore>,
-    // TODO: hm, I confused myself writing some stuff earlier, this feels odd.
-    // maybe it needs to be inside local_state.
-    pub updater_control: State<UpdaterControl>,
-    updaters: Vec<Box<dyn UpdaterTrait>>,
+pub struct UpdaterStore {
+    list: Vec<Box<dyn UpdaterTrait>>,
+    control: State<UpdaterControl>,
 }
 
-impl Thread {
-    pub fn new(shared_state: SharedState<SharedStateStore>) -> Self {
-        Self {
-            shared_state,
-            local_state: State::new(StateStore::new()),
-            updater_control: State::new(UpdaterControl::new()),
-            updaters: Vec::new(),
-        }
+impl UpdaterStore {
+    pub fn new(state: &StateStore) -> Result<Self, NucleusError> {
+        let mut local_state = state.local.get_mut()?;
+        local_state.add_state(UpdaterControl::new());
+
+        Ok(Self {
+            list: Vec::new(),
+            control: local_state.get_state::<UpdaterControl>()?,
+        })
     }
 
-    pub fn add_updater<T: UpdaterTrait>(&self) -> Result<(), NucleusError> {
-        let mut updater_control = self.updater_control.get_mut()?;
-
-        T::add_new_state(self.shared_state.clone(), self.local_state.clone())?;
-
-        updater_control
-            .message_queue
-            .push(UpdaterControlMessage::AddUpdaterToEnd(Box::new(T::new)));
+    pub fn add_updater_to_start(
+        &mut self,
+        updater: Box<dyn UpdaterTrait>,
+    ) -> Result<(), NucleusError> {
+        self.list.insert(0, updater);
 
         Ok(())
     }
 
-    /// I'd honestly like if this fit into the updater/state scheme, but
-    /// we would run into double mutable access during the update loop.
-    /// As in, if we had updaters = State<Updaters>, then any time we
-    /// loop, we would do updaters.get()?, then iterate over them and call "update".
-    /// But any updater attempting to mutate updaters would then do updaters.get_mut()
-    /// itself and hit the double access.
-    fn manage_control_messages(&mut self) -> Result<(), NucleusError> {
-        let mut updater_control = self.updater_control.get_mut()?;
+    pub fn add_updater_to_end(
+        &mut self,
+        updater: Box<dyn UpdaterTrait>,
+    ) -> Result<(), NucleusError> {
+        self.list.push(updater);
 
-        let control_messages = std::mem::replace(&mut updater_control.message_queue, Vec::new());
+        Ok(())
+    }
 
-        for control_message in control_messages.into_iter() {
-            match control_message {
-                UpdaterControlMessage::AddUpdaterToStart(new_fn) => {
-                    self.updaters.insert(0, new_fn(&self)?);
-                }
-                UpdaterControlMessage::AddUpdaterToEnd(new_fn) => {
-                    self.updaters.push(new_fn(&self)?);
-                }
-                UpdaterControlMessage::AddUpdaterBefore(
-                    move_updater_type_id,
-                    before_updater_type_id,
-                ) => {
-                    let mut maybe_before_index = None;
-                    let mut maybe_move_index = None;
+    pub fn move_updater_before_other(
+        &mut self,
+        before_updater_type_id: TypeId,
+        move_updater_type_id: TypeId,
+    ) -> Result<(), NucleusError> {
+        let mut maybe_before_index = None;
+        let mut maybe_move_index = None;
 
-                    for (index, updater) in self.updaters.iter().enumerate() {
-                        if maybe_move_index.is_some() && maybe_before_index.is_some() {
-                            break;
-                        }
+        for (index, updater) in self.list.iter().enumerate() {
+            if maybe_move_index.is_some() && maybe_before_index.is_some() {
+                break;
+            }
 
-                        if (**updater).type_id() == before_updater_type_id {
-                            maybe_before_index = Some(index);
-                        }
+            if (**updater).type_id() == before_updater_type_id {
+                maybe_before_index = Some(index);
+            }
 
-                        if (**updater).type_id() == move_updater_type_id {
-                            maybe_move_index = Some(index);
-                        }
-                    }
+            if (**updater).type_id() == move_updater_type_id {
+                maybe_move_index = Some(index);
+            }
+        }
 
-                    if let Some(before_index) = maybe_before_index {
-                        if let Some(move_index) = maybe_move_index {
-                            let move_updater = self.updaters.remove(move_index);
+        if let Some(before_index) = maybe_before_index {
+            if let Some(move_index) = maybe_move_index {
+                let move_updater = self.list.remove(move_index);
 
-                            if before_index == 0 {
-                                self.updaters.insert(0, move_updater);
-                            } else {
-                                self.updaters.insert(before_index - 1, move_updater);
-                            }
-                        }
-                    }
-                }
-                UpdaterControlMessage::AddUpdaterAfter(
-                    move_updater_type_id,
-                    after_updater_type_id,
-                ) => {
-                    let mut maybe_after_index = None;
-                    let mut maybe_move_index = None;
-
-                    for (index, updater) in self.updaters.iter().enumerate() {
-                        if maybe_move_index.is_some() && maybe_after_index.is_some() {
-                            break;
-                        }
-
-                        if (**updater).type_id() == after_updater_type_id {
-                            maybe_after_index = Some(index);
-                        }
-
-                        if (**updater).type_id() == move_updater_type_id {
-                            maybe_move_index = Some(index);
-                        }
-                    }
-
-                    if let Some(before_index) = maybe_after_index {
-                        if let Some(move_index) = maybe_move_index {
-                            let move_updater = self.updaters.remove(move_index);
-
-                            self.updaters.insert(before_index + 1, move_updater);
-                        }
-                    }
-                }
-                UpdaterControlMessage::RemoveUpdater(type_id) => {
-                    let mut maybe_index = None;
-
-                    for (index, updater) in self.updaters.iter().enumerate() {
-                        if (**updater).type_id() == type_id {
-                            maybe_index = Some(index);
-                            break;
-                        }
-                    }
-
-                    if let Some(index) = maybe_index {
-                        let updater = self.updaters.remove(index);
-
-                        updater.remove()?;
-                    }
+                if before_index == 0 {
+                    self.list.insert(0, move_updater);
+                } else {
+                    self.list.insert(before_index - 1, move_updater);
                 }
             }
         }
@@ -530,29 +477,80 @@ impl Thread {
         Ok(())
     }
 
-    fn first(&mut self) -> Result<(), NucleusError> {
-        self.manage_control_messages()?;
+    pub fn move_updater_after_other(
+        &mut self,
+        after_updater_type_id: TypeId,
+        move_updater_type_id: TypeId,
+    ) -> Result<(), NucleusError> {
+        let mut maybe_after_index = None;
+        let mut maybe_move_index = None;
 
-        let updaters_len = self.updaters.len();
+        for (index, updater) in self.list.iter().enumerate() {
+            if maybe_move_index.is_some() && maybe_after_index.is_some() {
+                break;
+            }
 
-        let updaters = std::mem::replace(&mut self.updaters, Vec::with_capacity(updaters_len));
+            if (**updater).type_id() == after_updater_type_id {
+                maybe_after_index = Some(index);
+            }
 
-        for updater in updaters.into_iter() {
-            updater.first(self)?;
-            self.updaters.push(updater);
+            if (**updater).type_id() == move_updater_type_id {
+                maybe_move_index = Some(index);
+            }
+        }
+
+        if let Some(before_index) = maybe_after_index {
+            if let Some(move_index) = maybe_move_index {
+                let move_updater = self.list.remove(move_index);
+
+                self.list.insert(before_index + 1, move_updater);
+            }
         }
 
         Ok(())
     }
 
-    fn update(&mut self) -> Result<(), NucleusError> {
-        self.manage_control_messages()?;
+    pub fn remove_updater(&mut self, type_id: TypeId) -> Result<(), NucleusError> {
+        let mut maybe_index = None;
 
-        for updater in self.updaters.iter() {
-            // TODO: Maybe we should have some State that collects errors and a default Updater
-            // that crashes out, but could be replaced/removed.
-            updater.update()?;
+        for (index, updater) in self.list.iter().enumerate() {
+            if (**updater).type_id() == type_id {
+                maybe_index = Some(index);
+                break;
+            }
         }
+
+        if let Some(index) = maybe_index {
+            let updater = self.list.remove(index);
+
+            updater.remove()?;
+        }
+
+        Ok(())
+    }
+}
+
+pub struct Thread {
+    pub state: StateStore,
+    pub updaters: UpdaterStore,
+}
+
+impl Thread {
+    pub fn new(shared_state: SharedState<SharedStore>) -> Result<Self, NucleusError> {
+        let state = StateStore::new(shared_state);
+        let updaters = UpdaterStore::new(&state)?;
+
+        Ok(Self { state, updaters })
+    }
+
+    pub fn add_updater<T: UpdaterTrait>(&self) -> Result<(), NucleusError> {
+        let mut updater_control = self.updaters.control.get_mut()?;
+
+        T::add_new_state(&self.state)?;
+
+        updater_control
+            .message_queue
+            .push(UpdaterControlMessage::AddUpdaterToEnd(Box::new(T::new)));
 
         Ok(())
     }
@@ -564,18 +562,91 @@ impl Thread {
             self.update()?;
         }
     }
+
+    /// I'd honestly like if this fit into the updater/state scheme, but
+    /// we would run into double mutable access during the update loop.
+    /// As in, if we had updaters = State<Updaters>, then any time we
+    /// loop, we would do updaters.get()?, then iterate over them and call "update".
+    /// But any updater attempting to mutate updaters would then do updaters.get_mut()
+    /// itself and hit the double access.
+    fn manage_control_messages(&mut self) -> Result<(), NucleusError> {
+        let mut updater_control = self.updaters.control.get_mut()?;
+
+        let control_messages = std::mem::replace(&mut updater_control.message_queue, Vec::new());
+
+        drop(updater_control);
+
+        for control_message in control_messages.into_iter() {
+            match control_message {
+                UpdaterControlMessage::AddUpdaterToStart(new_fn) => {
+                    self.updaters.add_updater_to_start(new_fn(&self)?);
+                }
+                UpdaterControlMessage::AddUpdaterToEnd(new_fn) => {
+                    self.updaters.add_updater_to_end(new_fn(&self)?);
+                }
+                UpdaterControlMessage::AddUpdaterBefore(
+                    move_updater_type_id,
+                    before_updater_type_id,
+                ) => {
+                    self.updaters
+                        .move_updater_before_other(before_updater_type_id, move_updater_type_id)?;
+                }
+                UpdaterControlMessage::AddUpdaterAfter(
+                    move_updater_type_id,
+                    after_updater_type_id,
+                ) => {
+                    self.updaters
+                        .move_updater_after_other(after_updater_type_id, move_updater_type_id)?;
+                }
+                UpdaterControlMessage::RemoveUpdater(type_id) => {
+                    self.updaters.remove_updater(type_id)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn first(&mut self) -> Result<(), NucleusError> {
+        self.manage_control_messages()?;
+
+        let updaters_len = self.updaters.list.len();
+
+        let updaters = std::mem::replace(&mut self.updaters.list, Vec::with_capacity(updaters_len));
+
+        for updater in updaters.into_iter() {
+            updater.first(self)?;
+            self.updaters.add_updater_to_end(updater);
+        }
+
+        Ok(())
+    }
+
+    fn update(&mut self) -> Result<(), NucleusError> {
+        self.manage_control_messages()?;
+
+        for updater in self.updaters.list.iter() {
+            // TODO: Maybe we should have some State that collects errors and a default Updater
+            // that crashes out, but could be replaced/removed.
+            // TOOD: maybe if the updater errors, we simply remove that updater from the list?
+            // Then we can add other updaters to manage how we fix the issue.
+            updater.update()?;
+        }
+
+        Ok(())
+    }
 }
 
 pub struct Nucleus {
     pub thread: Thread,
-    pub shared_state: SharedState<SharedStateStore>,
+    pub shared_state: SharedState<SharedStore>,
 }
 
 impl Nucleus {
     pub fn new() -> Result<Self, NucleusError> {
-        let shared_state = SharedState::new(SharedStateStore::new());
+        let shared_state = SharedState::new(SharedStore::new());
         let nucleus = Self {
-            thread: Thread::new(shared_state.clone()),
+            thread: Thread::new(shared_state.clone())?,
             shared_state,
         };
 
