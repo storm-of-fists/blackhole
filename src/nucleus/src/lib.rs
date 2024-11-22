@@ -345,7 +345,7 @@ pub trait UpdaterTrait: Any {
     /// This function tells the system whether the updater should or should
     /// not be used. You can do this based on state that exists.
     /// TODO: delete
-    fn should_create(_thread: &Thread) -> bool
+    fn should_create(_thread: &Nucleus) -> bool
     where
         Self: Sized,
     {
@@ -353,14 +353,14 @@ pub trait UpdaterTrait: Any {
     }
 
     /// Register your updater. Feel free to
-    fn new(_thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(_thread: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized;
 
     /// A one time function called after all updaters have been added to
     /// the thread. This may block. All updaters will have their "first"
     /// function called before entering the update loop.
-    fn first(&self, _thread: &Thread) -> Result<(), NucleusError> {
+    fn first(&self, _thread: &Nucleus) -> Result<(), NucleusError> {
         Ok(())
     }
 
@@ -383,7 +383,7 @@ pub trait UpdaterTrait: Any {
     }
 }
 
-type UpdaterNewFn = Box<dyn FnOnce(&Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>>;
+type UpdaterNewFn = Box<dyn FnOnce(&Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>>;
 
 pub enum UpdaterControlMessage {
     AddUpdaterBefore(TypeId, TypeId),
@@ -407,14 +407,15 @@ impl UpdaterControl {
 }
 
 pub struct UpdaterStore {
-    list: Vec<Box<dyn UpdaterTrait>>,
-    control: State<UpdaterControl>,
+    pub list: Vec<Box<dyn UpdaterTrait>>,
+    pub control: State<UpdaterControl>,
 }
 
 impl UpdaterStore {
     pub fn new(state: &StateStore) -> Result<Self, NucleusError> {
         let mut local_state = state.local.get_mut()?;
-        local_state.add_state(UpdaterControl::new());
+
+        local_state.add_state(UpdaterControl::new())?;
 
         Ok(Self {
             list: Vec::new(),
@@ -530,12 +531,16 @@ impl UpdaterStore {
     }
 }
 
-pub struct Thread {
+pub struct Nucleus {
     pub state: StateStore,
     pub updaters: UpdaterStore,
 }
 
-impl Thread {
+impl Nucleus {
+    pub fn with_shared_state() -> Result<Self, NucleusError> {
+        Self::new(SharedState::new(SharedStore::new()))
+    }
+
     pub fn new(shared_state: SharedState<SharedStore>) -> Result<Self, NucleusError> {
         let state = StateStore::new(shared_state);
         let updaters = UpdaterStore::new(&state)?;
@@ -579,10 +584,10 @@ impl Thread {
         for control_message in control_messages.into_iter() {
             match control_message {
                 UpdaterControlMessage::AddUpdaterToStart(new_fn) => {
-                    self.updaters.add_updater_to_start(new_fn(&self)?);
+                    self.updaters.add_updater_to_start(new_fn(&self)?)?;
                 }
                 UpdaterControlMessage::AddUpdaterToEnd(new_fn) => {
-                    self.updaters.add_updater_to_end(new_fn(&self)?);
+                    self.updaters.add_updater_to_end(new_fn(&self)?)?;
                 }
                 UpdaterControlMessage::AddUpdaterBefore(
                     move_updater_type_id,
@@ -607,7 +612,7 @@ impl Thread {
         Ok(())
     }
 
-    fn first(&mut self) -> Result<(), NucleusError> {
+    pub fn first(&mut self) -> Result<(), NucleusError> {
         self.manage_control_messages()?;
 
         let updaters_len = self.updaters.list.len();
@@ -616,13 +621,13 @@ impl Thread {
 
         for updater in updaters.into_iter() {
             updater.first(self)?;
-            self.updaters.add_updater_to_end(updater);
+            self.updaters.add_updater_to_end(updater)?;
         }
 
         Ok(())
     }
 
-    fn update(&mut self) -> Result<(), NucleusError> {
+    pub fn update(&mut self) -> Result<(), NucleusError> {
         self.manage_control_messages()?;
 
         for updater in self.updaters.list.iter() {
@@ -634,36 +639,5 @@ impl Thread {
         }
 
         Ok(())
-    }
-}
-
-pub struct Nucleus {
-    pub thread: Thread,
-    pub shared_state: SharedState<SharedStore>,
-}
-
-impl Nucleus {
-    pub fn new() -> Result<Self, NucleusError> {
-        let shared_state = SharedState::new(SharedStore::new());
-        let nucleus = Self {
-            thread: Thread::new(shared_state.clone())?,
-            shared_state,
-        };
-
-        Ok(nucleus)
-    }
-}
-
-impl Deref for Nucleus {
-    type Target = Thread;
-
-    fn deref(&self) -> &Self::Target {
-        &self.thread
-    }
-}
-
-impl DerefMut for Nucleus {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.thread
     }
 }

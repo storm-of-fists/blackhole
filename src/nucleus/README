@@ -1,49 +1,38 @@
 # README
 
-Nucleus is a small, opinionated, Rust program framework.
+Nucleus is a small, opinionated, Rust framework meant to standardize program state and its modification.
 
-## Components
+## Parts
 
-Nucleus only has a few main parts.
+Nucleus has 3 major parts: Nucleus, State, and Updater. A Nucleus contains stores for state and updaters. State contains program data. Updaters manipulate state or other updaters.
 
 ### Nucleus
 
-The nucleus is a hub for all the other parts of the program. It contains the "shared" (multi-thread safe) state and JoinHandles to each thread. It monitors these threads and bails if any of them throws an error. A "NucleusPtr" is passed to each thread so they may access shared state and communicate. This is the only kind of "context" pointer in the framework.
+The nucleus is where you start your program. Usually the only two things you do to the nucleus directly are adding updaters and running the nucleus. The nucleus "runs" by looping over each updater continuously.
 
-### Thread
+### State
 
-Each thread contains "state" and "updaters". State can be added, retrieved, or removed from the thread by updaters. The thread runs by looping over updaters until any of the updaters throws an error.
+State is added/acquired/removed from a StateStore. You can register "thread-local state" or "shared state" that can be accessed across thread boundaries. State is a thin wrapper around Rc<RefCell\<T>\>, providing only specific APIs to prevent blocking. Shared state is a thin wrapper around Arc<Mutex\<T>\>.
+
+State and shared state are stored in their own HashMaps, with the key being their TypeId's. If multithreading is added to your program, each new nucleus that is spawned will get a copy of the shared state created by the first nucleus.
 
 ### Updater
 
-Updaters manipulate state and "live" in a specific thread. They run in a deterministic order. They may be deactivated, activated, removed, and have their order changed. They have 4 "stages":
-
-1. Adding new state.
-1. Registering the updater into the framework.
-1. A "first" method with access to the updater state, nucleus, mutable access to the thread.
-1. A "update" method that can only access the member variables inside the updater. These can be a mix of private data and program state.
-
-Each stage is fallible, and if any fails, the error is what is returned from the thread to nucleus and stops execution.
-
-In order to affect program structure at runtime, the updater can store a NucleusPtr and any of the shared access registries as member variables. During update, they can then add shared state or edit updater ordering. Use this pattern sparingly! Most of these so-called "Meta Updaters" should be inactive most of the program lifetime.
-
-### State/SharedState
-
-State is any kind of data within a thread. It is stored as a map with the key being the TypeId of the state. The actual state struct State<T\> is a Rc<RefCell\<T>\>, but we only provide non-blocking access methods so users don't block the thread unintentionally.
-
-SharedState is stored in a map directly inside the nucleus. It also uses the TypeId as the key, but the struct SharedState<T\> is really a Arc<Mutex\<T>\>, so it can be used in multiple threads. Once again, struct SharedState only exposes non-blocking APIs. It is preferable to keep SharedState to a minimum to avoid performance penalties.
+Updaters are trait objects stored in a vector. Each contains only a State or SharedState of what they need for their update method.
 
 ## Philosophy
 
-I was inspired to make it because I want to do more projects in Rust, but frameworks in it were usually annoying or complex. I wanted something simpler. Here's what I was trying to avoid.
+I was inspired to make it because I want to do more projects in Rust, but I wanted a "simple at its core" framework.
 
-- Async. After having used it, I just think it get's messy. If and match statements running in a loop can get similar functionality and I think it's easier to reason about.
-- Many lifecycle transitions. You can decide what states to add to your components, but
-"first" and "update" are all we use as "lifecycle" methods. Anything more and it get's very confusing and requires a lot of framework infrastructure.
-- Lots of use of "context" pointers. I think they're just ugly and confusing. All we ever want to do is access some state, so just be explicit about it.
-- Deeply nested or deeply composed state. I really dislike inheritance and I think composition can get annoying quickly. Keeping state nice and flat can make it easier to reason about the program.
-- Lot's and lot's of threads. Having many threads means needing to have lots and lots of shared state across those threads. That can be bad for cache performance and is generally annoying to reason about.
-- Built-in message passing. I think message passing can be fine, but if deep down it's going to require some shared state, might as well just work with it directly.
+I was trying to avoid:
+
+- Async.
+- Complicated updater scheduling/lifecycle.
+- Context pointers.
+- Deeply nested or deeply composed state.
+- Hidden state.
+- Message passing.
+- Abstraction of the work cycle.
 
 ### Chosen Unimplemented
 
@@ -54,6 +43,6 @@ I was inspired to make it because I want to do more projects in Rust, but framew
 
 I also wanted the framework to be easily testable. Updaters can be enabled/disabled as needed. A user that wants to test a certain plugin can load it, then replace any updaters with their own test updaters.
 
-## Big Questions TODO
+## Open Questions
 
-- Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
+1. Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.

@@ -275,7 +275,106 @@ fn dynamic_func_calls(c: &mut Criterion) {
     });
 }
 
+#[derive(StateTrait)]
+pub struct LocalStateTest {
+    number: f32,
+    string: String,
+    vec: Vec<u64>,
+}
+
+macro_rules! many_updaters {
+    ($($id:ident),*) => {
+        $(
+            pub struct $id {
+                state: State<LocalStateTest>
+            }
+
+            impl UpdaterTrait for $id {
+                fn new(thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+                where
+                    Self: Sized,
+                {
+                    let local_state = thread.state.local.get_mut()?;
+
+                    Ok(Box::new($id {
+                        state: local_state.get_state::<LocalStateTest>()?
+                    }))
+                }
+
+                fn update(&self) -> Result<(), NucleusError> {
+                    let mut state = self.state.get_mut()?;
+
+                    // state.number += 1.0;
+                    // state.string.push('c');
+                    state.vec.push(10);
+
+                    Ok(())
+                }
+            }
+        )*
+    };
+}
+
+many_updaters!(
+    Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10, Test11, Test12,
+    Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21, Test22, Test23, Test24,
+    Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32, Test33, Test34, Test35, Test36,
+    Test37, Test38, Test39, Test40, Test41, Test42, Test43, Test44, Test45, Test46, Test47, Test48,
+    Test49, Test50, Test51, Test52, Test53, Test54, Test55, Test56, Test57, Test58, Test59, Test60,
+    Test61, Test62, Test63, Test64, Test65, Test66, Test67, Test68, Test69, Test70, Test71, Test72,
+    Test73, Test74, Test75, Test76, Test77, Test78, Test79, Test80, Test81, Test82, Test83, Test84,
+    Test85, Test86, Test87, Test88, Test89, Test90, Test91, Test92, Test93, Test94, Test95, Test96,
+    Test97, Test98, Test99
+);
+
+macro_rules! add_updaters {
+    ($nucleus:expr, $($id:ident),*) => {
+        $(
+            $nucleus.add_updater::<$id>().unwrap();
+        )*
+    };
+}
+
+fn many_updaters(c: &mut Criterion) {
+    let mut nucleus = Nucleus::with_shared_state().unwrap();
+
+    let mut local_state = nucleus.state.local.get_mut().unwrap();
+
+    local_state
+        .add_state(LocalStateTest {
+            number: 0.0,
+            string: String::new(),
+            vec: Vec::new(),
+        })
+        .unwrap();
+
+    drop(local_state);
+
+    add_updaters!(
+        nucleus, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10,
+        Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21,
+        Test22, Test23, Test24, Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32,
+        Test33, Test34, Test35, Test36, Test37, Test38, Test39, Test40, Test41, Test42, Test43,
+        Test44, Test45, Test46, Test47, Test48, Test49, Test50, Test51, Test52, Test53, Test54,
+        Test55, Test56, Test57, Test58, Test59, Test60, Test61, Test62, Test63, Test64, Test65,
+        Test66, Test67, Test68, Test69, Test70, Test71, Test72, Test73, Test74, Test75, Test76,
+        Test77, Test78, Test79, Test80, Test81, Test82, Test83, Test84, Test85, Test86, Test87,
+        Test88, Test89, Test90, Test91, Test92, Test93, Test94, Test95, Test96, Test97, Test98,
+        Test99
+    );
+
+    nucleus.first().unwrap();
+
+    c.bench_function("many_updaters", |b| {
+        b.iter(|| {
+            black_box({
+                nucleus.update().unwrap();
+            });
+        })
+    });
+}
+
 // criterion_group!(benches, getter_simd, direct_index_simd, no_simd_iterators);
-criterion_group!(benches, dynamic_func_calls);
+criterion_group!(benches, many_updaters);
 
 criterion_main!(benches);

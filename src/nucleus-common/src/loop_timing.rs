@@ -1,6 +1,5 @@
 use nucleus::*;
 use std::time::{Duration, Instant};
-use crate::logging::Logging;
 
 #[derive(StateTrait)]
 pub struct LoopTiming {
@@ -11,7 +10,6 @@ pub struct LoopTiming {
 
 pub struct LoopTimingManager {
     timing_data: State<LoopTiming>,
-    log: State<Logging>,
 }
 
 impl UpdaterTrait for LoopTimingManager {
@@ -41,20 +39,16 @@ impl UpdaterTrait for LoopTimingManager {
 
         Ok(Box::new(Self {
             timing_data: local_state.get_state::<LoopTiming>()?,
-            log: local_state.get_state::<Logging>()?,
         }))
     }
 
     fn update(&self) -> Result<(), NucleusError> {
         let mut timing_data = self.timing_data.get_mut()?;
-        let mut log = self.log.get_mut()?;
 
         let start_of_previous_loop =
             std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
 
         let elapsed_since_last_loop = start_of_previous_loop.elapsed();
-
-        log.log(&format!("loop duration {:?}", elapsed_since_last_loop));
 
         let desired_loop_duration = timing_data.desired_loop_duration;
 
@@ -68,8 +62,6 @@ impl UpdaterTrait for LoopTimingManager {
             let adjustment = desired_loop_duration - elapsed_since_last_loop;
             timing_data.loop_sleep_duration += adjustment;
         }
-
-        log.log(&format!("loop sleep duration {:?}", timing_data.loop_sleep_duration));
 
         std::thread::sleep(timing_data.loop_sleep_duration);
 

@@ -7,8 +7,9 @@ use std::{
 
 use nucleus::*;
 use nucleus_common::{
-    logging::{Logging, LoggingManager},
+    // logging::{Logging, LoggingManager},
     loop_timing::{LoopTiming, LoopTimingManager},
+    thread_manager::{ThreadManager, ThreadRequest},
 };
 
 #[derive(SharedStateTrait)]
@@ -82,10 +83,17 @@ impl UpdaterTrait for SharedUpdater1 {
     }
 }
 
+fn fun_thread(shared_state: SharedState<SharedStateStore>) -> Result<(), NucleusError> {
+    println!("starting fun thread!");
+    let mut thread = Thread::new(shared_state);
+    thread.add_updater::<LoopTimingManager>()?;
+    thread.run()
+}
+
 pub struct SharedUpdater2 {
     shared_state: SharedState<SomeSharedState>,
     timing: State<LoopTiming>,
-    log: State<Logging>,
+    thread_requests: SharedState<ThreadRequest>,
 }
 
 impl UpdaterTrait for SharedUpdater2 {
@@ -106,13 +114,13 @@ impl UpdaterTrait for SharedUpdater2 {
         Ok(Box::new(SharedUpdater2 {
             timing: local_state.get_state::<LoopTiming>()?,
             shared_state: shared_state.get_state::<SomeSharedState>()?,
-            log: local_state.get_state::<Logging>()?,
+            thread_requests: shared_state.get_state::<ThreadRequest>()?,
         }))
     }
 
     fn first(&self, thread: &Thread) -> Result<(), NucleusError> {
         let mut updater_control = thread.updater_control.get_mut()?;
-        let mut log = self.log.get_mut()?;
+        let mut thread_requests = self.thread_requests.blocking_get()?;
 
         updater_control
             .message_queue
@@ -120,33 +128,22 @@ impl UpdaterTrait for SharedUpdater2 {
                 SharedUpdater2,
             >()));
 
-        log.log("shared updater 2 first!");
+        thread_requests.add_thread(fun_thread);
 
         Ok(())
     }
 
     fn update(&self) -> Result<(), NucleusError> {
-        let mut log = self.log.get_mut()?;
         let Ok(mut shared_state) = self.shared_state.get() else {
             self.timing.get_mut()?.loop_sleep_duration += Duration::from_millis(5);
 
             return Ok(());
         };
 
-        log.log("shared updater 2 updater!");
-
         if shared_state.ready_for_work {
             shared_state.number -= 1.0;
             shared_state.ready_for_work = false;
         }
-
-        Ok(())
-    }
-
-    fn remove(&self) -> Result<(), NucleusError> {
-        let mut log = self.log.get_mut()?;
-
-        log.log("updater 2 removed!");
 
         Ok(())
     }
@@ -157,7 +154,7 @@ fn main() -> Result<(), NucleusError> {
     nucleus.add_updater::<LoopTimingManager>()?;
     nucleus.add_updater::<SharedUpdater1>()?;
     nucleus.add_updater::<SharedUpdater2>()?;
-    nucleus.add_updater::<LoggingManager>()?;
+    nucleus.add_updater::<ThreadManager>()?;
 
     nucleus.run()
 }
