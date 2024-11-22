@@ -1,0 +1,67 @@
+use nucleus::*;
+use std::time::{Duration, Instant};
+
+#[derive(StateTrait)]
+pub struct LoopTiming {
+    pub start_of_loop: Instant,
+    pub desired_loop_duration: Duration,
+    pub loop_sleep_duration: Duration,
+}
+
+pub struct LoopTimingManager {
+    timing_data: State<LoopTiming>,
+}
+
+impl UpdaterTrait for LoopTimingManager {
+    fn add_new_state(state: &StateStore) -> Result<(), NucleusError>
+    where
+        Self: Sized,
+    {
+        let mut thread_state = state.local.get_mut()?;
+
+        thread_state.add_state(LoopTiming {
+            start_of_loop: Instant::now(),
+            desired_loop_duration: Duration::from_millis(100),
+            loop_sleep_duration: Duration::from_millis(100),
+        })?;
+
+        Ok(())
+    }
+
+    fn new(nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    where
+        Self: Sized,
+    {
+        let local_state = nucleus.state.local.get_mut()?;
+
+        Ok(Box::new(Self {
+            timing_data: local_state.get_state::<LoopTiming>()?,
+        }))
+    }
+
+    fn update(&self) -> Result<(), NucleusError> {
+        let mut timing_data = self.timing_data.get_mut()?;
+
+        let start_of_previous_loop =
+            std::mem::replace(&mut timing_data.start_of_loop, Instant::now());
+
+        let elapsed_since_last_loop = start_of_previous_loop.elapsed();
+
+        let desired_loop_duration = timing_data.desired_loop_duration;
+
+        if elapsed_since_last_loop > desired_loop_duration {
+            let mut adjustment = elapsed_since_last_loop - desired_loop_duration;
+            if adjustment > timing_data.loop_sleep_duration {
+                adjustment = timing_data.loop_sleep_duration;
+            }
+            timing_data.loop_sleep_duration -= adjustment;
+        } else {
+            let adjustment = desired_loop_duration - elapsed_since_last_loop;
+            timing_data.loop_sleep_duration += adjustment;
+        }
+
+        std::thread::sleep(timing_data.loop_sleep_duration);
+
+        Ok(())
+    }
+}

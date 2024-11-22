@@ -46,3 +46,7 @@ I also wanted the framework to be easily testable. Updaters can be enabled/disab
 ## Open Questions
 
 1. Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
+
+## Resources
+
+- <https://matklad.github.io/2021/09/05/Rust100k.html>

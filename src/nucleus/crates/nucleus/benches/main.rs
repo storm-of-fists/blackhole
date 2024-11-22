@@ -290,7 +290,7 @@ macro_rules! many_updaters {
             }
 
             impl UpdaterTrait for $id {
-                fn new(thread: &Thread) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+                fn new(nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
                 where
                     Self: Sized,
                 {

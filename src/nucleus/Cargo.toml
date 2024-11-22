@@ -1,22 +1,2 @@
-cargo-features = ["edition2024"]
-
-[package]
-name = "nucleus"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-nucleus-macros = { path = "../nucleus-macros" }
-
-[dev-dependencies]
-criterion = "0.5.1"
-
-[[bench]]
-name = "main"
-harness = false
-
-[profile.dev]
-opt-level = 0
-
-[profile.release]
-opt-level = 3
+[workspace]
+members = ["crates/*"]

@@ -2,7 +2,6 @@ use std::{
     any::{Any, TypeId},
     cell::{Ref, RefCell, RefMut},
     collections::HashMap,
-    ops::{Deref, DerefMut},
     rc::Rc,
     sync::{Arc, Mutex, MutexGuard},
 };
@@ -345,7 +344,7 @@ pub trait UpdaterTrait: Any {
     /// This function tells the system whether the updater should or should
     /// not be used. You can do this based on state that exists.
     /// TODO: delete
-    fn should_create(_thread: &Nucleus) -> bool
+    fn should_create(_nucleus: &Nucleus) -> bool
     where
         Self: Sized,
     {
@@ -353,14 +352,14 @@ pub trait UpdaterTrait: Any {
     }
 
     /// Register your updater. Feel free to
-    fn new(_thread: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(_nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
     where
         Self: Sized;
 
     /// A one time function called after all updaters have been added to
     /// the thread. This may block. All updaters will have their "first"
     /// function called before entering the update loop.
-    fn first(&self, _thread: &Nucleus) -> Result<(), NucleusError> {
+    fn first(&self, _nucleus: &Nucleus) -> Result<(), NucleusError> {
         Ok(())
     }
 
