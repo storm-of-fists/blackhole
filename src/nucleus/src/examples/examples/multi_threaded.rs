@@ -78,7 +78,7 @@ impl DoerTrait for SharedDoer1 {
 
 fn fun_thread(shared_state: SharedState<SharedStore>) -> Result<(), NucleusError> {
     let mut nucleus = Nucleus::new(shared_state)?;
-    nucleus.add_doer::<LoopTimingManager>()?;
+    nucleus.doer::<LoopTimingManager>()?;
     nucleus.run()
 }
 
@@ -141,10 +141,10 @@ impl DoerTrait for SharedDoer2 {
 
 fn main() -> Result<(), NucleusError> {
     let mut nucleus = Nucleus::with_shared_state()?;
-    nucleus.add_doer::<LoopTimingManager>()?;
-    nucleus.add_doer::<SharedDoer1>()?;
-    nucleus.add_doer::<SharedDoer2>()?;
-    nucleus.add_doer::<ThreadManager>()?;
+    nucleus.doer::<LoopTimingManager>()?;
+    nucleus.doer::<SharedDoer1>()?;
+    nucleus.doer::<SharedDoer2>()?;
+    nucleus.doer::<ThreadManager>()?;
 
     nucleus.run()
 }

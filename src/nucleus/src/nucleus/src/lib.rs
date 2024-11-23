@@ -1,7 +1,9 @@
 use std::{
     any::{type_name, type_name_of_val, Any},
-    cell::{RefCell, RefMut},
+    borrow::BorrowMut,
+    cell::{Cell, RefCell, RefMut, UnsafeCell},
     collections::HashMap,
+    ops::{Deref, DerefMut},
     rc::Rc,
     sync::{Arc, Mutex, MutexGuard},
 };
@@ -28,22 +30,72 @@ pub enum NucleusError {
     ThreadErrored,
 }
 
+pub struct OnlyMutCell<T> {
+    value: UnsafeCell<T>,
+    borrow_cell: Cell<bool>,
+}
+
+impl<T> OnlyMutCell<T> {
+    pub fn new(value: T) -> Self {
+        Self {
+            value: UnsafeCell::new(value),
+            borrow_cell: Cell::new(false),
+        }
+    }
+
+    pub fn get(&self) -> Result<OnlyMutRef<'_, T>, NucleusError> {
+        if self.borrow_cell.get() {
+            return Err(NucleusError::GetState);
+        }
+
+        self.borrow_cell.replace(true);
+
+        Ok(OnlyMutRef {
+            value: unsafe { &mut (*self.value.get()) },
+            borrow_cell: &self.borrow_cell,
+        })
+    }
+}
+
+pub struct OnlyMutRef<'a, T> {
+    value: &'a mut T,
+    borrow_cell: &'a Cell<bool>,
+}
+
+impl<T> Drop for OnlyMutRef<'_, T> {
+    fn drop(&mut self) {
+        self.borrow_cell.replace(false);
+    }
+}
+
+impl<T> Deref for OnlyMutRef<'_, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.value
+    }
+}
+
+impl<T> DerefMut for OnlyMutRef<'_, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.value
+    }
+}
+
 /// This is any state local to the thread.
+///
+/// We could have used a RefCell but that had additional overhead I just don't
+/// care for. I want users of this framework to think theres only ever 1 ref, mutable
+/// or not allowed at a time. Also, no panicking on bad access.
 pub struct State<T> {
-    /// TODO: may not want a RefCell, could use something simpler since we
-    /// dont care to differentiate between read only or write only.
-    ///
-    /// pub struct State<T> {
-    ///     state: UnsafeCell<T>,
-    ///     is_borrowed: Cell<bool>,
-    /// }
-    state: Rc<RefCell<T>>,
+    /// TODO: see about replacing Rc as well.
+    state: Rc<OnlyMutCell<T>>,
 }
 
 impl<T> State<T> {
     pub fn new(state: T) -> Self {
         Self {
-            state: Rc::new(RefCell::new(state)),
+            state: Rc::new(OnlyMutCell::new(state)),
         }
     }
 
@@ -57,18 +109,19 @@ impl<T> State<T> {
     /// give out a singular WriteState. However, that makes it impossible for
     /// additional Doers to mutate state. I'm thinking of dynamically loaded libraries
     /// that add doers to an existing program.
-    pub fn get(&self) -> Result<RefMut<'_, T>, NucleusError> {
-        self.state
-            .try_borrow_mut()
-            .map_err(|_| NucleusError::GetState)
+    ///
+    /// TODO: May want to make this part of StateTrait instead, allow users to use
+    /// their own sorts of state storage types.
+    pub fn get(&self) -> Result<OnlyMutRef<'_, T>, NucleusError> {
+        self.state.get().map_err(|_| NucleusError::GetState)
     }
 }
 
-impl<T> From<Rc<RefCell<T>>> for State<T>
+impl<T> From<Rc<OnlyMutCell<T>>> for State<T>
 where
     T: StateTrait,
 {
-    fn from(state: Rc<RefCell<T>>) -> Self {
+    fn from(state: Rc<OnlyMutCell<T>>) -> Self {
         Self { state }
     }
 }
@@ -85,7 +138,7 @@ pub trait StateTrait: Any {
     fn as_any(&self) -> &dyn Any;
 }
 
-impl<T> StateTrait for Rc<RefCell<T>>
+impl<T> StateTrait for Rc<OnlyMutCell<T>>
 where
     T: StateTrait,
 {
@@ -209,7 +262,7 @@ impl LocalStore {
 
         let Some(cloned_rc) = boxed_state
             .as_any()
-            .downcast_ref::<Rc<RefCell<T>>>()
+            .downcast_ref::<Rc<OnlyMutCell<T>>>()
             .cloned()
         else {
             return Err(NucleusError::CouldNotCastState);
@@ -226,7 +279,7 @@ impl LocalStore {
 
         let Some(cloned_rc) = boxed_state
             .as_any()
-            .downcast_ref::<Rc<RefCell<T>>>()
+            .downcast_ref::<Rc<OnlyMutCell<T>>>()
             .cloned()
         else {
             return Err(NucleusError::CouldNotCastState);
@@ -370,7 +423,7 @@ pub struct DoerState {
     /// The list of messages
     pub message_queue: Vec<DoerControlMessage>,
     /// The list of inactive Doers. A Doer can become inactive if it errors or
-    pub inactive: Vec<Box<dyn DoerTrait>>,
+    pub inactive: Vec<DoerInactive>,
 }
 
 impl DoerState {
@@ -406,13 +459,13 @@ impl DoerStore {
         })
     }
 
-    pub fn add_doer_to_start(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), NucleusError> {
+    pub fn doer_to_start(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), NucleusError> {
         self.active.insert(0, doer);
 
         Ok(())
     }
 
-    pub fn add_doer_to_end(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), NucleusError> {
+    pub fn doer_to_end(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), NucleusError> {
         self.active.push(doer);
 
         Ok(())
@@ -489,6 +542,8 @@ impl DoerStore {
     }
 
     pub fn remove_doer(&mut self, doer_name: &'static str) -> Result<(), NucleusError> {
+        let mut doer_state = self.state.get()?;
+
         let mut maybe_index = None;
 
         for (index, doer) in self.active.iter().enumerate() {
@@ -501,11 +556,37 @@ impl DoerStore {
         if let Some(index) = maybe_index {
             let doer = self.active.remove(index);
 
-            doer.remove()?;
+            match doer.remove() {
+                Ok(()) => doer_state.inactive.push(DoerInactive::Removed(doer)),
+                Err(err) => doer_state.inactive.push(DoerInactive::RemoveErr(doer, err)),
+            }
         }
 
         Ok(())
     }
+}
+
+pub struct DoerGroup {
+    add_state: Vec<Box<dyn FnOnce(&StateStore) -> Result<(), NucleusError>>>,
+    doers: Vec<DoerNewFn>,
+}
+
+impl DoerGroup {
+    pub fn add_doer<T: DoerTrait>(&mut self) -> Result<(), NucleusError> {
+        self.add_state.push(Box::new(T::new_state));
+        self.doers.push(Box::new(T::new));
+
+        Ok(())
+    }
+}
+
+pub enum DoerInactive {
+    NewStateErr(NucleusError),
+    NewErr(NucleusError),
+    FirstErr(Box<dyn DoerTrait>, NucleusError),
+    UpdateErr(Box<dyn DoerTrait>, NucleusError),
+    RemoveErr(Box<dyn DoerTrait>, NucleusError),
+    Removed(Box<dyn DoerTrait>),
 }
 
 /// TODO: maybe see about making StateStore a trait instead?
@@ -544,6 +625,35 @@ impl Nucleus {
         Ok(())
     }
 
+    /// Add doers in a group. This will call new_state and new, then add the doer
+    /// to the active list. After all doers are added to the list, a
+    /// Self::manage_control_messages call occurs so doers get situated.
+    ///
+    /// Doer groups allow doers to remove state they may want to hide. Each
+    /// doer can get_state during its new call. A final doer can remove the
+    /// state from the store while all the doers still hold a State instance.
+    pub fn add_doer_group(&mut self, doer_group: DoerGroup) -> Result<(), NucleusError> {
+        let new_state_funcs = doer_group.add_state;
+        let new_funcs = doer_group.doers;
+        let mut new_doers: Vec<Box<dyn DoerTrait>> = Vec::new();
+
+        for new_state in new_state_funcs.into_iter() {
+            new_state(&self.state)?;
+        }
+
+        for new in new_funcs.into_iter() {
+            new_doers.push(new(&self)?);
+        }
+
+        for doer in new_doers.into_iter() {
+            self.doers.active.push(doer);
+        }
+
+        self.manage_control_messages()?;
+
+        Ok(())
+    }
+
     pub fn run(&mut self) -> Result<(), NucleusError> {
         self.first()?;
 
@@ -568,10 +678,10 @@ impl Nucleus {
         for control_message in control_messages.into_iter() {
             match control_message {
                 DoerControlMessage::AddDoerToStart(new_fn) => {
-                    self.doers.add_doer_to_start(new_fn(&self)?)?;
+                    self.doers.doer_to_start(new_fn(&self)?)?;
                 }
                 DoerControlMessage::AddDoerToEnd(new_fn) => {
-                    self.doers.add_doer_to_end(new_fn(&self)?)?;
+                    self.doers.doer_to_end(new_fn(&self)?)?;
                 }
                 DoerControlMessage::AddDoerBefore(move_doer_type_id, before_doer_type_id) => {
                     self.doers
@@ -594,12 +704,22 @@ impl Nucleus {
         self.manage_control_messages()?;
 
         let doers_len = self.doers.active.len();
+        let mut doer_state = self.doers.state.get()?;
 
         let doers = std::mem::replace(&mut self.doers.active, Vec::with_capacity(doers_len));
+        let mut doers_after_first = Vec::new();
 
         for doer in doers.into_iter() {
-            doer.first(self)?;
-            self.doers.add_doer_to_end(doer)?;
+            match doer.first(self) {
+                Ok(()) => doers_after_first.push(doer),
+                Err(err) => doer_state.inactive.push(DoerInactive::FirstErr(doer, err)),
+            }
+        }
+
+        drop(doer_state);
+
+        for doer in doers_after_first.into_iter() {
+            self.doers.active.push(doer);
         }
 
         Ok(())
@@ -608,8 +728,32 @@ impl Nucleus {
     pub fn update(&mut self) -> Result<(), NucleusError> {
         self.manage_control_messages()?;
 
-        for doer in self.doers.active.iter() {
-            doer.update()?;
+        let mut errored_doer_indices = Vec::new();
+        let mut errored_doers = Vec::new();
+
+        if self.doers.active.len() == 0 {
+            return Err(NucleusError::DoerUpdate);
+        }
+
+        for (index, doer) in self.doers.active.iter().enumerate() {
+            match doer.update() {
+                Ok(()) => continue,
+                Err(err) => errored_doer_indices.push((index, err)),
+            }
+        }
+
+        for (index, err) in errored_doer_indices.into_iter() {
+            errored_doers.push((self.doers.active.remove(index), err));
+        }
+
+        if errored_doers.len() > 0 {
+            let mut doer_state = self.doers.state.get()?;
+
+            for (errored_doer, err) in errored_doers.into_iter() {
+                doer_state
+                    .inactive
+                    .push(DoerInactive::UpdateErr(errored_doer, err))
+            }
         }
 
         Ok(())
@@ -618,19 +762,19 @@ impl Nucleus {
 
 #[macro_export]
 macro_rules! nucleus {
-    ($($doer:ident)+) => {
+    ($($doer:ident),+) => {{
         let mut nucleus = Nucleus::with_shared_state()?;
         $(
             nucleus.add_doer::<$doer>()?;
         )*
-        return nucleus.run();
-    };
+        nucleus
+    }};
 
-    ($shared_state:expr, $($doer:ident)+) => {
+    ($shared_state:expr; $($doer:ident),+) => {{
         let mut nucleus = Nucleus::new($shared_state)?;
         $(
-            nucleus.add_doer::<$doer>()?;
+            nucleus.doer::<$doer>()?;
         )*
-        return nucleus.run();
-    };
+        nucleus
+    }};
 }

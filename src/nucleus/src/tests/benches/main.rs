@@ -327,7 +327,7 @@ many_doers!(
     Test97, Test98, Test99
 );
 
-macro_rules! add_doers {
+macro_rules! doers {
     ($nucleus:expr, $($id:ident),*) => {
         $(
             $nucleus.add_doer::<$id>().unwrap();
@@ -350,7 +350,7 @@ fn many_doers(c: &mut Criterion) {
 
     drop(local_state);
 
-    add_doers!(
+    doers!(
         nucleus, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10,
         Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21,
         Test22, Test23, Test24, Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32,

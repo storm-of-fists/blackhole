@@ -103,5 +103,6 @@ impl DoerTrait for DoerB {
 }
 
 fn main() -> Result<(), NucleusError> {
-    nucleus!(DoerA DoerB);
+    let mut nucleus = nucleus!(DoerA, DoerB);
+    nucleus.run()
 }
