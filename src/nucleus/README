@@ -4,11 +4,11 @@ Nucleus is a small, opinionated, Rust framework meant to standardize program sta
 
 ## Parts
 
-Nucleus has 3 major parts: Nucleus, State, and Updater. A Nucleus contains stores for state and updaters. State contains program data. Updaters manipulate state or other updaters.
+Nucleus has 3 major parts: Nucleus, State, and Doer. A Nucleus contains stores for state and doers. State contains program data. Doers manipulate state or other doers.
 
 ### Nucleus
 
-The nucleus is where you start your program. Usually the only two things you do to the nucleus directly are adding updaters and running the nucleus. The nucleus "runs" by looping over each updater continuously.
+The nucleus is where you start your program. Usually the only two things you do to the nucleus directly are adding doers and running the nucleus. The nucleus "runs" by looping over each doer continuously.
 
 ### State
 
@@ -16,36 +16,28 @@ State is added/acquired/removed from a StateStore. You can register "thread-loca
 
 State and shared state are stored in their own HashMaps, with the key being their TypeId's. If multithreading is added to your program, each new nucleus that is spawned will get a copy of the shared state created by the first nucleus.
 
-### Updater
+### Doer
 
-Updaters are trait objects stored in a vector. Each contains only a State or SharedState of what they need for their update method.
+Doers are trait objects stored in a vector. Each contains only a State or SharedState of what they need for their update method.
 
-## Philosophy
+## Design Philosophy
 
-I was inspired to make it because I want to do more projects in Rust, but I wanted a "simple at its core" framework.
+I am a lazy person. I wanted something as flexible as possible and as simple as possible.
 
 I was trying to avoid:
 
 - Async.
-- Complicated updater scheduling/lifecycle.
+- Complicated doer scheduling/lifecycle.
 - Context pointers.
 - Deeply nested or deeply composed state.
 - Hidden state.
 - Message passing.
 - Abstraction of the work cycle.
-
-### Chosen Unimplemented
-
-- Advanced scheduler for updaters
-- "Modding" system for runtime loading of new threads/updaters/state. I figured this is going to be very user dependent. I also didn't want to burden the central framework with it.
+- Building too much into the framework. I wanted other people to come up with commonly used modules.
 
 ## Benchmarks and Tests
 
-I also wanted the framework to be easily testable. Updaters can be enabled/disabled as needed. A user that wants to test a certain plugin can load it, then replace any updaters with their own test updaters.
-
-## Open Questions
-
-1. Switch away from using TypeId and use names instead. TypeId changes based on rust release, but is constant with the rust version from what I cant tell. Test how type casting works more, especially with loaded libraries. Would really like to support loading things at runtime.
+I also wanted the framework to be easily testable. Doers can be enabled/disabled as needed. A user that wants to test a certain plugin can load it, then replace any doers with their own test doers.
 
 ## Resources
 

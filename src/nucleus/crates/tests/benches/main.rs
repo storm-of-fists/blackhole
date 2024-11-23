@@ -282,19 +282,19 @@ pub struct LocalStateTest {
     vec: Vec<u64>,
 }
 
-macro_rules! many_updaters {
+macro_rules! many_doers {
     ($($id:ident),*) => {
         $(
             pub struct $id {
                 state: State<LocalStateTest>
             }
 
-            impl UpdaterTrait for $id {
-                fn new(nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+            impl DoerTrait for $id {
+                fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
                 where
                     Self: Sized,
                 {
-                    let local_state = thread.state.local.get_mut()?;
+                    let local_state = nucleus.state.local.get()?;
 
                     Ok(Box::new($id {
                         state: local_state.get_state::<LocalStateTest>()?
@@ -302,7 +302,7 @@ macro_rules! many_updaters {
                 }
 
                 fn update(&self) -> Result<(), NucleusError> {
-                    let mut state = self.state.get_mut()?;
+                    let mut state = self.state.get()?;
 
                     // state.number += 1.0;
                     // state.string.push('c');
@@ -315,7 +315,7 @@ macro_rules! many_updaters {
     };
 }
 
-many_updaters!(
+many_doers!(
     Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10, Test11, Test12,
     Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21, Test22, Test23, Test24,
     Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32, Test33, Test34, Test35, Test36,
@@ -327,18 +327,18 @@ many_updaters!(
     Test97, Test98, Test99
 );
 
-macro_rules! add_updaters {
+macro_rules! add_doers {
     ($nucleus:expr, $($id:ident),*) => {
         $(
-            $nucleus.add_updater::<$id>().unwrap();
+            $nucleus.add_doer::<$id>().unwrap();
         )*
     };
 }
 
-fn many_updaters(c: &mut Criterion) {
+fn many_doers(c: &mut Criterion) {
     let mut nucleus = Nucleus::with_shared_state().unwrap();
 
-    let mut local_state = nucleus.state.local.get_mut().unwrap();
+    let mut local_state = nucleus.state.local.get().unwrap();
 
     local_state
         .add_state(LocalStateTest {
@@ -350,7 +350,7 @@ fn many_updaters(c: &mut Criterion) {
 
     drop(local_state);
 
-    add_updaters!(
+    add_doers!(
         nucleus, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10,
         Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21,
         Test22, Test23, Test24, Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32,
@@ -365,7 +365,7 @@ fn many_updaters(c: &mut Criterion) {
 
     nucleus.first().unwrap();
 
-    c.bench_function("many_updaters", |b| {
+    c.bench_function("many_doers", |b| {
         b.iter(|| {
             black_box({
                 nucleus.update().unwrap();
@@ -375,6 +375,6 @@ fn many_updaters(c: &mut Criterion) {
 }
 
 // criterion_group!(benches, getter_simd, direct_index_simd, no_simd_iterators);
-criterion_group!(benches, many_updaters);
+criterion_group!(benches, many_doers);
 
 criterion_main!(benches);

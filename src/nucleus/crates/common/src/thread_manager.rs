@@ -52,12 +52,12 @@ pub struct ThreadManager {
     thread_store: State<ThreadStore>,
 }
 
-impl UpdaterTrait for ThreadManager {
-    fn add_new_state(state_store: &StateStore) -> Result<(), NucleusError>
+impl DoerTrait for ThreadManager {
+    fn new_state(state_store: &StateStore) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        let mut local_state = state_store.local.get_mut()?;
+        let mut local_state = state_store.local.get()?;
         let mut shared_state = state_store.shared.blocking_get()?;
 
         local_state.add_state(ThreadStore::new())?;
@@ -66,11 +66,11 @@ impl UpdaterTrait for ThreadManager {
         Ok(())
     }
 
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
     where
         Self: Sized,
     {
-        let local_state = nucleus.state.local.get_mut()?;
+        let local_state = nucleus.state.local.get()?;
         let shared_state = nucleus.state.shared.blocking_get()?;
 
         Ok(Box::new(Self {
@@ -81,7 +81,7 @@ impl UpdaterTrait for ThreadManager {
     }
 
     fn update(&self) -> Result<(), NucleusError> {
-        let mut thread_store = self.thread_store.get_mut()?;
+        let mut thread_store = self.thread_store.get()?;
         let mut thread_request = self.thread_requests.get()?;
         let join_handles = std::mem::replace(&mut thread_store.join_handles, Vec::new());
         let requests = std::mem::replace(&mut thread_request.requests, Vec::new());

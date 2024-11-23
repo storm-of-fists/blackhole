@@ -12,12 +12,12 @@ pub struct LoopTimingManager {
     timing_data: State<LoopTiming>,
 }
 
-impl UpdaterTrait for LoopTimingManager {
-    fn add_new_state(state: &StateStore) -> Result<(), NucleusError>
+impl DoerTrait for LoopTimingManager {
+    fn new_state(state: &StateStore) -> Result<(), NucleusError>
     where
         Self: Sized,
     {
-        let mut thread_state = state.local.get_mut()?;
+        let mut thread_state = state.local.get()?;
 
         thread_state.add_state(LoopTiming {
             start_of_loop: Instant::now(),
@@ -28,11 +28,11 @@ impl UpdaterTrait for LoopTimingManager {
         Ok(())
     }
 
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
     where
         Self: Sized,
     {
-        let local_state = nucleus.state.local.get_mut()?;
+        let local_state = nucleus.state.local.get()?;
 
         Ok(Box::new(Self {
             timing_data: local_state.get_state::<LoopTiming>()?,
@@ -40,7 +40,7 @@ impl UpdaterTrait for LoopTimingManager {
     }
 
     fn update(&self) -> Result<(), NucleusError> {
-        let mut timing_data = self.timing_data.get_mut()?;
+        let mut timing_data = self.timing_data.get()?;
 
         let start_of_previous_loop =
             std::mem::replace(&mut timing_data.start_of_loop, Instant::now());

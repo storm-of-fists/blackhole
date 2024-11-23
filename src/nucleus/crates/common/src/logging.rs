@@ -8,15 +8,15 @@ use std::{
 
 pub struct LoggingManager {}
 
-impl UpdaterTrait for LoggingManager {
-    fn new(_nucleus: &Nucleus) -> Result<Box<dyn UpdaterTrait>, NucleusError>
+impl DoerTrait for LoggingManager {
+    fn new(_nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
     where
         Self: Sized,
     {
         Builder::new()
             .default_format()
             .try_init()
-            .map_err(|_| NucleusError::NewUpdater)?;
+            .map_err(|_| NucleusError::NewDoer)?;
 
         Ok(Box::new(Self {}))
     }
