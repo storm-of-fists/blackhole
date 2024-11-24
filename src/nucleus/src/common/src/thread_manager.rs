@@ -1,10 +1,10 @@
-use nucleus::*;
+use pm::*;
 use std::thread::JoinHandle;
 
 #[derive(SharedStateTrait)]
 pub struct ThreadRequest {
     pub requests:
-        Vec<Box<dyn FnOnce(SharedState<SharedStore>) -> Result<(), NucleusError> + Send + 'static>>,
+        Vec<Box<dyn FnOnce(SharedState<SharedStore>) -> Result<(), PmError> + Send + 'static>>,
 }
 
 impl ThreadRequest {
@@ -16,7 +16,7 @@ impl ThreadRequest {
 
     pub fn add_thread(
         &mut self,
-        thread_fn: impl FnOnce(SharedState<SharedStore>) -> Result<(), NucleusError> + Send + 'static,
+        thread_fn: impl FnOnce(SharedState<SharedStore>) -> Result<(), PmError> + Send + 'static,
     ) {
         self.requests.push(Box::new(thread_fn));
     }
@@ -24,7 +24,7 @@ impl ThreadRequest {
 
 #[derive(StateTrait)]
 pub struct ThreadStore {
-    pub join_handles: Vec<JoinHandle<Result<(), NucleusError>>>,
+    pub join_handles: Vec<JoinHandle<Result<(), PmError>>>,
 }
 
 impl ThreadStore {
@@ -37,8 +37,8 @@ impl ThreadStore {
     pub fn add_thread(
         &mut self,
         shared_state: SharedState<SharedStore>,
-        thread_fn: impl FnOnce(SharedState<SharedStore>) -> Result<(), NucleusError> + Send + 'static,
-    ) -> Result<(), NucleusError> {
+        thread_fn: impl FnOnce(SharedState<SharedStore>) -> Result<(), PmError> + Send + 'static,
+    ) -> Result<(), PmError> {
         self.join_handles
             .push(std::thread::spawn(|| thread_fn(shared_state)));
 
@@ -53,7 +53,7 @@ pub struct ThreadManager {
 }
 
 impl DoerTrait for ThreadManager {
-    fn new_state(state_store: &StateStore) -> Result<(), NucleusError>
+    fn new_state(state_store: &StateStore) -> Result<(), PmError>
     where
         Self: Sized,
     {
@@ -66,21 +66,21 @@ impl DoerTrait for ThreadManager {
         Ok(())
     }
 
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
-        let local_state = nucleus.state.local.get()?;
-        let shared_state = nucleus.state.shared.blocking_get()?;
+        let local_state = pm.state.local.get()?;
+        let shared_state = pm.state.shared.blocking_get()?;
 
         Ok(Box::new(Self {
-            shared_state: nucleus.state.shared.clone(),
+            shared_state: pm.state.shared.clone(),
             thread_store: local_state.get_state::<ThreadStore>()?,
             thread_requests: shared_state.get_state::<ThreadRequest>()?,
         }))
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
+    fn update(&self) -> Result<(), PmError> {
         let mut thread_store = self.thread_store.get()?;
         let mut thread_request = self.thread_requests.get()?;
         let join_handles = std::mem::replace(&mut thread_store.join_handles, Vec::new());

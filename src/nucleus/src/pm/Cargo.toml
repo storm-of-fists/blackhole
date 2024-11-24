@@ -1,10 +1,11 @@
 [package]
-name = "nucleus"
+name = "pm"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-nucleus_macros = { path = "../macros" }
+pm_macros = { path = "../macros" }
+mut_cell = { path = "../mut_cell" }
 
 [profile.dev]
 opt-level = 0

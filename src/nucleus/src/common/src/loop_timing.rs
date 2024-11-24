@@ -1,4 +1,4 @@
-use nucleus::*;
+use pm::*;
 use std::time::{Duration, Instant};
 
 #[derive(StateTrait)]
@@ -13,13 +13,13 @@ pub struct LoopTimingManager {
 }
 
 impl DoerTrait for LoopTimingManager {
-    fn new_state(state: &StateStore) -> Result<(), NucleusError>
+    fn new_state(state: &StateStore) -> Result<(), PmError>
     where
         Self: Sized,
     {
-        let mut thread_state = state.local.get()?;
+        let mut local_state = state.local.get()?;
 
-        thread_state.add_state(LoopTiming {
+        local_state.add_state(LoopTiming {
             start_of_loop: Instant::now(),
             desired_loop_duration: Duration::from_millis(100),
             loop_sleep_duration: Duration::from_millis(100),
@@ -28,18 +28,18 @@ impl DoerTrait for LoopTimingManager {
         Ok(())
     }
 
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
-        let local_state = nucleus.state.local.get()?;
+        let local_state = pm.state.local.get()?;
 
         Ok(Box::new(Self {
             timing_data: local_state.get_state::<LoopTiming>()?,
         }))
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
+    fn update(&self) -> Result<(), PmError> {
         let mut timing_data = self.timing_data.get()?;
 
         let start_of_previous_loop =

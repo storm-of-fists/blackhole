@@ -1,7 +1,8 @@
 [package]
-name = "nucleus_examples"
+name = "pm_examples"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-nucleus = { path = "../nucleus" }
+pm = { path = "../pm" }
+pm_common = { path = "../common" }

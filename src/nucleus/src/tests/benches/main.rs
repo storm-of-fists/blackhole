@@ -7,7 +7,7 @@ use std::{
 };
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use nucleus::*;
+use pm::*;
 use std::hint::black_box;
 
 // #[derive(Debug)]
@@ -290,18 +290,18 @@ macro_rules! many_doers {
             }
 
             impl DoerTrait for $id {
-                fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+                fn new(pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
                 where
                     Self: Sized,
                 {
-                    let local_state = nucleus.state.local.get()?;
+                    let local_state = pm.state.local.get()?;
 
                     Ok(Box::new($id {
                         state: local_state.get_state::<LocalStateTest>()?
                     }))
                 }
 
-                fn update(&self) -> Result<(), NucleusError> {
+                fn update(&self) -> Result<(), PmError> {
                     let mut state = self.state.get()?;
 
                     // state.number += 1.0;
@@ -328,17 +328,17 @@ many_doers!(
 );
 
 macro_rules! doers {
-    ($nucleus:expr, $($id:ident),*) => {
+    ($pm:expr, $($id:ident),*) => {
         $(
-            $nucleus.add_doer::<$id>().unwrap();
+            $pm.add_doer::<$id>().unwrap();
         )*
     };
 }
 
 fn many_doers(c: &mut Criterion) {
-    let mut nucleus = Nucleus::with_shared_state().unwrap();
+    let mut pm = Pm::with_shared_state().unwrap();
 
-    let mut local_state = nucleus.state.local.get().unwrap();
+    let mut local_state = pm.state.local.get().unwrap();
 
     local_state
         .add_state(LocalStateTest {
@@ -351,7 +351,7 @@ fn many_doers(c: &mut Criterion) {
     drop(local_state);
 
     doers!(
-        nucleus, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10,
+        pm, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10,
         Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21,
         Test22, Test23, Test24, Test25, Test26, Test27, Test28, Test29, Test30, Test31, Test32,
         Test33, Test34, Test35, Test36, Test37, Test38, Test39, Test40, Test41, Test42, Test43,
@@ -363,12 +363,12 @@ fn many_doers(c: &mut Criterion) {
         Test99
     );
 
-    nucleus.first().unwrap();
+    pm.first().unwrap();
 
     c.bench_function("many_doers", |b| {
         b.iter(|| {
             black_box({
-                nucleus.update().unwrap();
+                pm.update().unwrap();
             });
         })
     });

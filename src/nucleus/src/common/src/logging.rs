@@ -1,5 +1,5 @@
 use env_logger::{Builder, Logger};
-use nucleus::*;
+use pm::*;
 use std::{
     fs::File,
     io::Write,
@@ -9,14 +9,14 @@ use std::{
 pub struct LoggingManager {}
 
 impl DoerTrait for LoggingManager {
-    fn new(_nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(_pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
         Builder::new()
             .default_format()
             .try_init()
-            .map_err(|_| NucleusError::NewDoer)?;
+            .map_err(|_| PmError::NewDoer)?;
 
         Ok(Box::new(Self {}))
     }

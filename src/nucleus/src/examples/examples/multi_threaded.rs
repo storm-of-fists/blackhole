@@ -1,12 +1,12 @@
 #![feature(portable_simd)]
 
 use std::{
-    any::TypeId,
+    any::{type_name, TypeId},
     time::{Duration, Instant},
 };
 
-use nucleus::*;
-use nucleus_common::{
+use pm::*;
+use pm_common::{
     // logging::{Logging, LoggingManager},
     loop_timing::{LoopTiming, LoopTimingManager},
     thread_manager::{ThreadManager, ThreadRequest},
@@ -25,7 +25,7 @@ pub struct SharedDoer1 {
 }
 
 impl DoerTrait for SharedDoer1 {
-    fn new_state(state: &StateStore) -> Result<(), NucleusError>
+    fn new_state(state: &StateStore) -> Result<(), PmError>
     where
         Self: Sized,
     {
@@ -39,23 +39,21 @@ impl DoerTrait for SharedDoer1 {
         Ok(())
     }
 
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
-        let shared_state = nucleus.state.shared.blocking_get()?;
+        let shared_state = pm.state.shared.blocking_get()?;
 
         Ok(Box::new(SharedDoer1 {
             shared_state: shared_state.get_state::<SomeSharedState>()?,
             start_instant: Instant::now(),
-            doer_control: nucleus.doers.control.clone(),
+            doer_control: pm.doers.control.clone(),
         }))
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
-        let Ok(mut shared_state) = self.shared_state.get() else {
-            return Ok(());
-        };
+    fn update(&self) -> Result<(), PmError> {
+        let shared_state = self.shared_state.blocking_get()?;
 
         shared_state.number += 1.0;
         shared_state.ready_for_work = true;
@@ -65,21 +63,21 @@ impl DoerTrait for SharedDoer1 {
 
             doer_control
                 .message_queue
-                .push(DoerControlMessage::AddDoerToEnd(Box::new(SharedDoer2::new)));
+                .push(DoerControl::AddDoerToEnd(Box::new(SharedDoer2::new)));
 
             doer_control
                 .message_queue
-                .push(DoerControlMessage::RemoveDoer(TypeId::of::<SharedDoer1>()));
+                .push(DoerControl::RemoveDoer(type_name::<SharedDoer1>()));
         }
 
         Ok(())
     }
 }
 
-fn fun_thread(shared_state: SharedState<SharedStore>) -> Result<(), NucleusError> {
-    let mut nucleus = Nucleus::new(shared_state)?;
-    nucleus.doer::<LoopTimingManager>()?;
-    nucleus.run()
+fn fun_thread(shared_state: SharedState<SharedStore>) -> Result<(), PmError> {
+    let mut pm = Pm::new(shared_state)?;
+    pm.doer::<LoopTimingManager>()?;
+    pm.run()
 }
 
 pub struct SharedDoer2 {
@@ -89,12 +87,12 @@ pub struct SharedDoer2 {
 }
 
 impl DoerTrait for SharedDoer2 {
-    fn new(nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
-        let shared_state = nucleus.state.shared.blocking_get()?;
-        let local_state = nucleus.state.local.get()?;
+        let shared_state = pm.state.shared.blocking_get()?;
+        let local_state = pm.state.local.get()?;
 
         shared_state_wait!(
             shared_state,
@@ -110,25 +108,21 @@ impl DoerTrait for SharedDoer2 {
         }))
     }
 
-    fn first(&self, nucleus: &Nucleus) -> Result<(), NucleusError> {
-        let mut doer_control = nucleus.doers.control.get()?;
+    fn first(&self, pm: &Pm) -> Result<(), PmError> {
+        let mut doer_control = pm.doers.control.get()?;
         let mut thread_requests = self.thread_requests.blocking_get()?;
 
         doer_control
             .message_queue
-            .push(DoerControlMessage::RemoveDoer(TypeId::of::<SharedDoer2>()));
+            .push(DoerControl::RemoveDoer(TypeId::of::<SharedDoer2>()));
 
         thread_requests.add_thread(fun_thread);
 
         Ok(())
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
-        let Ok(mut shared_state) = self.shared_state.get() else {
-            self.timing.get()?.loop_sleep_duration += Duration::from_millis(5);
-
-            return Ok(());
-        };
+    fn update(&self) -> Result<(), PmError> {
+        let mut shared_state = self.shared_state.blocking_get()?;
 
         if shared_state.ready_for_work {
             shared_state.number -= 1.0;
@@ -139,12 +133,7 @@ impl DoerTrait for SharedDoer2 {
     }
 }
 
-fn main() -> Result<(), NucleusError> {
-    let mut nucleus = Nucleus::with_shared_state()?;
-    nucleus.doer::<LoopTimingManager>()?;
-    nucleus.doer::<SharedDoer1>()?;
-    nucleus.doer::<SharedDoer2>()?;
-    nucleus.doer::<ThreadManager>()?;
-
-    nucleus.run()
+fn main() -> Result<(), PmError> {
+    let mut pm = pm!(LoopTimingManager, SharedDoer1, SharedDoer2, ThreadManager);
+    pm.run()
 }

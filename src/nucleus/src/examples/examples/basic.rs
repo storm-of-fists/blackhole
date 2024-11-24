@@ -1,13 +1,13 @@
 use std::time::{Duration, Instant};
 
-use nucleus::*;
+use pm::*;
 
 pub struct DoerA {
     start: Instant,
 }
 
 impl DoerTrait for DoerA {
-    fn new_state(_state: &StateStore) -> Result<(), NucleusError>
+    fn new_state(_state: &StateStore) -> Result<(), PmError>
     where
         Self: Sized,
     {
@@ -16,7 +16,7 @@ impl DoerTrait for DoerA {
         Ok(())
     }
 
-    fn new(_nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(_pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
@@ -27,25 +27,25 @@ impl DoerTrait for DoerA {
         }))
     }
 
-    fn first(&self, _nucleus: &Nucleus) -> Result<(), NucleusError> {
+    fn first(&self, _pm: &Pm) -> Result<(), PmError> {
         println!("DoerA is in first.");
 
         Ok(())
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
+    fn update(&self) -> Result<(), PmError> {
         println!("DoerA is in update.");
 
         std::thread::sleep(Duration::from_secs(1));
 
         if self.start.elapsed() > Duration::from_secs(3) {
-            return Err(NucleusError::DoerUpdate);
+            return Err(PmError::DoerUpdate);
         }
 
         Ok(())
     }
 
-    fn remove(&self) -> Result<(), NucleusError> {
+    fn remove(&self) -> Result<(), PmError> {
         println!("DoerA is in remove.");
 
         Ok(())
@@ -57,7 +57,7 @@ pub struct DoerB {
 }
 
 impl DoerTrait for DoerB {
-    fn new_state(_state: &StateStore) -> Result<(), NucleusError>
+    fn new_state(_state: &StateStore) -> Result<(), PmError>
     where
         Self: Sized,
     {
@@ -66,7 +66,7 @@ impl DoerTrait for DoerB {
         Ok(())
     }
 
-    fn new(_nucleus: &Nucleus) -> Result<Box<dyn DoerTrait>, NucleusError>
+    fn new(_pm: &Pm) -> Result<Box<dyn DoerTrait>, PmError>
     where
         Self: Sized,
     {
@@ -77,32 +77,32 @@ impl DoerTrait for DoerB {
         }))
     }
 
-    fn first(&self, _nucleus: &Nucleus) -> Result<(), NucleusError> {
+    fn first(&self, _pm: &Pm) -> Result<(), PmError> {
         println!("DoerB is in first.");
 
         Ok(())
     }
 
-    fn update(&self) -> Result<(), NucleusError> {
+    fn update(&self) -> Result<(), PmError> {
         println!("DoerB is in update.");
 
         std::thread::sleep(Duration::from_secs(1));
 
         if self.start.elapsed() > Duration::from_secs(7) {
-            return Err(NucleusError::DoerUpdate);
+            return Err(PmError::DoerUpdate);
         }
 
         Ok(())
     }
 
-    fn remove(&self) -> Result<(), NucleusError> {
+    fn remove(&self) -> Result<(), PmError> {
         println!("DoerB is in remove.");
 
         Ok(())
     }
 }
 
-fn main() -> Result<(), NucleusError> {
-    let mut nucleus = nucleus!(DoerA, DoerB);
-    nucleus.run()
+fn main() -> Result<(), PmError> {
+    let mut pm = pm!(DoerA, DoerB);
+    pm.run()
 }
