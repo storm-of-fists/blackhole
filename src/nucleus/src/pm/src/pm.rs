@@ -31,7 +31,7 @@ impl Pm {
 
         doer_state
             .message_queue
-            .push(DoerControl::AddDoerToEnd(Box::new(T::new)));
+            .push(DoerControl::AddToEnd(Box::new(T::new)));
 
         Ok(())
     }
@@ -88,22 +88,23 @@ impl Pm {
 
         for control_message in control_messages.into_iter() {
             match control_message {
-                DoerControl::AddDoerToStart(new_fn) => {
+                DoerControl::AddToStart(new_fn) => {
                     self.doers.doer_to_start(new_fn(&self)?)?;
                 }
-                DoerControl::AddDoerToEnd(new_fn) => {
+                DoerControl::AddToEnd(new_fn) => {
                     self.doers.doer_to_end(new_fn(&self)?)?;
                 }
-                DoerControl::MoveDoerBefore(move_doer_type_id, before_doer_type_id) => {
-                    self.doers
-                        .move_doer_before_other(before_doer_type_id, move_doer_type_id)?;
+                DoerControl::MoveBefore(move_doer, before_doer) => {
+                    self.doers.move_doer_before_other(before_doer, move_doer)?;
                 }
-                DoerControl::MoveDoerAfter(move_doer_type_id, after_doer_type_id) => {
-                    self.doers
-                        .move_doer_after_other(after_doer_type_id, move_doer_type_id)?;
+                DoerControl::MoveAfter(move_doer, after_doer) => {
+                    self.doers.move_doer_after_other(after_doer, move_doer)?;
                 }
-                DoerControl::RemoveDoer(type_id) => {
-                    self.doers.remove_doer(type_id)?;
+                DoerControl::Remove(doer) => {
+                    self.doers.remove_doer(doer)?;
+                }
+                DoerControl::MoveToIndex(_doer, _index) => {
+                    unimplemented!("piss")
                 }
             }
         }

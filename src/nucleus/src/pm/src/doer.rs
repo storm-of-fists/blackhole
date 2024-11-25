@@ -59,8 +59,9 @@ pub trait DoerTrait: Any {
 type DoerNewFn = Box<dyn FnOnce(&Pm) -> Result<Box<dyn DoerTrait>, PmError>>;
 
 pub enum DoerControl {
-    BeforeAfter(&'static str, &'static str),
-    AtIndex(&'static str, usize),
+    MoveAfter(&'static str, &'static str),
+    MoveBefore(&'static str, &'static str),
+    MoveToIndex(&'static str, usize),
     AddToEnd(DoerNewFn),
     AddToStart(DoerNewFn),
     Remove(&'static str),

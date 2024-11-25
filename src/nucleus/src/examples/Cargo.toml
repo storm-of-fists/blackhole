@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 pm = { path = "../pm" }
 pm_common = { path = "../common" }
+mut_cell = { path = "../mut_cell" }
