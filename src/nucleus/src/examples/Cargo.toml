@@ -1,9 +1,0 @@
-[package]
-name = "pm_examples"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-pm = { path = "../pm" }
-pm_common = { path = "../common" }
-mut_cell = { path = "../mut_cell" }

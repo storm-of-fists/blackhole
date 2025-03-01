@@ -56,9 +56,13 @@ pub trait DoerTrait: Any {
     }
 }
 
+/// Typedef for the Doer's new function since it got used in multiple spots.
+/// Slight abstraction cost, but code is easier to read.
 type DoerNewFn = Box<dyn FnOnce(&Pm) -> Result<Box<dyn DoerTrait>, PmError>>;
 
-pub enum DoerControl {
+/// A message sent to the [DoerState] intended to add/remove/manipulate [Doer]
+/// execution order. 
+pub enum DoerControlMessage {
     MoveAfter(&'static str, &'static str),
     MoveBefore(&'static str, &'static str),
     MoveToIndex(&'static str, usize),
@@ -67,11 +71,17 @@ pub enum DoerControl {
     Remove(&'static str),
 }
 
+/// All info concering Doers BESIDES the list of Doers themselves is kept in
+/// a State so that other Doers may access it. This provides as much meta info
+/// as possible without creating multiple mutable access of the active DoerList
+/// (since they are mutably iterated over by the Pm).
 #[derive(StateTrait)]
 pub struct DoerState {
-    /// The list of messages
-    pub message_queue: Vec<DoerControl>,
-    /// The list of inactive Doers. A Doer can become inactive if it errors or
+    /// The control messages that the Pm will iterate over and consume on each
+    /// run loop. 
+    pub message_queue: Vec<DoerControlMessage>,
+    /// The list of inactive Doers. A Doer can become inactive if it errors or is
+    /// removed via a [DoerControlMessage].
     pub inactive: Vec<DoerInactive>,
 }
 
@@ -84,10 +94,12 @@ impl DoerState {
     }
 }
 
+/// A DoerStore contains the doers and meta information about them.
 pub struct DoerStore {
     /// The list of active Doers. If any error, they are put into inactive.
-    /// This isn't in the StateStore because we need to access it multiple times
-    /// to update over it (also why UpdaterTrait::update is &self). If users need
+    /// This isn't in the StateStore because the Pm needs to iterate over each.
+    /// This could result in a "meta" Doer trying to access the list while the
+    /// Pm is iterating over it, causing simultaneous access. If users need
     /// to manipulate this list, they can access DoerState's message_queue.
     pub active: Vec<Box<dyn DoerTrait>>,
     /// This state is special. It does get put into the LocalStore, but
@@ -97,6 +109,8 @@ pub struct DoerStore {
 }
 
 impl DoerStore {
+    /// Create a new [Self]. Takes in a StateStore and adds its DoerState to
+    /// it for other parts of the program to access.
     pub fn new(state: &StateStore) -> Result<Self, PmError> {
         let mut local_state = state.local.get()?;
 
@@ -108,18 +122,21 @@ impl DoerStore {
         })
     }
 
+    /// Add a doer to the start of the execution order.
     pub fn doer_to_start(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), PmError> {
         self.active.insert(0, doer);
 
         Ok(())
     }
 
+    /// Add a doer to the end of the execution order.
     pub fn doer_to_end(&mut self, doer: Box<dyn DoerTrait>) -> Result<(), PmError> {
         self.active.push(doer);
 
         Ok(())
     }
 
+    /// Move one doer before another.
     pub fn move_doer_before_other(
         &mut self,
         before_doer: &'static str,
@@ -157,6 +174,7 @@ impl DoerStore {
         Ok(())
     }
 
+    /// Move one doer after another.
     pub fn move_doer_after_other(
         &mut self,
         after_doer: &'static str,
@@ -190,6 +208,8 @@ impl DoerStore {
         Ok(())
     }
 
+    /// Remove a doer from the execution. This calls [DoerTrait::remove] and puts the
+    /// doer into the inactive list.
     pub fn remove_doer(&mut self, doer_name: &'static str) -> Result<(), PmError> {
         let mut doer_state = self.state.get()?;
 
@@ -215,12 +235,14 @@ impl DoerStore {
     }
 }
 
+/// A group of doers to simplify adding many at once to a Pm.
 pub struct DoerGroup {
     pub add_state: Vec<Box<dyn FnOnce(&StateStore) -> Result<(), PmError>>>,
     pub doers: Vec<DoerNewFn>,
 }
 
 impl DoerGroup {
+    /// A builder type method for adding doers to the DoerGroup.
     pub fn add_doer<T: DoerTrait>(&mut self) -> Result<(), PmError> {
         self.add_state.push(Box::new(T::new_state));
         self.doers.push(Box::new(T::new));
@@ -229,6 +251,8 @@ impl DoerGroup {
     }
 }
 
+/// An enum for describing why a doer is inactive. Grouped with the doer itself
+/// in the "inactive" doer list on DoerState.
 pub enum DoerInactive {
     NewStateErr(PmError),
     NewErr(PmError),

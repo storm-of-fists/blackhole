@@ -20,7 +20,7 @@ pub struct SomeSharedState {
 
 pub struct SharedDoer1 {
     shared_state: SharedState<SomeSharedState>,
-    doer_control: State<DoerControl>,
+    doer_control: State<DoerControlMessage>,
     start_instant: Instant,
 }
 
@@ -63,11 +63,11 @@ impl DoerTrait for SharedDoer1 {
 
             doer_control
                 .message_queue
-                .push(DoerControl::AddDoerToEnd(Box::new(SharedDoer2::new)));
+                .push(DoerControlMessage::AddDoerToEnd(Box::new(SharedDoer2::new)));
 
             doer_control
                 .message_queue
-                .push(DoerControl::RemoveDoer(type_name::<SharedDoer1>()));
+                .push(DoerControlMessage::RemoveDoer(type_name::<SharedDoer1>()));
         }
 
         Ok(())
@@ -114,7 +114,7 @@ impl DoerTrait for SharedDoer2 {
 
         doer_control
             .message_queue
-            .push(DoerControl::RemoveDoer(TypeId::of::<SharedDoer2>()));
+            .push(DoerControlMessage::RemoveDoer(TypeId::of::<SharedDoer2>()));
 
         thread_requests.add_thread(fun_thread);
 

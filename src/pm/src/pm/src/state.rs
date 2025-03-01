@@ -13,13 +13,13 @@ use crate::PmError;
 pub use pm_macros::{SharedStateTrait, StateTrait};
 
 /// This is any state local to the thread. Each piece of state is allocated
-/// via an Rc. It is trivialy cloneable to any updater. Users can access the
+/// via an Rc. It is trivialy cloneable to any doer. Users can access the
 /// state inside via the MutCell API. See MutCell crate for more info on what
 /// it is and why I didn't use a RefCell.
 pub struct State<T> {
-    /// TODO: see about replacing Rc as well. This framework doesn't care about
-    /// the number of users of data, nor care about differentiating Strong and
-    /// Weak pointers.
+    /// We use an Rc here so that dropping of the internal MutCell is handled 
+    /// automatically. Pm doesn't use any Weak pointers or check ref counts, 
+    /// but those don't cost anything here.
     state: Rc<MutCell<T>>,
 }
 
@@ -98,9 +98,7 @@ impl<T> SharedState<T> {
     /// Use a block lock for when you need to wait for some shared state to
     /// become available and you don't care to wait.
     pub fn blocking_get(&self) -> Result<MutexGuard<'_, T>, PmError> {
-        self.state
-            .lock()
-            .map_err(|_| PmError::GetStateBlocking)
+        self.state.lock().map_err(|_| PmError::GetStateBlocking)
     }
 }
 
@@ -134,9 +132,11 @@ where
     }
 }
 
-unsafe impl<T> Send for SharedState<T> {}
-unsafe impl<T> Sync for SharedState<T> {}
+unsafe impl<T: Send> Send for SharedState<T> {}
+unsafe impl<T: Send> Sync for SharedState<T> {}
 
+/// This macro checks if shared state exists within the SharedStateStore.
+/// This makes it easier when "getting" SharedState across threads.
 #[macro_export]
 macro_rules! shared_state_wait {
     ($shared_state:expr, $($state_type:ident)+; $check_interval:expr, $total_wait_duration:expr) => {
@@ -158,7 +158,9 @@ macro_rules! shared_state_wait {
     };
 }
 
+/// A store for thread-local state.
 pub struct LocalStore {
+    /// Uses a hashmap to store the state by its type name.
     store: HashMap<&'static str, Box<dyn StateTrait>>,
 }
 
@@ -169,13 +171,13 @@ impl LocalStore {
         }
     }
 
-    /// This doesn't currently have a way to error, but I'd like to not change the
-    /// API in the future if there is.
+    /// Add state to the store.
     pub fn add_state<T: StateTrait>(&mut self, state: T) -> Result<(), PmError> {
-        // If someone wants to error because the state exists already, they can
-        // do so explicitly.
+        // Error on if the state already exists. Originally, this didn't error, but
+        // this could lead to confusion about initial state values. If a user thinks
+        // the state may exist already, they can check.
         if self.state_exists::<T>() {
-            return Ok(());
+            return Err(PmError::StateExists);
         }
 
         let state = State::new(state);
@@ -183,9 +185,12 @@ impl LocalStore {
         self.store
             .insert(type_name::<T>(), Box::new(state.state.clone()));
 
+        // Don't return a value since this method is only called inside
+        // [DoerTrait::add_state], where the value has no place to be stored.
         Ok(())
     }
 
+    /// Get state from the store. 
     pub fn get_state<T: StateTrait>(&self) -> Result<State<T>, PmError> {
         let Some(boxed_state) = self.store.get(type_name::<T>()) else {
             return Err(PmError::StateDoesNotExist);
@@ -219,6 +224,7 @@ impl LocalStore {
         Ok(State::from(cloned_rc))
     }
 
+    /// Check if some state exists via its type name.
     pub fn state_exists<T: StateTrait>(&self) -> bool {
         self.store.contains_key(type_name::<T>())
     }

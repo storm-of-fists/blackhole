@@ -1,5 +1,7 @@
 use crate::{doer::*, state::*, PmError};
 
+/// Pm is the top level struct. It is passed around by immutable reference
+/// 
 /// TODO: maybe see about making StateStore a trait instead?
 ///
 /// Pm<D: DoerStore, S: StateStore> {
@@ -31,7 +33,7 @@ impl Pm {
 
         doer_state
             .message_queue
-            .push(DoerControl::AddToEnd(Box::new(T::new)));
+            .push(DoerControlMessage::AddToEnd(Box::new(T::new)));
 
         Ok(())
     }
@@ -86,25 +88,25 @@ impl Pm {
 
         drop(doer_state);
 
-        for control_message in control_messages.into_iter() {
+        for control_message in control_messages.iter() {
             match control_message {
-                DoerControl::AddToStart(new_fn) => {
+                DoerControlMessage::AddToStart(new_fn) => {
                     self.doers.doer_to_start(new_fn(&self)?)?;
                 }
-                DoerControl::AddToEnd(new_fn) => {
+                DoerControlMessage::AddToEnd(new_fn) => {
                     self.doers.doer_to_end(new_fn(&self)?)?;
                 }
-                DoerControl::MoveBefore(move_doer, before_doer) => {
+                DoerControlMessage::MoveBefore(move_doer, before_doer) => {
                     self.doers.move_doer_before_other(before_doer, move_doer)?;
                 }
-                DoerControl::MoveAfter(move_doer, after_doer) => {
+                DoerControlMessage::MoveAfter(move_doer, after_doer) => {
                     self.doers.move_doer_after_other(after_doer, move_doer)?;
                 }
-                DoerControl::Remove(doer) => {
+                DoerControlMessage::Remove(doer) => {
                     self.doers.remove_doer(doer)?;
                 }
-                DoerControl::MoveToIndex(_doer, _index) => {
-                    unimplemented!("piss")
+                DoerControlMessage::MoveToIndex(_doer, _index) => {
+                    unimplemented!("Moving a Doer to a specific index is currently not supported.")
                 }
             }
         }
