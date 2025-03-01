@@ -1,0 +1,27 @@
+# Pm
+
+This is the workspace level docs for the Pm framework. There are a few crates.
+
+## pm
+
+The Pm framework directory. This is published.
+
+## mut_cell
+
+A RefCell-like abstraction but with a different goal. It is used by State in Pm. This is published.
+
+## macros
+
+The few proc-macros needed by Pm. This is not published.
+
+## tests
+
+Integrated tests and benchmarks for Pm. This is not published.
+
+## common
+
+Helpful State and Doers used by Pm programs. This is published.
+
+## examples
+
+Examples of how to use Pm. This is not published.

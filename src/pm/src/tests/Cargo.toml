@@ -1,0 +1,17 @@
+[package]
+name = "pm_tests"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pm = { path = "../pm" }
+
+[lib]
+crate-type = ["lib"]
+
+[[bench]]
+name = "main"
+harness = false
+
+[dev-dependencies]
+criterion = "0.5.1"
