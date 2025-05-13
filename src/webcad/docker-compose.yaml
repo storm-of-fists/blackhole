@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17.5-alpine3.21
+    container_name: webcad_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: clatham      # Replace with your desired username
+      POSTGRES_PASSWORD: admin # Replace with your desired password
+      POSTGRES_DB: webcad           # Replace with your desired database name
+    ports:
+      - "5432:5432" # Exposes PostgreSQL to your host machine on port 5432
+    volumes:
+      - webcad_postgres_data:/var/lib/postgresql/data
+    networks:
+      - webcad_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clatham -d webcad"] # Use your actual user and db
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  envoy:
+    image: envoyproxy/envoy:contrib-debug-v1.34-latest
+    container_name: webcad_envoy
+    restart: always
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - "10000:10000" # Example port for gRPC-Web listener (configure in envoy.yaml)
+      - "9901:9901"   # Envoy admin interface (very useful for debugging)
+    command: envoy -c /etc/envoy/envoy.yaml --service-cluster cad_proxy_cluster # Helps identify the proxy
+    networks:
+      - webcad_network
+    depends_on:
+      postgres: # Ensures postgres starts first, but doesn't guarantee it's ready
+        condition: service_healthy # Waits for the postgres healthcheck to pass
+
+volumes:
+  webcad_postgres_data: # Defines a named volume for PostgreSQL data persistence
+
+networks:
+  webcad_network:   # Defines a custom bridge network for services to communicate
+    driver: bridge
